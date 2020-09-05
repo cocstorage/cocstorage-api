@@ -33,17 +33,5 @@ module CocstorageApi
     # Middleware like session, flash, cookies can be added back manually.
     # Skip views, helpers and assets when generating a new resource.
     config.api_only = true
-
-    # Setup Rack Cors for Cross-Domain Request
-    config.middleware.insert_before 0, Rack::Cors do
-      allow do
-        origins '*'
-        resource '/api/*',
-                 headers: %w(Authorization),
-                 methods: [:get, :post, :put, :patch, :delete, :options, :head],
-                 expose: %w(Authorization),
-                 max_age: 600
-      end
-    end
   end
 end

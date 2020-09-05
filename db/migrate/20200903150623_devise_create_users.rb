@@ -15,7 +15,7 @@ class DeviseCreateUsers < ActiveRecord::Migration[6.0]
       ## Rememberable
       t.datetime :remember_created_at
 
-      t.string :nickname,           null: false, default: ''
+      t.string :nickname, null: false, default: '', limit: 20
       t.string :profile_image_url
       t.integer :point,  null: false, default: 0
       t.boolean :is_authenticated,  null: false, default: false
@@ -48,7 +48,7 @@ class DeviseCreateUsers < ActiveRecord::Migration[6.0]
 
     add_index :users, :email,                unique: true
     add_index :users, :reset_password_token, unique: true
-    add_index :users, :nickname,                unique: true
+    add_index :users, :nickname,             unique: true
     # add_index :users, :confirmation_token,   unique: true
     # add_index :users, :unlock_token,         unique: true
   end

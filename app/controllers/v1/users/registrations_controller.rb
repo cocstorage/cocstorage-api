@@ -11,9 +11,9 @@ class V1::Users::RegistrationsController < Devise::RegistrationsController
 
   # POST /resource
   def create
-    render json: {
-      data: 'TEST'
-    }
+    result = params.permit(:name, :email, :password, :nickname)
+    user = User.create(result)
+    render json: user, serializer: UserSerializer
   end
 
   # GET /resource/edit
