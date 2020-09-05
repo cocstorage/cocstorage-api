@@ -11,8 +11,7 @@ class V1::Users::RegistrationsController < Devise::RegistrationsController
 
   # POST /resource
   def create
-    result = params.permit(:name, :email, :password, :nickname)
-    user = User.create(result)
+    user = User.create_user(configure_create_params)
     render json: user, serializer: UserSerializer
   end
 
@@ -40,25 +39,27 @@ class V1::Users::RegistrationsController < Devise::RegistrationsController
   #   super
   # end
 
-  # protected
+  protected
 
-  # If you have extra params to permit, append them to the sanitizer.
-  # def configure_sign_up_params
-  #   devise_parameter_sanitizer.permit(:sign_up, keys: [:attribute])
-  # end
+  def create_attributes
+    %w[name email password]
+  end
 
-  # If you have extra params to permit, append them to the sanitizer.
-  # def configure_account_update_params
-  #   devise_parameter_sanitizer.permit(:account_update, keys: [:attribute])
-  # end
+  def configure_create_params
+    create_attributes.each do |attribute|
+      raise Errors::BadRequest.new(code: 'COC000', message: "#{attribute} is required") if params[attribute].blank?
 
-  # The path used after sign up.
-  # def after_sign_up_path_for(resource)
-  #   super(resource)
-  # end
+      if attribute == 'name'
+        raise Errors::BadRequest.new(code: 'COC001', message: "#{attribute} is invalid") if params[attribute].length > 4
+      end
 
-  # The path used after sign up for inactive accounts.
-  # def after_inactive_sign_up_path_for(resource)
-  #   super(resource)
-  # end
+      if attribute == 'email'
+        if User.find_by(email: params[attribute]).present?
+          raise Errors::BadRequest.new(code: 'COC003', message: 'email already exists')
+        end
+      end
+    end
+
+    params.permit(create_attributes)
+  end
 end
