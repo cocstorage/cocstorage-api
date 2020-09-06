@@ -1,6 +1,6 @@
 require 'test_helper'
 
-class UserAuthenticateMailerJobTest < ActiveJob::TestCase
+class UserAuthenticationMailerJobTest < ActiveJob::TestCase
   # test "the truth" do
   #   assert true
   # end

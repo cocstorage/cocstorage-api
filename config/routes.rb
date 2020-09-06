@@ -14,6 +14,10 @@ Rails.application.routes.draw do
                  sessions: 'v1/users/sessions',
                  registrations: 'v1/users/registrations'
                }
+    resources :users do
+      collection do
+        put '/authentication/:uuid', to: 'users#authentication'
+      end
+    end
   end
-  # For details on the DSL available within this file, see https://guides.rubyonrails.org/routing.html
 end

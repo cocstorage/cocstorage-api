@@ -8,9 +8,9 @@ class User < ApplicationRecord
 
   enum role: %w[user admin]
 
-  validate :email_format
-  validate :password_minimum_length
-  validate :password_special_char
+  validate :email_format, on: :create
+  validate :password_minimum_length, on: :create
+  validate :password_special_char, on: :create
 
   def self.create_user(params)
     user = create(params)
@@ -29,6 +29,26 @@ class User < ApplicationRecord
     }
 
     UserEmailAccessLog.create(data)
+  end
+
+  def self.authentication(uuid)
+    user_email_access_log = UserEmailAccessLog.find_by(access_uuid: uuid)
+    raise Errors::BadRequest.new(code: 'COC006', message: "there's no such resource") if user_email_access_log.blank?
+
+    user = find(user_email_access_log.user_id)
+    raise Errors::BadRequest.new(code: 'COC006', message: "there's no such resource") if user.blank?
+    raise Errors::BadRequest.new(code: 'COC007', message: 'account is already authenticated') if user.is_authenticated
+
+    if user_email_access_log.access_uuid.length > 40
+      raise Errors::BadRequest.new(code: 'COC001', message: 'uuid is invalid')
+    end
+    if user_email_access_log.access_expired_at < DateTime.current
+      raise Errors::BadRequest.new(code: 'COC006', message: 'access is expired')
+    end
+
+    user.update(is_authenticated: true, is_active: true)
+
+    user
   end
 
   def email_format

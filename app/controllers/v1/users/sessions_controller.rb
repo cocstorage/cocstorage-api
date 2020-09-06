@@ -5,7 +5,6 @@ class V1::Users::SessionsController < Devise::SessionsController
 
   # GET /resource/sign_in
   def new
-    UserMailer.authenticate_email.deliver_now
     render json: {
       data: "TEST"
     }
