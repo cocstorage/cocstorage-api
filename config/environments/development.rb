@@ -28,10 +28,24 @@ Rails.application.configure do
   # Store uploaded files on the local file system (see config/storage.yml for options).
   config.active_storage.service = :local
 
+  config.active_job.queue_adapter = :sidekiq
+
   # Don't care if the mailer can't send.
-  config.action_mailer.raise_delivery_errors = false
+  config.action_mailer.raise_delivery_errors = true
+  config.action_mailer.perform_deliveries = true
 
   config.action_mailer.perform_caching = false
+
+  config.action_mailer.delivery_method = :smtp
+  config.action_mailer.smtp_settings = {
+    address: ENV['MAILER_ADDRESS'],
+    port: ENV['MAILER_PORT'],
+    domain: ENV['MAILER_DOMAIN'],
+    user_name: ENV['MAILER_USERNAME'],
+    password: ENV['MAILER_PASSWORD'],
+    authentication: ENV['MAILER_AUTHENTICATION'],
+    enable_starttls_auto: ENV['MAILER_ENABLE_STARTTLS_AUTO']
+  }
 
   # Print deprecation notices to the Rails logger.
   config.active_support.deprecation = :log
@@ -41,7 +55,6 @@ Rails.application.configure do
 
   # Highlight code that triggered database queries in logs.
   config.active_record.verbose_query_logs = true
-
 
   # Raises error for missing translations.
   # config.action_view.raise_on_missing_translations = true

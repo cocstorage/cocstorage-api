@@ -1,0 +1,4 @@
+:concurrency: 1
+:queues:
+  - default
+  - user_authenticate_mailers

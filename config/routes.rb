@@ -1,4 +1,7 @@
 Rails.application.routes.draw do
+  require 'sidekiq/web'
+  mount Sidekiq::Web => '/sidekiq'
+
   namespace :v1 do
     devise_for :users,
                path: 'users',

@@ -4,6 +4,8 @@ class User < ApplicationRecord
   devise :database_authenticatable, :registerable,
          :jwt_authenticatable, jwt_revocation_strategy: JwtDenylist
 
+  has_one :user_email_access_log
+
   enum role: %w[user admin]
 
   validate :email_format
@@ -13,8 +15,20 @@ class User < ApplicationRecord
   def self.create_user(params)
     user = create(params)
     user.update(nickname: "닉네임#{user.id}")
+    user.create_user_email_access_log(params)
 
     user
+  end
+
+  def create_user_email_access_log(options = {})
+    data = {
+      user_id: id,
+      access_uuid: SecureRandom.hex(20),
+      access_expired_at: DateTime.current.in_time_zone('Asia/Seoul') + 1.day,
+      created_ip: options[:created_ip]
+    }
+
+    UserEmailAccessLog.create(data)
   end
 
   def email_format

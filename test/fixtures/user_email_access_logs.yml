@@ -1,0 +1,13 @@
+# Read about fixtures at https://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
+
+one:
+  user: one
+  access_uuid: MyString
+  access_expired_at: MyString
+  created_ip: MyString
+
+two:
+  user: two
+  access_uuid: MyString
+  access_expired_at: MyString
+  created_ip: MyString

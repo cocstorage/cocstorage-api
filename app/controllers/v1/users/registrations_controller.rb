@@ -12,6 +12,7 @@ class V1::Users::RegistrationsController < Devise::RegistrationsController
   # POST /resource
   def create
     user = User.create_user(configure_create_params)
+    UserAuthenticateMailerJob.perform_later(user)
     render json: user, serializer: UserSerializer
   end
 
@@ -60,6 +61,6 @@ class V1::Users::RegistrationsController < Devise::RegistrationsController
       end
     end
 
-    params.permit(create_attributes)
+    params.permit(create_attributes).merge(created_ip: request.remote_ip)
   end
 end
