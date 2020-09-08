@@ -33,17 +33,17 @@ class User < ApplicationRecord
 
   def self.authentication(uuid)
     user_email_access_log = UserEmailAccessLog.find_by(access_uuid: uuid)
-    raise Errors::BadRequest.new(code: 'COC006', message: "there's no such resource") if user_email_access_log.blank?
+    raise Errors::BadRequest.new(code: 'COC006', message: "There's no such resource") if user_email_access_log.blank?
 
     user = find(user_email_access_log.user_id)
-    raise Errors::BadRequest.new(code: 'COC006', message: "there's no such resource") if user.blank?
-    raise Errors::BadRequest.new(code: 'COC007', message: 'account is already authenticated') if user.is_authenticated
+    raise Errors::BadRequest.new(code: 'COC006', message: "There's no such resource") if user.blank?
+    raise Errors::BadRequest.new(code: 'COC007', message: 'Account is already authenticated') if user.is_authenticated
 
     if user_email_access_log.access_uuid.length > 40
       raise Errors::BadRequest.new(code: 'COC001', message: 'uuid is invalid')
     end
     if user_email_access_log.access_expired_at < DateTime.current
-      raise Errors::BadRequest.new(code: 'COC006', message: 'access is expired')
+      raise Errors::BadRequest.new(code: 'COC006', message: 'Access is expired')
     end
 
     user.update(is_authenticated: true, is_active: true)
@@ -52,12 +52,12 @@ class User < ApplicationRecord
   end
 
   def email_format
-    raise Errors::BadRequest.new(code: 'COC002', message: 'email is invalid') unless email =~ URI::MailTo::EMAIL_REGEXP
+    raise Errors::BadRequest.new(code: 'COC002', message: 'email is invalid') unless email =~ Devise::email_regexp
   end
 
   def password_minimum_length
     if password.length < 7
-      raise Errors::BadRequest.new(code: 'COC004', message: 'password must be at least 7 characters long')
+      raise Errors::BadRequest.new(code: 'COC004', message: 'Password must be at least 7 characters long')
     end
   end
 
@@ -65,7 +65,7 @@ class User < ApplicationRecord
     special = "@?<>',?[]}{=-)(*&^%$#`~{}!"
     regex = /[#{special.gsub(/./) { |char| "\\#{char}" }}]/
     unless password =~ regex
-      raise Errors::BadRequest.new(code: 'COC005', message: 'password must contain special character')
+      raise Errors::BadRequest.new(code: 'COC005', message: 'Password must contain special character')
     end
   end
 end

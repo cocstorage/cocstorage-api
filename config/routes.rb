@@ -13,11 +13,14 @@ Rails.application.routes.draw do
                controllers: {
                  sessions: 'v1/users/sessions',
                  registrations: 'v1/users/registrations'
-               }
+               },
+               defaults: { format: :json }
     resources :users do
       collection do
         put '/authentication/:uuid', to: 'users#authentication'
       end
     end
+
+    get '/test', to: 'test#index'
   end
 end
