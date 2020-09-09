@@ -5,17 +5,18 @@ class User < ApplicationRecord
          :jwt_authenticatable, jwt_revocation_strategy: JwtDenylist
 
   has_one :user_email_access_log
+  has_one_attached :profileImage
 
   enum role: %w[user admin]
 
   validate :email_format, on: :create
-  validate :password_minimum_length, on: :create
-  validate :password_special_char, on: :create
+  validate :password_minimum_length, on: %i[create update]
+  validate :password_special_char, on: %i[create update]
 
-  def self.create_user(params)
-    user = create(params)
-    user.update(nickname: "닉네임#{user.id}")
-    user.create_user_email_access_log(params)
+  def self.create_with_options(options)
+    user = create(options)
+    user.update(nickname: "닉네임#{user.id}#{SecureRandom.hex(2)}")
+    user.create_user_email_access_log(options)
 
     user
   end
@@ -56,16 +57,18 @@ class User < ApplicationRecord
   end
 
   def password_minimum_length
-    if password.length < 7
+    if password.present? && password.length < 7
       raise Errors::BadRequest.new(code: 'COC004', message: 'Password must be at least 7 characters long')
     end
   end
 
   def password_special_char
-    special = "@?<>',?[]}{=-)(*&^%$#`~{}!"
-    regex = /[#{special.gsub(/./) { |char| "\\#{char}" }}]/
-    unless password =~ regex
-      raise Errors::BadRequest.new(code: 'COC005', message: 'Password must contain special character')
+    if password.present?
+      special = "@?<>',?[]}{=-)(*&^%$#`~{}!"
+      regex = /[#{special.gsub(/./) { |char| "\\#{char}" }}]/
+      unless password =~ regex
+        raise Errors::BadRequest.new(code: 'COC005', message: 'Password must contain special character')
+      end
     end
   end
 end

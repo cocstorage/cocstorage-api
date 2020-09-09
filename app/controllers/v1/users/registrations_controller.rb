@@ -9,7 +9,7 @@ class V1::Users::RegistrationsController < Devise::RegistrationsController
 
   # POST /resource
   def create
-    user = User.create_user(configure_create_params)
+    user = User.create_with_params(configure_create_params)
     UserAuthenticationMailerJob.perform_later(user)
     render json: user, serializer: UserSerializer
   end
