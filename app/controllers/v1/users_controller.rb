@@ -1,11 +1,16 @@
 class V1::UsersController < ApplicationController
-  before_action :authenticate_v1_user!, only: :update
+  before_action :authenticate_v1_user!, only: %i[update destroy]
+  before_action :confirm_yourself, only: %i[update destroy]
 
   def update
     user = User.find(current_v1_user.id)
     user.update(configure_update_params)
 
-    render json: user
+    render json: user, serializer: UserSerializer
+  end
+
+  def destroy
+    render json: User.withdrawal_reservation(current_v1_user.id), serializer: UserSerializer
   end
 
   def authentication

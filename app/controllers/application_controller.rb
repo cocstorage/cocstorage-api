@@ -29,4 +29,10 @@ class ApplicationController < ActionController::API
       message: error.message
     }
   end
+
+  def confirm_yourself
+    if params[:id].to_i != current_v1_user.id
+      raise Errors::BadRequest.new(code: 'COC012', message: 'Do not have permission to perform the request')
+    end
+  end
 end

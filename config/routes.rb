@@ -17,7 +17,6 @@ Rails.application.routes.draw do
                defaults: { format: :json }
     resources :users do
       collection do
-        put '', to: 'users#update'
         put '/authentication/:uuid', to: 'users#authentication'
       end
     end

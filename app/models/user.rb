@@ -25,7 +25,7 @@ class User < ApplicationRecord
     data = {
       user_id: id,
       access_uuid: SecureRandom.hex(20),
-      access_expired_at: DateTime.current.in_time_zone('Asia/Seoul') + 1.day,
+      access_expired_at: DateTime.current + 1.day,
       created_ip: options[:created_ip]
     }
 
@@ -52,6 +52,22 @@ class User < ApplicationRecord
     user
   end
 
+  def self.withdrawal_reservation(id)
+    user = find(id)
+    if user.withdrawaled_at.present?
+      raise Errors::BadRequest.new(code: 'COC019', message: 'This account is already in the process of withdrawal')
+    end
+
+    user.update(withdrawaled_at: DateTime.current + 7.day)
+    user
+  end
+
+  def profile_image_url
+    file_url_of(profileImage)
+  end
+
+  private
+
   def email_format
     raise Errors::BadRequest.new(code: 'COC002', message: 'email is invalid') unless email =~ Devise::email_regexp
   end
@@ -69,6 +85,12 @@ class User < ApplicationRecord
       unless password =~ regex
         raise Errors::BadRequest.new(code: 'COC005', message: 'Password must contain special character')
       end
+    end
+  end
+
+  def profile_image_type
+    if profileImage.attached? && !profileImage.content_type.in?(%w[image/png image/gif image/jpg image/jpeg])
+      Errors::BadRequest.new(code: 'COC016', message: "#{profileImage.content_type} is unacceptable image format")
     end
   end
 end
