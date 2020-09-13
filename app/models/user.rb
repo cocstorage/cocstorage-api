@@ -34,17 +34,17 @@ class User < ApplicationRecord
 
   def self.authentication(uuid)
     user_email_access_log = UserEmailAccessLog.find_by(access_uuid: uuid)
-    raise Errors::BadRequest.new(code: 'COC006', message: "There's no such resource") if user_email_access_log.blank?
+    raise Errors::BadRequest.new(code: 'COC006', message: "There's no such resource.") if user_email_access_log.blank?
 
     user = find(user_email_access_log.user_id)
-    raise Errors::BadRequest.new(code: 'COC006', message: "There's no such resource") if user.blank?
-    raise Errors::BadRequest.new(code: 'COC007', message: 'Account is already authenticated') if user.is_authenticated
+    raise Errors::BadRequest.new(code: 'COC006', message: "There's no such resource.") if user.blank?
+    raise Errors::BadRequest.new(code: 'COC007', message: 'Account is already authenticated.') if user.is_authenticated
 
     if user_email_access_log.access_uuid.length > 40
       raise Errors::BadRequest.new(code: 'COC001', message: 'uuid is invalid')
     end
     if user_email_access_log.access_expired_at < DateTime.current
-      raise Errors::BadRequest.new(code: 'COC006', message: 'Access is expired')
+      raise Errors::BadRequest.new(code: 'COC006', message: 'Access is expired.')
     end
 
     user.update(is_authenticated: true, is_active: true)
@@ -55,14 +55,14 @@ class User < ApplicationRecord
   def self.withdrawal_reservation(id)
     user = find(id)
     if user.withdrawaled_at.present?
-      raise Errors::BadRequest.new(code: 'COC019', message: 'This account is already in the process of withdrawal')
+      raise Errors::BadRequest.new(code: 'COC019', message: 'This account is already in the process of withdrawal.')
     end
 
     user.update(withdrawaled_at: DateTime.current + 7.day)
     user
   end
 
-  def avatar_image_url
+  def avatar_url
     file_url_of(avatar)
   end
 
@@ -74,7 +74,7 @@ class User < ApplicationRecord
 
   def password_minimum_length
     if password.present? && password.length < 7
-      raise Errors::BadRequest.new(code: 'COC004', message: 'Password must be at least 7 characters long')
+      raise Errors::BadRequest.new(code: 'COC004', message: 'Password must be at least 7 characters long.')
     end
   end
 
@@ -83,14 +83,14 @@ class User < ApplicationRecord
       special = "@?<>',?[]}{=-)(*&^%$#`~{}!"
       regex = /[#{special.gsub(/./) { |char| "\\#{char}" }}]/
       unless password =~ regex
-        raise Errors::BadRequest.new(code: 'COC005', message: 'Password must contain special character')
+        raise Errors::BadRequest.new(code: 'COC005', message: 'Password must contain special character.')
       end
     end
   end
 
   def profile_image_type
-    if profileImage.attached? && !profileImage.content_type.in?(%w[image/png image/gif image/jpg image/jpeg])
-      Errors::BadRequest.new(code: 'COC016', message: "#{profileImage.content_type} is unacceptable image format")
+    if avatar.attached? && !avatar.content_type.in?(%w[image/png image/gif image/jpg image/jpeg])
+      Errors::BadRequest.new(code: 'COC016', message: "#{avatar.content_type} is unacceptable image format")
     end
   end
 end

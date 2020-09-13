@@ -1,33 +1,9 @@
 class V1::Users::RegistrationsController < Devise::RegistrationsController
-  # before_action :configure_sign_up_params, only: [:create]
-  # before_action :configure_account_update_params, only: [:update]
-
-  # GET /resource/sign_up
-  # def new
-  #   super
-  # end
-
-  # POST /resource
   def create
     user = User.create_with_options(configure_create_params)
     UserAuthenticationMailerJob.perform_later(user)
     render json: user, serializer: UserSerializer
   end
-
-  # GET /resource/edit
-  # def edit
-  #   super
-  # end
-
-  # PUT /resource
-  # def update
-  #   super
-  # end
-
-  # DELETE /resource
-  # def destroy
-  #   super
-  # end
 
   # GET /resource/cancel
   # Forces the session data which is usually expired after sign

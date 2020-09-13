@@ -39,7 +39,7 @@ class V1::UsersController < ApplicationController
 
     if params.key? :profileImage
       unless params[:profileImage].is_a? ActionDispatch::Http::UploadedFile
-        raise Errors::BadRequest.new(code: 'COC014', message: 'profileImage is not a file')
+        raise Errors::BadRequest.new(code: 'COC014', message: 'avatar is not a file')
       end
     end
 
