@@ -13,6 +13,19 @@ class User < ApplicationRecord
   validate :password_minimum_length, on: %i[create update]
   validate :password_special_char, on: %i[create update]
 
+  def self.find_for_jwt_authentication(sub)
+    user = find_by(sub)
+    # unless user.is_authenticated
+    #   raise Errors::BadRequest.new(code: 'COC009', message: 'This account has not been authenticated by email')
+    # end
+
+    user
+  end
+
+  def jwt_subject
+    id
+  end
+
   def self.create_with_options(options)
     user = create(options)
     user.update(nickname: "닉네임#{user.id}#{SecureRandom.hex(2)}")

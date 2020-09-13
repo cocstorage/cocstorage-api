@@ -1,17 +1,19 @@
 class V1::Users::SessionsController < Devise::SessionsController
-  before_action :configure_sign_in_params, only: [:create]
+  # before_action :configure_sign_in_params, only: [:create]
+  respond_to :json
 
-  # GET /resource/sign_in
+  # # GET /resource/sign_in
   # def new
   #   super
   # end
-
-  # POST /resource/sign_in
+  #
+  # # POST /resource/sign_in
   def create
+    puts current_v1_user.as_json
     super
   end
-
-  # DELETE /resource/sign_out
+  #
+  # # DELETE /resource/sign_out
   def destroy
     super
   end
@@ -19,21 +21,11 @@ class V1::Users::SessionsController < Devise::SessionsController
   protected
 
   # If you have extra params to permit, append them to the sanitizer.
-  def configure_sign_in_params
-    devise_parameter_sanitizer.permit(:sign_in, keys: [:attribute])
-  end
+  # def configure_sign_in_params
+  #   devise_parameter_sanitizer.permit(:sign_in, keys: [:attribute])
+  # end
 
   def respond_with(resource, _opts = {})
-    unless resource.is_authenticated
-      raise Errors::BadRequest.new(code: 'COC009', message: 'This account has not been authenticated by email')
-    end
-    unless resource.is_active
-      raise Errors::BadRequest.new(code: 'COC010', message: 'This account has been deactivated')
-    end
-    if resource.withdrawaled_at.present?
-      raise Errors::BadRequest.new(code: 'COC011', message: 'This account is in the process of withdrawal from membership')
-    end
-
     render json: resource
   end
 

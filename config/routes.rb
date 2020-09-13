@@ -2,7 +2,7 @@ Rails.application.routes.draw do
   require 'sidekiq/web'
   mount Sidekiq::Web => '/sidekiq'
 
-  namespace :v1 do
+  namespace :v1, defaults: { format: :json } do
     devise_for :users,
                path: 'users',
                path_names: {
@@ -13,14 +13,11 @@ Rails.application.routes.draw do
                controllers: {
                  sessions: 'v1/users/sessions',
                  registrations: 'v1/users/registrations'
-               },
-               defaults: { format: :json }
+               }
     resources :users do
       collection do
         put '/authentication/:uuid', to: 'users#authentication'
       end
     end
-
-    get '/test', to: 'test#index'
   end
 end
