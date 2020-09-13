@@ -9,6 +9,15 @@ class Errors
     end
   end
   class Unauthorized < StandardError; end
+  class WardenUnauthorized < StandardError
+    attr_reader :code, :message
+
+    def initialize(error)
+      super
+      @code = error[:code]
+      @message = error[:message]
+    end
+  end
   class Forbidden < StandardError; end
   class NotFound < StandardError
     attr_reader :code, :message

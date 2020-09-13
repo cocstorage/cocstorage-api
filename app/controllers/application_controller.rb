@@ -3,7 +3,7 @@ class ApplicationController < ActionController::API
   rescue_from Errors::Unauthorized, with: :unauthorized
   rescue_from Errors::Forbidden, with: :forbidden
   rescue_from Errors::NotFound, with: :not_found
-  rescue_from Warden::Unauthorized, with: :warden_unauthorized
+  rescue_from Errors::WardenUnauthorized, with: :warden_unauthorized
 
   def health_check
     head :ok

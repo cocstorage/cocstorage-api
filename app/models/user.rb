@@ -5,26 +5,13 @@ class User < ApplicationRecord
          :jwt_authenticatable, jwt_revocation_strategy: JwtDenylist
 
   has_one :user_email_access_log
-  has_one_attached :profileImage
+  has_one_attached :avatar
 
   enum role: %w[user admin]
 
   validate :email_format, on: :create
   validate :password_minimum_length, on: %i[create update]
   validate :password_special_char, on: %i[create update]
-
-  def self.find_for_jwt_authentication(sub)
-    user = find_by(sub)
-    # unless user.is_authenticated
-    #   raise Errors::BadRequest.new(code: 'COC009', message: 'This account has not been authenticated by email')
-    # end
-
-    user
-  end
-
-  def jwt_subject
-    id
-  end
 
   def self.create_with_options(options)
     user = create(options)
@@ -75,8 +62,8 @@ class User < ApplicationRecord
     user
   end
 
-  def profile_image_url
-    file_url_of(profileImage)
+  def avatar_image_url
+    file_url_of(avatar)
   end
 
   private
