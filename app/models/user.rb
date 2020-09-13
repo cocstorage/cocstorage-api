@@ -9,9 +9,12 @@ class User < ApplicationRecord
 
   enum role: %w[user admin]
 
-  validate :email_format, on: :create
+  validate :email_inspection, on: :create
+  validate :name_inspection, on: %i[create update]
+  validate :nickname_inspection, on: :update
   validate :password_minimum_length, on: %i[create update]
   validate :password_special_char, on: %i[create update]
+  validate :avatar_inspection, on: %i[create update]
 
   def self.create_with_options(options)
     user = create(options)
@@ -59,6 +62,7 @@ class User < ApplicationRecord
     end
 
     user.update(withdrawaled_at: DateTime.current + 7.day)
+
     user
   end
 
@@ -68,8 +72,36 @@ class User < ApplicationRecord
 
   private
 
-  def email_format
-    raise Errors::BadRequest.new(code: 'COC002', message: 'email is invalid') unless email =~ Devise::email_regexp
+  def email_inspection
+    raise Errors::BadRequest.new(code: 'COC001', message: 'email is invalid') unless email =~ Devise::email_regexp
+    raise Errors::BadRequest.new(code: 'COC003', message: 'email already exists') if User.find_by(email: email).present?
+  end
+
+  def name_inspection
+    if name.present?
+      normal_regex = /[가-힣]{2,5}/
+      special_regex = "[ !@\#$%^&*(),.?\":{}|<>]"
+
+      raise Errors::BadRequest.new(code: 'COC001', message: 'name is invalid') unless name =~ normal_regex
+      raise Errors::BadRequest.new(code: 'COC001', message: 'name is invalid') if name.length > 5
+      raise Errors::BadRequest.new(code: 'COC001', message: 'name is invalid') if name.match(special_regex)
+    end
+  end
+
+  def nickname_inspection
+    if nickname.present?
+      regex = /[ㄱ-ㅎㅏ-ㅣ가-힣a-zA-Z0-9]{2,10}/
+      special_regex = "[ !@\#$%^&*(),.?\":{}|<>]"
+
+      raise Errors::BadRequest.new(code: 'COC001', message: 'nickname is invalid') unless nickname =~ regex
+      raise Errors::BadRequest.new(code: 'COC001', message: 'name is invalid') if nickname.length > 10
+      raise Errors::BadRequest.new(code: 'COC001', message: 'name is invalid') if nickname.match(special_regex)
+
+      user = User.find_by_nickname(params[:nickname])
+      if user.present? && user.nickname != params[:nickname]
+        raise Errors::BadRequest.new(code: 'COC015', message: 'nickname is exist')
+      end
+    end
   end
 
   def password_minimum_length
@@ -88,7 +120,7 @@ class User < ApplicationRecord
     end
   end
 
-  def profile_image_type
+  def avatar_inspection
     if avatar.attached? && !avatar.content_type.in?(%w[image/png image/gif image/jpg image/jpeg])
       Errors::BadRequest.new(code: 'COC016', message: "#{avatar.content_type} is unacceptable image format")
     end

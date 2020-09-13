@@ -23,16 +23,6 @@ class V1::Users::RegistrationsController < Devise::RegistrationsController
   def configure_create_params
     create_attributes.each do |attribute|
       raise Errors::BadRequest.new(code: 'COC000', message: "#{attribute} is required") if params[attribute].blank?
-
-      if attribute == 'name'
-        raise Errors::BadRequest.new(code: 'COC001', message: "#{attribute} is invalid") if params[attribute].length > 4
-      end
-
-      if attribute == 'email'
-        if User.find_by(email: params[attribute]).present?
-          raise Errors::BadRequest.new(code: 'COC003', message: 'email already exists')
-        end
-      end
     end
 
     params.permit(create_attributes).merge(created_ip: request.remote_ip)

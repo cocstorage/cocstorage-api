@@ -19,5 +19,6 @@ Rails.application.routes.draw do
         put '/authentication/:uuid', to: 'users#authentication'
       end
     end
+    resources :storages
   end
 end

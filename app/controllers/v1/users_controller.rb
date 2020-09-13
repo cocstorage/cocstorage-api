@@ -20,25 +20,20 @@ class V1::UsersController < ApplicationController
   private
 
   def update_attributes
-    %w[nickname password profileImage]
+    %w[nickname password avatar]
   end
 
   def configure_update_params
     if params.key? :nickname
       raise Errors::BadRequest.new(code: 'COC013', message: 'nickname is empty') if params[:nickname].blank?
-
-      user = User.find_by_nickname(params[:nickname])
-      if user.present? && user.nickname != params[:nickname]
-        raise Errors::BadRequest.new(code: 'COC015', message: 'nickname is exist')
-      end
     end
 
     if params.key? :password
       raise Errors::BadRequest.new(code: 'COC013', message: 'password is empty') if params[:password].blank?
     end
 
-    if params.key? :profileImage
-      unless params[:profileImage].is_a? ActionDispatch::Http::UploadedFile
+    if params.key? :avatar
+      unless params[:avatar].is_a? ActionDispatch::Http::UploadedFile
         raise Errors::BadRequest.new(code: 'COC014', message: 'avatar is not a file')
       end
     end
