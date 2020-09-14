@@ -9,6 +9,25 @@ class Storage < ApplicationRecord
   validate :description_inspection, on: %i[create update]
   validate :avatar_inspection, on: %i[create update]
 
+  def self.fetch_with_options(opts = {})
+    storages = all
+
+    storages = storages.where(is_active: opts[:isActive]) if opts[:isActive].present?
+    storages = storages.where('name like ?', "#{opts[:name]}%") if opts[:name].present?
+
+    # Orders
+    if opts[:orderBy].present?
+      storages = storages.order(created_at: :desc) if opts[:orderBy] == 'latest'
+      storages = storages.order(created_at: :asc) if opts[:orderBy] == 'old'
+    end
+
+    storages
+  end
+
+  def avatar_url
+    file_url_of(avatar)
+  end
+
   private
 
   def path_inspection
@@ -29,10 +48,10 @@ class Storage < ApplicationRecord
 
   def name_inspection
     if name.present?
-      regex = /[ㄱ-ㅎㅏ-ㅣ가-힣a-zA-Z0-9\-]{3,20}/
+      normal_regex = /[ㄱ-ㅎㅏ-ㅣ가-힣a-zA-Z0-9\-]{3,20}/
       special_regex = "[!@\#$%^&*(),.?\":{}|<>]"
 
-      raise Errors::BadRequest.new(code: 'COC001', message: 'storage name is invalid') unless name =~ regex
+      raise Errors::BadRequest.new(code: 'COC001', message: 'storage name is invalid') unless name =~ normal_regex
       raise Errors::BadRequest.new(code: 'COC001', message: 'storage name is invalid') if name.length > 20
       raise Errors::BadRequest.new(code: 'COC001', message: 'storage name is invalid') if name.match(special_regex)
 

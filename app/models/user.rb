@@ -97,8 +97,8 @@ class User < ApplicationRecord
       raise Errors::BadRequest.new(code: 'COC001', message: 'name is invalid') if nickname.length > 10
       raise Errors::BadRequest.new(code: 'COC001', message: 'name is invalid') if nickname.match(special_regex)
 
-      user = User.find_by_nickname(params[:nickname])
-      if user.present? && user.nickname != params[:nickname]
+      user = User.find_by_nickname(nickname)
+      if user.present? && user.nickname != nickname
         raise Errors::BadRequest.new(code: 'COC015', message: 'nickname is exist')
       end
     end
