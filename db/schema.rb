@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2020_09_15_163801) do
+ActiveRecord::Schema.define(version: 2020_09_15_165137) do
 
   create_table "active_storage_attachments", options: "ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci", force: :cascade do |t|
     t.string "name", null: false
@@ -42,6 +42,30 @@ ActiveRecord::Schema.define(version: 2020_09_15_163801) do
   create_table "jwt_denylists", options: "ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci", force: :cascade do |t|
     t.datetime "created_at", precision: 6, null: false
     t.datetime "updated_at", precision: 6, null: false
+  end
+
+  create_table "storage_boards", options: "ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci", force: :cascade do |t|
+    t.bigint "storage_id", null: false
+    t.bigint "user_id", null: false
+    t.string "nickname"
+    t.string "password"
+    t.string "subject"
+    t.text "content"
+    t.text "description"
+    t.integer "view_count", default: 0
+    t.integer "thumb_up", default: 0
+    t.integer "thumb_down", default: 0
+    t.boolean "has_image", default: false
+    t.boolean "has_video", default: false
+    t.boolean "is_draft", default: true
+    t.boolean "is_active", default: false
+    t.boolean "is_member", default: false
+    t.string "created_ip"
+    t.string "created_user_agent"
+    t.datetime "created_at", precision: 6, null: false
+    t.datetime "updated_at", precision: 6, null: false
+    t.index ["storage_id"], name: "index_storage_boards_on_storage_id"
+    t.index ["user_id"], name: "index_storage_boards_on_user_id"
   end
 
   create_table "storage_categories", options: "ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci", force: :cascade do |t|
@@ -115,6 +139,8 @@ ActiveRecord::Schema.define(version: 2020_09_15_163801) do
   end
 
   add_foreign_key "active_storage_attachments", "active_storage_blobs", column: "blob_id"
+  add_foreign_key "storage_boards", "storages"
+  add_foreign_key "storage_boards", "users"
   add_foreign_key "storage_user_roles", "storages"
   add_foreign_key "storage_user_roles", "users"
   add_foreign_key "storages", "storage_categories"

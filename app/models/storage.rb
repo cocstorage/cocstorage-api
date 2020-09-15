@@ -9,16 +9,16 @@ class Storage < ApplicationRecord
   validate :description_inspection, on: %i[create update]
   validate :avatar_inspection, on: %i[create update]
 
-  def self.fetch_with_options(opts = {})
+  def self.fetch_with_options(options = {})
     storages = all
 
-    storages = storages.where(is_active: opts[:isActive]) if opts[:isActive].present?
-    storages = storages.where('name like ?', "#{opts[:name]}%") if opts[:name].present?
+    storages = storages.where(is_active: options[:isActive]) if options[:isActive].present?
+    storages = storages.where('name like ?', "#{options[:name]}%") if options[:name].present?
 
     # Orders
-    if opts[:orderBy].present?
-      storages = storages.order(created_at: :desc) if opts[:orderBy] == 'latest'
-      storages = storages.order(created_at: :asc) if opts[:orderBy] == 'old'
+    if options[:orderBy].present?
+      storages = storages.order(created_at: :desc) if options[:orderBy] == 'latest'
+      storages = storages.order(created_at: :asc) if options[:orderBy] == 'old'
     end
 
     storages

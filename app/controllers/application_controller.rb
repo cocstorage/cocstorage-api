@@ -4,6 +4,8 @@ class ApplicationController < ActionController::API
   rescue_from Errors::Forbidden, with: :forbidden
   rescue_from Errors::NotFound, with: :not_found
   rescue_from Errors::WardenUnauthorized, with: :warden_unauthorized
+  rescue_from ActiveRecord::RecordNotFound, with: :record_not_found
+  rescue_from ActiveRecord::RecordInvalid, with: :record_invalid
 
   def health_check
     head :ok
@@ -31,6 +33,20 @@ class ApplicationController < ActionController::API
     render status: :not_found, json: {
       code: error.code,
       message: error.message
+    }
+  end
+
+  def record_not_found
+    render status: :not_found, json: {
+      code: 'COC006',
+      message: "There's no such resource."
+    }
+  end
+
+  def record_invalid
+    render status: :bad_request, json: {
+      code: 'COC026',
+      message: "There's invalid resource."
     }
   end
 

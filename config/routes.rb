@@ -19,6 +19,10 @@ Rails.application.routes.draw do
         put '/authentication/:uuid', to: 'users#authentication'
       end
     end
-    resources :storages
+    resources :storages do
+      collection do
+        post '/:id/boards/drafts', to: 'storages#board_draft'
+      end
+    end
   end
 end

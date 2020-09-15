@@ -1,0 +1,39 @@
+# Read about fixtures at https://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
+
+one:
+  storage: one
+  user: one
+  nickname: MyString
+  password: MyString
+  subject: MyString
+  content: MyText
+  description: MyText
+  view_count: 1
+  thumb_up: 1
+  thumb_down: 1
+  has_image: false
+  has_video: false
+  is_draft: false
+  is_active: false
+  is_member: false
+  created_ip: MyString
+  created_user_agent: MyString
+
+two:
+  storage: two
+  user: two
+  nickname: MyString
+  password: MyString
+  subject: MyString
+  content: MyText
+  description: MyText
+  view_count: 1
+  thumb_up: 1
+  thumb_down: 1
+  has_image: false
+  has_video: false
+  is_draft: false
+  is_active: false
+  is_member: false
+  created_ip: MyString
+  created_user_agent: MyString
