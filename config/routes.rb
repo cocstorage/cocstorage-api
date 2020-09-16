@@ -23,6 +23,7 @@ Rails.application.routes.draw do
       resources :storage_boards, path: 'boards' do
         collection do
           post '/drafts', to: 'storage_boards#drafts'
+          post '/drafts/non-members', to: 'storage_boards#drafts_non_members'
         end
       end
     end

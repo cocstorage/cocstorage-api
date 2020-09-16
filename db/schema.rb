@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2020_09_15_165137) do
+ActiveRecord::Schema.define(version: 2020_09_16_163944) do
 
   create_table "active_storage_attachments", options: "ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci", force: :cascade do |t|
     t.string "name", null: false
@@ -46,7 +46,7 @@ ActiveRecord::Schema.define(version: 2020_09_15_165137) do
 
   create_table "storage_boards", options: "ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci", force: :cascade do |t|
     t.bigint "storage_id", null: false
-    t.bigint "user_id", null: false
+    t.bigint "user_id"
     t.string "nickname"
     t.string "password"
     t.string "subject"
