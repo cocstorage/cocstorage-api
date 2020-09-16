@@ -20,8 +20,10 @@ Rails.application.routes.draw do
       end
     end
     resources :storages do
-      collection do
-        post '/:id/boards/drafts', to: 'storages#board_draft'
+      resources :storage_boards, path: 'boards' do
+        collection do
+          post '/drafts', to: 'storage_boards#drafts'
+        end
       end
     end
   end
