@@ -10,9 +10,7 @@ class Storage < ApplicationRecord
   validate :avatar_inspection, on: %i[create update]
 
   def self.fetch_with_options(options = {})
-    storages = all
-
-    storages = storages.where(is_active: options[:isActive]) if options[:isActive].present?
+    storages = all.where(is_active: true)
     storages = storages.where('name like ?', "#{options[:name]}%") if options[:name].present?
 
     # Orders
@@ -28,7 +26,7 @@ class Storage < ApplicationRecord
     file_url_of(avatar)
   end
 
-  private
+  protected
 
   def path_inspection
     if path.present?

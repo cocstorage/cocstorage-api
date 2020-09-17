@@ -6,15 +6,15 @@ class V1::UsersController < ApplicationController
     user = User.find(current_v1_user.id)
     user.update(configure_update_params)
 
-    render json: user, serializer: UserSerializer
+    render json: user, each_serializer: UserSerializer
   end
 
   def destroy
-    render json: User.withdrawal_reservation(current_v1_user.id), serializer: UserSerializer
+    render json: User.withdrawal_reservation(current_v1_user.id), each_serializer: UserSerializer
   end
 
   def authentication
-    render json: User.authentication(params[:uuid]), serializer: UserSerializer
+    render json: User.authentication(params[:uuid]), each_serializer: UserSerializer
   end
 
   private

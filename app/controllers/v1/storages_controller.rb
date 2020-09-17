@@ -2,11 +2,11 @@ class V1::StoragesController < V1::BaseController
   skip_before_action :authenticate_v1_user!, only: :index
 
   def index
-    storages = Storage.fetch_with_options(params)
+    storages = Storage.fetch_with_options(configure_index_params)
     storages = storages.page(params[:page]).per(params[:per] || 20)
 
     render json: {
-      storages: ActiveModel::Serializer::CollectionSerializer.new(storages, serializer: StorageSerializer),
+      storages: ActiveModelSerializers::SerializableResource.new(storages, each_serializer: StorageSerializer),
       pagination: PaginationSerializer.new(storages)
     }
   end
@@ -21,13 +21,21 @@ class V1::StoragesController < V1::BaseController
       created_user_agent: request.user_agent
     )
 
-    render json: storage, serializer: StorageSerializer
+    render json: storage, each_serializer: StorageSerializer
   end
 
-  protected
+  private
+
+  def index_attributes
+    %w[name orderBy per page]
+  end
 
   def create_attributes
     %w[path name description avatar]
+  end
+
+  def configure_index_params
+    params.permit(index_attributes)
   end
 
   def configure_create_params

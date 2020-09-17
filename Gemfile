@@ -43,8 +43,9 @@ gem 'tzinfo-data', platforms: [:mingw, :mswin, :x64_mingw, :jruby]
 
 gem 'devise'
 gem 'devise-jwt', '~> 0.7.0'
-gem 'active_model_serializers'
+gem 'active_model_serializers', '~> 0.10.0'
 gem 'sidekiq'
 gem 'redis', '~> 4.1'
 gem 'redis-namespace', '~> 1.6'
 gem 'kaminari'
+gem "olive_branch"
