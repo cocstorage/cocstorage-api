@@ -2,6 +2,8 @@ class StorageBoard < ApplicationRecord
   belongs_to :storage
   belongs_to :user, optional: true
 
+  has_many_attached :images
+
   def self.fetch_with_options(options = {})
     storage_boards = where(storage_id: options[:storage_id])
     raise Errors::BadRequest.new(code: 'COC006', message: "There's no such resource.") if storage_boards.blank?
@@ -17,5 +19,9 @@ class StorageBoard < ApplicationRecord
     end
 
     storage_boards
+  end
+
+  def thumbnail_url
+    file_url_of(images.first) if images.first.present?
   end
 end

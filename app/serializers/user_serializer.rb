@@ -1,5 +1,5 @@
 class UserSerializer < ActiveModel::Serializer
-  allow_column_names = %w[encrypted_password reset_password_token reset_password_sent_at remember_created_at created_ip]
+  allow_column_names = %w[encrypted_password reset_password_token reset_password_sent_at remember_created_at created_ip created_user_agent]
   attributes User.column_names.reject { |name| allow_column_names.include? name }
   attribute :avatar_url
 

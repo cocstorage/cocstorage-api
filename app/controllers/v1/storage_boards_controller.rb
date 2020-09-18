@@ -6,7 +6,7 @@ class V1::StorageBoardsController < V1::BaseController
     storage_boards = storage_boards.page(params[:page]).per(params[:per] || 20)
 
     render json: {
-      boards: storage_boards,
+      boards: ActiveModelSerializers::SerializableResource.new(storage_boards, each_serializer: StorageBoardSerializer),
       pagination: PaginationSerializer.new(storage_boards)
     }
   end
