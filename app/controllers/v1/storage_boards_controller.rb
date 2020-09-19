@@ -1,5 +1,5 @@
 class V1::StorageBoardsController < V1::BaseController
-  skip_before_action :authenticate_v1_user!, only: %i[index show drafts_non_members view_count]
+  skip_before_action :authenticate_v1_user!, only: %i[index show drafts_non_members view_count images_non_members]
 
   def index
     storage_boards = StorageBoard.fetch_with_options(configure_index_params)
@@ -16,28 +16,33 @@ class V1::StorageBoardsController < V1::BaseController
   end
 
   def drafts
-    storage_board_draft = StorageBoard.create(
-      storage_id: params[:storage_id],
-      user_id: current_v1_user.id,
-      created_ip: request.remote_ip,
-      created_user_agent: request.user_agent
-    )
-
-    render json: storage_board_draft
+    render json: StorageBoard.create_draft_with_options(configure_draft_params)
   end
 
   def drafts_non_members
-    storage_board_draft = StorageBoard.create!(
-      storage_id: params[:storage_id],
-      created_ip: request.remote_ip,
-      created_user_agent: request.user_agent
-    )
-
-    render json: storage_board_draft
+    render json: StorageBoard.create_draft_with_options(configure_draft_params)
   end
 
   def view_count
     render json: StorageBoard.update_activation_view_count_with_options(params), each_serializer: StorageBoardSerializer
+  end
+
+  def images
+    storage = StorageBoard.find_by_with_options(configure_images_params)
+    storage.images.attach(params[:image])
+
+    render json: {
+      image_url: storage.last_image_url
+    }
+  end
+
+  def images_non_members
+    storage = StorageBoard.find_by_with_options(configure_images_params)
+    storage.images.attach(params[:image])
+
+    render json: {
+      image_url: storage.last_image_url
+    }
   end
 
   private
@@ -50,11 +55,38 @@ class V1::StorageBoardsController < V1::BaseController
     %w[storage_id id]
   end
 
+  def images_attributes
+    %w[storage_id id]
+  end
+
   def configure_index_params
     params.permit(index_attributes)
   end
 
   def configure_show_params
     params.permit(show_attributes)
+  end
+
+  def configure_draft_params
+    {
+      storage_id: params[:storage_id],
+      user: current_v1_user,
+      created_ip: request.remote_ip,
+      created_user_agent: request.user_agent
+    }
+  end
+
+  def configure_images_params
+    if params.key? :image
+      unless params[:image].is_a? ActionDispatch::Http::UploadedFile
+        raise Errors::BadRequest.new(code: 'COC014', message: 'image is not a file')
+      end
+
+      unless params[:image].content_type.in?(%w[image/png image/gif image/jpg image/jpeg])
+        raise Errors::BadRequest.new(code: 'COC016', message: "#{params[:image].content_type} is unacceptable image format")
+      end
+    end
+
+    params.permit(images_attributes).merge(user: current_v1_user)
   end
 end

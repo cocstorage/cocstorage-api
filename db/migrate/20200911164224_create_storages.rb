@@ -6,7 +6,7 @@ class CreateStorages < ActiveRecord::Migration[6.0]
       t.string :path
       t.string :name
       t.string :description
-      t.boolean :is_active
+      t.boolean :is_active, default: true
       t.string :created_ip
       t.string :created_user_agent
 

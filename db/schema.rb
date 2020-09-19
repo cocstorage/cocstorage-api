@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2020_09_19_045458) do
+ActiveRecord::Schema.define(version: 2020_09_19_140641) do
 
   create_table "active_storage_attachments", options: "ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci", force: :cascade do |t|
     t.string "name", null: false
@@ -58,7 +58,7 @@ ActiveRecord::Schema.define(version: 2020_09_19_045458) do
     t.boolean "has_image", default: false
     t.boolean "has_video", default: false
     t.boolean "is_draft", default: true
-    t.boolean "is_active", default: false
+    t.boolean "is_active", default: true
     t.boolean "is_member", default: false
     t.string "created_ip"
     t.string "created_user_agent"
@@ -129,7 +129,7 @@ ActiveRecord::Schema.define(version: 2020_09_19_045458) do
     t.string "nickname", default: "", null: false
     t.integer "point", default: 0, null: false
     t.boolean "is_authenticated", default: false, null: false
-    t.boolean "is_active", default: false, null: false
+    t.boolean "is_active", default: true, null: false
     t.integer "role", default: 0, null: false
     t.string "created_ip", default: "", null: false
     t.datetime "withdrawaled_at"

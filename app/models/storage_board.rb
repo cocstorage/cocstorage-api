@@ -24,10 +24,29 @@ class StorageBoard < ApplicationRecord
 
   def self.find_activation_with_options(options = {})
     storage = Storage.find(options[:storage_id])
-    storage_board = find_by(id: options[:id], storage_id: storage.id, is_draft: false, is_active: true)
+    options = options.merge(storage_id: storage.id, is_draft: false, is_active: true)
+    storage_board = find_by(options)
     raise Errors::BadRequest.new(code: 'COC006', message: "There's no such resource.") if storage_board.blank?
 
     storage_board
+  end
+
+  def self.find_by_with_options(options = {})
+    storage = Storage.find(options[:storage_id])
+    options = options.merge(storage_id: storage.id, is_active: true)
+    options = options.merge(is_member: true) if options[:user].present?
+    options = options.merge(is_member: false) unless options[:user].present?
+    storage_board = find_by(options)
+    raise Errors::BadRequest.new(code: 'COC006', message: "There's no such resource.") if storage_board.blank?
+
+    storage_board
+  end
+
+  def self.create_draft_with_options(options = {})
+    storage = Storage.find(options[:storage_id])
+    options = options.merge(storage_id: storage.id)
+    options = options.merge(user_id: options[:user].id, is_member: true) if options[:user].present?
+    StorageBoard.create(options.except(:user))
   end
 
   def self.update_activation_view_count_with_options(options = {})
@@ -39,6 +58,10 @@ class StorageBoard < ApplicationRecord
   end
 
   def thumbnail_url
-    file_url_of(images.first) if images.first.present?
+    first_files_url_of(images)
+  end
+
+  def last_image_url
+    last_files_url_of(images)
   end
 end

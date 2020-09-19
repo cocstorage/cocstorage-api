@@ -27,6 +27,8 @@ Rails.application.configure do
 
   # Store uploaded files on the local file system (see config/storage.yml for options).
   config.active_storage.service = :local
+  # Optionally replace existing files instead of adding to them when assigning to a collection of attachments
+  # config.active_storage.replace_on_assign_to_many = false
 
   config.active_job.queue_adapter = :sidekiq
 

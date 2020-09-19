@@ -12,7 +12,7 @@ class V1::StoragesController < V1::BaseController
   end
 
   def create
-    storage = Storage.create(configure_create_params)
+    storage = Storage.create!(configure_create_params)
     StorageUserRole.create(
       storage_id: storage.id,
       user_id: current_v1_user.id,
@@ -57,6 +57,8 @@ class V1::StoragesController < V1::BaseController
       created_ip: request.remote_ip,
       created_user_agent: request.user_agent
     }
+
+    puts other_require_params
 
     params.permit(create_attributes).merge(other_require_params)
   end

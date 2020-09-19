@@ -50,7 +50,7 @@ class User < ApplicationRecord
       raise Errors::BadRequest.new(code: 'COC006', message: 'Access is expired.')
     end
 
-    user.update(is_authenticated: true, is_active: true)
+    user.update(is_authenticated: true)
 
     user
   end

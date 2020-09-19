@@ -17,4 +17,20 @@ class ApplicationRecord < ActiveRecord::Base
       file.attached? ? file.service_url : nil
     end
   end
+
+  def first_files_url_of(files)
+    if !Rails.env.production?
+      files.attached? ? rails_blob_url(files.first) : nil
+    else
+      files.attached? ? files.first.service_url : nil
+    end
+  end
+
+  def last_files_url_of(files)
+    if !Rails.env.production?
+      files.attached? ? rails_blob_url(files.last) : nil
+    else
+      files.attached? ? files.last.service_url : nil
+    end
+  end
 end
