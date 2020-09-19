@@ -2,6 +2,7 @@ class Storage < ApplicationRecord
   belongs_to :storage_category
   belongs_to :user
 
+  has_many :storage_boards
   has_one_attached :avatar
 
   validate :path_inspection, on: %i[create update]
@@ -20,6 +21,10 @@ class Storage < ApplicationRecord
     end
 
     storages
+  end
+
+  def active_boards
+    storage_boards.where(is_draft: false, is_active: true)
   end
 
   def avatar_url

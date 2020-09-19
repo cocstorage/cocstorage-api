@@ -5,10 +5,11 @@ class StorageBoard < ApplicationRecord
   has_many_attached :images
 
   def self.fetch_with_options(options = {})
-    storage_boards = where(storage_id: options[:storage_id])
-    raise Errors::BadRequest.new(code: 'COC006', message: "There's no such resource.") if storage_boards.blank?
+    storage = Storage.find_by(id: options[:storage_id], is_active: true)
+    storage = Storage.find_by(path: options[:storage_id], is_active: true) if storage.blank?
+    raise Errors::BadRequest.new(code: 'COC006', message: "There's no such resource.") if storage.blank?
 
-    storage_boards = storage_boards.where(is_draft: false, is_active: true)
+    storage_boards = storage.active_boards
     storage_boards = storage_boards.where('subject like ?', "#{options[:subject]}%") if options[:subject].present?
     storage_boards = storage_boards.where('content like ?', "#{options[:content]}%") if options[:content].present?
     storage_boards = storage_boards.where('nickname like ?', "#{options[:nickname]}%") if options[:nickname].present?

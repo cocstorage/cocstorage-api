@@ -1,5 +1,5 @@
 class V1::StorageBoardsController < V1::BaseController
-  skip_before_action :authenticate_v1_user!, only: %i[index drafts_non_members]
+  skip_before_action :authenticate_v1_user!, only: %i[index show drafts_non_members]
 
   def index
     storage_boards = StorageBoard.fetch_with_options(configure_index_params)
@@ -8,6 +8,12 @@ class V1::StorageBoardsController < V1::BaseController
     render json: {
       boards: ActiveModelSerializers::SerializableResource.new(storage_boards, each_serializer: StorageBoardSerializer),
       pagination: PaginationSerializer.new(storage_boards)
+    }
+  end
+
+  def show
+    render json: {
+      data: 'SHOW'
     }
   end
 
