@@ -4,6 +4,8 @@ class StorageBoard < ApplicationRecord
 
   has_many_attached :images
 
+  validate :password_minimum_length, on: %i[update]
+
   def self.fetch_with_options(options = {})
     storage = Storage.find_by(id: options[:storage_id], is_active: true)
     storage = Storage.find_by(path: options[:storage_id], is_active: true) if storage.blank?
@@ -42,6 +44,19 @@ class StorageBoard < ApplicationRecord
     storage_board
   end
 
+  def self.find_and_authentication_with_options(options = {})
+    storage = Storage.find(options[:storage_id])
+    options = options.merge(storage_id: storage.id, user_id: nil, is_active: true, is_member: false)
+    storage_board = find_by(options.reject { |name| %w[password].include? name })
+    raise Errors::BadRequest.new(code: 'COC006', message: "There's no such resource.") if storage_board.blank?
+
+    if storage_board.password != options[:password]
+      raise Errors::BadRequest.new(code: 'COC027', message: 'Password do not match.')
+    end
+
+    storage_board
+  end
+
   def self.create_draft_with_options(options = {})
     storage = Storage.find(options[:storage_id])
     options = options.merge(storage_id: storage.id)
@@ -63,5 +78,11 @@ class StorageBoard < ApplicationRecord
 
   def last_image_url
     last_files_url_of(images)
+  end
+
+  def password_minimum_length
+    if is_member && password.present? && password.length < 7
+      raise Errors::BadRequest.new(code: 'COC004', message: 'Password must be at least 7 characters long.')
+    end
   end
 end

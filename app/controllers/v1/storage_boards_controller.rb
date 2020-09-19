@@ -1,5 +1,5 @@
 class V1::StorageBoardsController < V1::BaseController
-  skip_before_action :authenticate_v1_user!, only: %i[index show drafts_non_members view_count images_non_members]
+  skip_before_action :authenticate_v1_user!, only: %i[index show non_members_edit non_members_drafts view_count non_members_images]
 
   def index
     storage_boards = StorageBoard.fetch_with_options(configure_index_params)
@@ -15,11 +15,19 @@ class V1::StorageBoardsController < V1::BaseController
     render json: StorageBoard.find_activation_with_options(configure_show_params), each_serializer: StorageBoardSerializer
   end
 
+  def edit
+    render json: StorageBoard.find_by_with_options(configure_edit_params)
+  end
+
+  def non_members_edit
+    render json: StorageBoard.find_and_authentication_with_options(configure_non_members_edit_params)
+  end
+
   def drafts
     render json: StorageBoard.create_draft_with_options(configure_draft_params)
   end
 
-  def drafts_non_members
+  def non_members_drafts
     render json: StorageBoard.create_draft_with_options(configure_draft_params)
   end
 
@@ -36,7 +44,7 @@ class V1::StorageBoardsController < V1::BaseController
     }
   end
 
-  def images_non_members
+  def non_members_images
     storage = StorageBoard.find_by_with_options(configure_images_params)
     storage.images.attach(params[:image])
 
@@ -55,6 +63,14 @@ class V1::StorageBoardsController < V1::BaseController
     %w[storage_id id]
   end
 
+  def edit_attributes
+    %w[storage_id id]
+  end
+
+  def non_members_edit_attributes
+    %w[storage_id id password]
+  end
+
   def images_attributes
     %w[storage_id id]
   end
@@ -65,6 +81,14 @@ class V1::StorageBoardsController < V1::BaseController
 
   def configure_show_params
     params.permit(show_attributes)
+  end
+
+  def configure_edit_params
+    params.permit(edit_attributes).merge(user: current_v1_user)
+  end
+
+  def configure_non_members_edit_params
+    params.permit(non_members_edit_attributes)
   end
 
   def configure_draft_params

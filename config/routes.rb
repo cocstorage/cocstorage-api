@@ -23,10 +23,12 @@ Rails.application.routes.draw do
       resources :storage_boards, path: 'boards' do
         collection do
           post '/drafts', to: 'storage_boards#drafts'
-          post '/drafts/non-members', to: 'storage_boards#drafts_non_members'
+          post '/non-members/drafts', to: 'storage_boards#non_members_drafts'
           put '/:id/view-count', to: 'storage_boards#view_count'
           post '/:id/images', to: 'storage_boards#images'
-          post '/:id/images/non-members', to: 'storage_boards#images_non_members'
+          post '/non-members/:id/images', to: 'storage_boards#non_members_images'
+          get '/:id/edit', to: 'storage_boards#edit'
+          get '/non-members/:id/edit', to: 'storage_boards#non_members_edit'
         end
       end
     end
