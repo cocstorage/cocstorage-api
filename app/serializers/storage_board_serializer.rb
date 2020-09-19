@@ -1,5 +1,5 @@
 class StorageBoardSerializer < ActiveModel::Serializer
-  attributes StorageBoard.column_names.reject { |name| %w[created_user_agent].include? name }
+  attributes StorageBoard.column_names.reject { |name| %w[password created_user_agent].include? name }
   attribute :thumbnail_url
   attribute :created_ip
 

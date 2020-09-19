@@ -12,9 +12,7 @@ class V1::StorageBoardsController < V1::BaseController
   end
 
   def show
-    render json: {
-      data: 'SHOW'
-    }
+    render json: StorageBoard.find_activation_with_options(configure_show_params), each_serializer: StorageBoardSerializer
   end
 
   def drafts
@@ -44,7 +42,15 @@ class V1::StorageBoardsController < V1::BaseController
     %w[storage_id subject content nickname orderBy per page]
   end
 
+  def show_attributes
+    %w[storage_id id]
+  end
+
   def configure_index_params
     params.permit(index_attributes)
+  end
+
+  def configure_show_params
+    params.permit(show_attributes)
   end
 end

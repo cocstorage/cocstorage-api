@@ -22,6 +22,14 @@ class StorageBoard < ApplicationRecord
     storage_boards
   end
 
+  def self.find_activation_with_options(options = {})
+    storage = Storage.find(options[:storage_id])
+    storage_board = find_by(id: options[:id], storage_id: storage.id, is_draft: false, is_active: true)
+    raise Errors::BadRequest.new(code: 'COC006', message: "There's no such resource.") if storage_board.blank?
+
+    storage_board
+  end
+
   def thumbnail_url
     file_url_of(images.first) if images.first.present?
   end
