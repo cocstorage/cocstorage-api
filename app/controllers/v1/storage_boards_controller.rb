@@ -1,5 +1,5 @@
 class V1::StorageBoardsController < V1::BaseController
-  skip_before_action :authenticate_v1_user!, only: %i[index show drafts_non_members]
+  skip_before_action :authenticate_v1_user!, only: %i[index show drafts_non_members view_count]
 
   def index
     storage_boards = StorageBoard.fetch_with_options(configure_index_params)
@@ -34,6 +34,10 @@ class V1::StorageBoardsController < V1::BaseController
     )
 
     render json: storage_board_draft
+  end
+
+  def view_count
+    render json: StorageBoard.update_activation_view_count_with_options(params), each_serializer: StorageBoardSerializer
   end
 
   private

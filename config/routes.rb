@@ -24,6 +24,7 @@ Rails.application.routes.draw do
         collection do
           post '/drafts', to: 'storage_boards#drafts'
           post '/drafts/non-members', to: 'storage_boards#drafts_non_members'
+          put '/:id/view-count', to: 'storage_boards#view_count'
         end
       end
     end
