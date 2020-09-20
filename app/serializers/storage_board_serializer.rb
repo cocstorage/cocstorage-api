@@ -1,7 +1,32 @@
 class StorageBoardSerializer < ActiveModel::Serializer
-  attributes StorageBoard.column_names.reject { |name| %w[password created_user_agent].include? name }
+  attribute :id
+  attribute :storage
+  attribute :user
+  attributes StorageBoard.column_names.reject { |name| %w[id storage_id user_id password created_user_agent].include? name }
   attribute :thumbnail_url
-  attribute :created_ip
+
+  def storage
+    storage = object.storage
+
+    {
+      id: storage.id,
+      storage_category_id: storage.storage_category_id,
+      path: storage.path,
+      name: storage.name
+    }
+  end
+
+  def user
+    user = object.user
+
+    if user.present?
+      {
+        id: user.id,
+        nickname: user.nickname,
+        role: user.role
+      }
+    end
+  end
 
   def thumbnail_url
     object.thumbnail_url
