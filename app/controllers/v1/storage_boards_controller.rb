@@ -80,13 +80,17 @@ class V1::StorageBoardsController < V1::BaseController
   end
 
   def recommend
-    render json: StorageBoard.update_recommend_for_members(configure_recommend_params),
-           each_serializer: StorageBoardSerializer
+    ApplicationRecord.transaction do
+      render json: StorageBoard.update_recommend_for_members(configure_recommend_params),
+             each_serializer: StorageBoardSerializer
+    end
   end
 
   def non_members_recommend
-    render json: StorageBoard.update_recommend_for_non_members(non_members_configure_recommend_params),
-           each_serializer: StorageBoardSerializer
+    ApplicationRecord.transaction do
+      render json: StorageBoard.update_recommend_for_non_members(non_members_configure_recommend_params),
+             each_serializer: StorageBoardSerializer
+    end
   end
 
   private

@@ -12,16 +12,18 @@ class V1::StoragesController < V1::BaseController
   end
 
   def create
-    storage = Storage.create!(configure_create_params)
-    StorageUserRole.create(
-      storage_id: storage.id,
-      user_id: current_v1_user.id,
-      role: 1,
-      created_ip: request.remote_ip,
-      created_user_agent: request.user_agent
-    )
+    ApplicationRecord.transaction do
+      storage = Storage.create(configure_create_params)
+      StorageUserRole.create(
+        storage_id: storage.id,
+        user_id: current_v1_user.id,
+        role: 1,
+        created_ip: request.remote_ip,
+        created_user_agent: request.user_agent
+      )
 
-    render json: storage, each_serializer: StorageSerializer
+      render json: storage, each_serializer: StorageSerializer
+    end
   end
 
   private

@@ -14,7 +14,9 @@ class V1::UsersController < ApplicationController
   end
 
   def authentication
-    render json: User.authentication(params[:uuid]), each_serializer: UserSerializer
+    ApplicationRecord.transaction do
+      render json: User.authentication(params[:uuid]), each_serializer: UserSerializer
+    end
   end
 
   private

@@ -1,8 +1,11 @@
 class V1::Users::RegistrationsController < Devise::RegistrationsController
   def create
-    user = User.create_with_options(configure_create_params)
-    UserAuthenticationMailerJob.perform_later(user)
-    render json: user, each_serializer: UserSerializer
+    ApplicationRecord.transaction do
+      user = User.create_with_options(configure_create_params)
+      UserAuthenticationMailerJob.perform_later(user)
+
+      render json: user, each_serializer: UserSerializer
+    end
   end
 
   # GET /resource/cancel
