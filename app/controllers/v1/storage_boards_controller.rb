@@ -1,5 +1,5 @@
 class V1::StorageBoardsController < V1::BaseController
-  skip_before_action :authenticate_v1_user!, only: %i[index show non_members_edit non_members_update non_members_destroy non_members_drafts view_count non_members_images]
+  skip_before_action :authenticate_v1_user!, only: %i[index show non_members_edit non_members_update non_members_destroy non_members_drafts view_count non_members_images non_members_recommend]
 
   def index
     storage_boards = StorageBoard.fetch_with_options(configure_index_params)
@@ -69,6 +69,14 @@ class V1::StorageBoardsController < V1::BaseController
     }
   end
 
+  def recommend
+    render json: StorageBoard.update_recommend_for_members(configure_recommend_params), each_serializer: StorageBoardSerializer
+  end
+
+  def non_members_recommend
+    render json: StorageBoard.update_recommend_for_non_members(configure_recommend_params), each_serializer: StorageBoardSerializer
+  end
+
   private
 
   def index_attributes
@@ -105,6 +113,10 @@ class V1::StorageBoardsController < V1::BaseController
 
   def images_attributes
     %w[storage_id id]
+  end
+
+  def recommend_attributes
+    %w[storage_id id type]
   end
 
   def configure_index_params
@@ -173,5 +185,9 @@ class V1::StorageBoardsController < V1::BaseController
     end
 
     params.permit(images_attributes).merge(user: current_v1_user)
+  end
+
+  def configure_recommend_params
+    params.permit(recommend_attributes).merge(user: current_v1_user, request: request)
   end
 end

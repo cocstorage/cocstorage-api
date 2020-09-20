@@ -31,6 +31,8 @@ Rails.application.routes.draw do
           get '/non-members/:id/edit', to: 'storage_boards#non_members_edit'
           put '/non-members/:id', to: 'storage_boards#non_members_update'
           delete '/non-members/:id', to: 'storage_boards#non_members_destroy'
+          put '/:id/recommend', to: 'storage_boards#recommend'
+          put '/non-members/:id/recommend', to: 'storage_boards#non_members_recommend'
         end
       end
     end

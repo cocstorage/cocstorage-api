@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2020_09_19_140641) do
+ActiveRecord::Schema.define(version: 2020_09_20_141616) do
 
   create_table "active_storage_attachments", options: "ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci", force: :cascade do |t|
     t.string "name", null: false
@@ -42,6 +42,18 @@ ActiveRecord::Schema.define(version: 2020_09_19_140641) do
   create_table "jwt_denylists", options: "ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci", force: :cascade do |t|
     t.datetime "created_at", precision: 6, null: false
     t.datetime "updated_at", precision: 6, null: false
+  end
+
+  create_table "storage_board_recommend_logs", options: "ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci", force: :cascade do |t|
+    t.bigint "storage_board_id", null: false
+    t.bigint "user_id"
+    t.integer "log_type"
+    t.string "created_ip"
+    t.string "created_user_agent"
+    t.datetime "created_at", precision: 6, null: false
+    t.datetime "updated_at", precision: 6, null: false
+    t.index ["storage_board_id"], name: "index_storage_board_recommend_logs_on_storage_board_id"
+    t.index ["user_id"], name: "index_storage_board_recommend_logs_on_user_id"
   end
 
   create_table "storage_boards", options: "ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci", force: :cascade do |t|
@@ -141,6 +153,8 @@ ActiveRecord::Schema.define(version: 2020_09_19_140641) do
   end
 
   add_foreign_key "active_storage_attachments", "active_storage_blobs", column: "blob_id"
+  add_foreign_key "storage_board_recommend_logs", "storage_boards"
+  add_foreign_key "storage_board_recommend_logs", "users"
   add_foreign_key "storage_boards", "storages"
   add_foreign_key "storage_boards", "users"
   add_foreign_key "storage_user_roles", "storages"

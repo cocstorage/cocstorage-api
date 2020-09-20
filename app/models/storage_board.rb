@@ -2,6 +2,7 @@ class StorageBoard < ApplicationRecord
   belongs_to :storage
   belongs_to :user, optional: true
 
+  has_many :storage_board_recommend_logs
   has_many_attached :images
 
   validate :password_minimum_length, on: %i[update]
@@ -128,6 +129,53 @@ class StorageBoard < ApplicationRecord
     raise Errors::BadRequest.new(code: 'COC006', message: "There's no such resource.") if storage_board.blank?
 
     storage_board.increment!(:view_count, 1)
+  end
+
+  def self.update_recommend_for_members(options = {})
+    storage_board = find_by(id: options[:id], storage_id: options[:storage_id])
+    raise Errors::BadRequest.new(code: 'COC006', message: "There's no such resource.") if storage_board.blank?
+
+    storage_board_recommend_log = StorageBoardRecommendLog.find_by(storage_board: storage_board, user: options[:user])
+
+    if storage_board_recommend_log.present?
+      raise Errors::BadRequest.new(code: 'COC028', message: 'Already have a recommended record, type is thumb_up') if storage_board_recommend_log.log_type == 'thumb_up'
+      raise Errors::BadRequest.new(code: 'COC029', message: 'Already have a recommended record, type is thumb_down') if storage_board_recommend_log.log_type == 'thumb_down'
+    end
+
+    storage_board.increment!(:thumb_up, 1) if options[:type] == 'thumb_up'
+    storage_board.increment!(:thumb_down, 1) if options[:type] == 'thumb_down'
+    StorageBoardRecommendLog.create(
+      storage_board_id: storage_board.id,
+      user_id: options[:user].id,
+      log_type: options[:type],
+      created_ip: options[:request].remote_ip,
+      created_user_agent: options[:request].user_agent
+    )
+
+    storage_board
+  end
+
+  def self.update_recommend_for_non_members(options = {})
+    storage_board = find_by(id: options[:id], storage_id: options[:storage_id])
+    raise Errors::BadRequest.new(code: 'COC006', message: "There's no such resource.") if storage_board.blank?
+
+    storage_board_recommend_log = StorageBoardRecommendLog.find_by(storage_board: storage_board, created_ip: options[:request].remote_ip)
+
+    if storage_board_recommend_log.present?
+      raise Errors::BadRequest.new(code: 'COC028', message: 'Already have a recommended record, type is thumb_up') if storage_board_recommend_log.log_type == 'thumb_up'
+      raise Errors::BadRequest.new(code: 'COC029', message: 'Already have a recommended record, type is thumb_down') if storage_board_recommend_log.log_type == 'thumb_down'
+    end
+
+    storage_board.increment!(:thumb_up, 1) if options[:type] == 'thumb_up'
+    storage_board.increment!(:thumb_down, 1) if options[:type] == 'thumb_down'
+    StorageBoardRecommendLog.create!(
+      storage_board_id: storage_board.id,
+      log_type: options[:type],
+      created_ip: options[:request].remote_ip,
+      created_user_agent: options[:request].user_agent
+    )
+
+    storage_board
   end
 
   def thumbnail_url
