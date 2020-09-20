@@ -7,7 +7,7 @@ class User < ApplicationRecord
   has_one :user_email_access_log
   has_one_attached :avatar
 
-  enum role: %w[user admin]
+  enum role: %w[member admin]
 
   validate :email_inspection, on: :create
   validate :name_inspection, on: %i[create update]

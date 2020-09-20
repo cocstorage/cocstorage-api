@@ -230,6 +230,7 @@ DEPENDENCIES
   kaminari
   listen (~> 3.2)
   mysql2 (>= 0.4.4)
+  nokogiri
   olive_branch
   puma (~> 4.1)
   rack-cors

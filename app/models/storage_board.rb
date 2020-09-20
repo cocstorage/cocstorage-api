@@ -33,11 +33,12 @@ class StorageBoard < ApplicationRecord
     storage_board
   end
 
-  def self.find_by_with_options(options = {})
+  def self.find_with_options(options = {})
     storage = Storage.find(options[:storage_id])
     options = options.merge(storage_id: storage.id, is_active: true)
     options = options.merge(is_member: true) if options[:user].present?
-    options = options.merge(is_member: false) unless options[:user].present?
+    options = options.merge(user_id: nil, is_member: false) unless options[:user].present?
+
     storage_board = find_by(options)
     raise Errors::BadRequest.new(code: 'COC006', message: "There's no such resource.") if storage_board.blank?
 
@@ -47,10 +48,10 @@ class StorageBoard < ApplicationRecord
   def self.find_and_authentication_with_options(options = {})
     storage = Storage.find(options[:storage_id])
     options = options.merge(storage_id: storage.id, user_id: nil, is_active: true, is_member: false)
-    storage_board = find_by(options.reject { |name| %w[password].include? name })
+    storage_board = find_by(options.except(:password))
     raise Errors::BadRequest.new(code: 'COC006', message: "There's no such resource.") if storage_board.blank?
 
-    if storage_board.password != options[:password]
+    if storage_board.password.to_s != options[:password].to_s
       raise Errors::BadRequest.new(code: 'COC027', message: 'Password do not match.')
     end
 
@@ -61,7 +62,54 @@ class StorageBoard < ApplicationRecord
     storage = Storage.find(options[:storage_id])
     options = options.merge(storage_id: storage.id)
     options = options.merge(user_id: options[:user].id, is_member: true) if options[:user].present?
-    StorageBoard.create(options.except(:user))
+    options = options.except(:user)
+
+    StorageBoard.create(options)
+  end
+
+  def self.update_with_options(options = {})
+    storage_board = find_with_options(options.except(:subject, :content))
+    raise Errors::BadRequest.new(code: 'COC006', message: "There's no such resource.") if storage_board.blank?
+
+    content_html = Nokogiri::HTML.parse(options[:content])
+    options = options.merge(description: content_html.text)
+    options = options.merge(has_image: false, has_video: false)
+    %w[youtube kakao].each do |name|
+      options = options.merge(has_video: true) if content_html.css('iframe').attr('src').to_s.index(name).present?
+    end
+    options = options.merge(has_video: true) if content_html.css('video').present?
+    options = options.merge(has_image: true) if content_html.css('img').present?
+
+    options = options.except(:user)
+    options = options.merge(is_draft: false)
+
+    storage_board.update(options).inspect
+    storage_board
+  end
+
+  def self.update_and_authentication_with_options(options = {})
+    storage_board = find_with_options(options.except(:nickname, :password, :subject, :content))
+    raise Errors::BadRequest.new(code: 'COC006', message: "There's no such resource.") if storage_board.blank?
+
+    if storage_board.password.present? && storage_board.password.to_s != options[:password].to_s
+      raise Errors::BadRequest.new(code: 'COC027', message: 'Password do not match.')
+    end
+
+    content_html = Nokogiri::HTML.parse(options[:content])
+    options = options.merge(description: content_html.text)
+    options = options.merge(has_image: false, has_video: false)
+    %w[youtube kakao].each do |name|
+      options = options.merge(has_video: true) if content_html.css('iframe').attr('src').to_s.index(name).present?
+    end
+    options = options.merge(has_video: true) if content_html.css('video').present?
+    options = options.merge(has_image: true) if content_html.css('img').present?
+
+    options = options.except(:nickname) if storage_board.nickname.present?
+    options = options.except(:password) if storage_board.password.present?
+    options = options.merge(is_draft: false)
+
+    storage_board.update(options).inspect
+    storage_board
   end
 
   def self.update_activation_view_count_with_options(options = {})
@@ -80,8 +128,10 @@ class StorageBoard < ApplicationRecord
     last_files_url_of(images)
   end
 
+  private
+
   def password_minimum_length
-    if is_member && password.present? && password.length < 7
+    if !is_member && password.present? && password.length < 7
       raise Errors::BadRequest.new(code: 'COC004', message: 'Password must be at least 7 characters long.')
     end
   end

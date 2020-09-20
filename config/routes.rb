@@ -29,6 +29,7 @@ Rails.application.routes.draw do
           post '/non-members/:id/images', to: 'storage_boards#non_members_images'
           get '/:id/edit', to: 'storage_boards#edit'
           get '/non-members/:id/edit', to: 'storage_boards#non_members_edit'
+          put '/non-members/:id', to: 'storage_boards#non_members_update'
         end
       end
     end

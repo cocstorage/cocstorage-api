@@ -1,5 +1,5 @@
 class V1::StorageBoardsController < V1::BaseController
-  skip_before_action :authenticate_v1_user!, only: %i[index show non_members_edit non_members_drafts view_count non_members_images]
+  skip_before_action :authenticate_v1_user!, only: %i[index show non_members_edit non_members_update non_members_drafts view_count non_members_images]
 
   def index
     storage_boards = StorageBoard.fetch_with_options(configure_index_params)
@@ -16,11 +16,19 @@ class V1::StorageBoardsController < V1::BaseController
   end
 
   def edit
-    render json: StorageBoard.find_by_with_options(configure_edit_params)
+    render json: StorageBoard.find_with_options(configure_edit_params), each_serializer: StorageBoardSerializer
   end
 
   def non_members_edit
-    render json: StorageBoard.find_and_authentication_with_options(configure_non_members_edit_params)
+    render json: StorageBoard.find_and_authentication_with_options(configure_non_members_edit_params), each_serializer: StorageBoardSerializer
+  end
+
+  def update
+    render json: StorageBoard.update_with_options(configure_update_params), each_serializer: StorageBoardSerializer
+  end
+
+  def non_members_update
+    render json: StorageBoard.update_and_authentication_with_options(configure_non_members_update_params), each_serializer: StorageBoardSerializer
   end
 
   def drafts
@@ -36,7 +44,7 @@ class V1::StorageBoardsController < V1::BaseController
   end
 
   def images
-    storage = StorageBoard.find_by_with_options(configure_images_params)
+    storage = StorageBoard.find_with_options(configure_images_params)
     storage.images.attach(params[:image])
 
     render json: {
@@ -45,7 +53,7 @@ class V1::StorageBoardsController < V1::BaseController
   end
 
   def non_members_images
-    storage = StorageBoard.find_by_with_options(configure_images_params)
+    storage = StorageBoard.find_with_options(configure_images_params)
     storage.images.attach(params[:image])
 
     render json: {
@@ -71,6 +79,14 @@ class V1::StorageBoardsController < V1::BaseController
     %w[storage_id id password]
   end
 
+  def update_attributes
+    %w[storage_id id subject content]
+  end
+
+  def non_members_update_attributes
+    %w[storage_id id subject content nickname password]
+  end
+
   def images_attributes
     %w[storage_id id]
   end
@@ -88,7 +104,26 @@ class V1::StorageBoardsController < V1::BaseController
   end
 
   def configure_non_members_edit_params
+    raise Errors::BadRequest.new(code: 'COC000', message: 'password is required') if params[:password].blank?
+
     params.permit(non_members_edit_attributes)
+  end
+
+  def configure_update_params
+    params.permit(update_attributes).merge(user: current_v1_user)
+  end
+
+  def configure_non_members_update_params
+    non_members_update_attributes.each do |key|
+      if key == 'nickname'
+        raise Errors::BadRequest.new(code: 'COC000', message: "#{key} is required") if params[key].blank?
+      end
+
+      if key == 'password'
+        raise Errors::BadRequest.new(code: 'COC000', message: "#{key} is required") if params[key].blank?
+      end
+    end
+    params.permit(non_members_update_attributes)
   end
 
   def configure_draft_params

@@ -16,7 +16,7 @@ class V1::StoragesController < V1::BaseController
     StorageUserRole.create(
       storage_id: storage.id,
       user_id: current_v1_user.id,
-      role: 0,
+      role: 1,
       created_ip: request.remote_ip,
       created_user_agent: request.user_agent
     )
@@ -39,9 +39,9 @@ class V1::StoragesController < V1::BaseController
   end
 
   def configure_create_params
-    create_attributes.each do |attribute|
-      if params[attribute].blank? && attribute != 'avatar'
-        raise Errors::BadRequest.new(code: 'COC000', message: "#{attribute} is required")
+    create_attributes.each do |key|
+      if params[key].blank? && key != 'avatar'
+        raise Errors::BadRequest.new(code: 'COC000', message: "#{key} is required")
       end
     end
 

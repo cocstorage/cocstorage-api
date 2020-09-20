@@ -41,11 +41,12 @@ end
 # Windows does not include zoneinfo files, so bundle the tzinfo-data gem
 gem 'tzinfo-data', platforms: [:mingw, :mswin, :x64_mingw, :jruby]
 
+gem 'active_model_serializers', '~> 0.10.0'
 gem 'devise'
 gem 'devise-jwt', '~> 0.7.0'
-gem 'active_model_serializers', '~> 0.10.0'
-gem 'sidekiq'
+gem 'kaminari'
+gem 'nokogiri'
+gem 'olive_branch'
 gem 'redis', '~> 4.1'
 gem 'redis-namespace', '~> 1.6'
-gem 'kaminari'
-gem "olive_branch"
+gem 'sidekiq'
