@@ -16,10 +16,24 @@ class User < ApplicationRecord
   validate :password_special_char, on: %i[create update]
   validate :avatar_inspection, on: %i[create update]
 
-  def self.create_with_options(options)
+  def self.create_with_options(options = {})
     user = create(options)
     user.update(nickname: "닉네임#{user.id}#{SecureRandom.hex(2)}")
     user.create_user_email_access_log(options)
+
+    user
+  end
+
+  def self.update_with_options(options = {})
+    if options[:nickname].present?
+      compare_user = find_by_nickname(options[:nickname])
+      if compare_user.present? && compare_user.id != options[:user].id
+        raise Errors::BadRequest.new(code: 'COC015', message: 'nickname is exist')
+      end
+    end
+
+    user = find(options[:user].id)
+    user.update(options.except(:user)).inspect
 
     user
   end

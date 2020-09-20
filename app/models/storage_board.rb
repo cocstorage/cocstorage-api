@@ -63,7 +63,7 @@ class StorageBoard < ApplicationRecord
     options = options.merge(user_id: options[:user].id, is_member: true) if options[:user].present?
     options = options.except(:user)
 
-    StorageBoard.create(options)
+    create(options)
   end
 
   def self.update_for_member(options = {})

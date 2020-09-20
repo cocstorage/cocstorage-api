@@ -3,10 +3,7 @@ class V1::UsersController < ApplicationController
   before_action :confirm_yourself, only: %i[update destroy]
 
   def update
-    user = User.find(current_v1_user.id)
-    user.update(configure_update_params)
-
-    render json: user, each_serializer: UserSerializer
+    render json: User.update_with_options(configure_update_params), each_serializer: UserSerializer
   end
 
   def destroy
@@ -40,6 +37,6 @@ class V1::UsersController < ApplicationController
       end
     end
 
-    params.permit(update_attributes)
+    params.permit(update_attributes).merge(user: current_v1_user)
   end
 end

@@ -24,8 +24,8 @@ class V1::Users::RegistrationsController < Devise::RegistrationsController
   end
 
   def configure_create_params
-    create_attributes.each do |attribute|
-      raise Errors::BadRequest.new(code: 'COC000', message: "#{attribute} is required") if params[attribute].blank?
+    create_attributes.each do |key|
+      raise Errors::BadRequest.new(code: 'COC000', message: "#{key} is required") if params[key].blank?
     end
 
     params.permit(create_attributes).merge(created_ip: request.remote_ip)
