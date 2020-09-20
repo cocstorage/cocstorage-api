@@ -85,7 +85,7 @@ class V1::StorageBoardsController < V1::BaseController
   end
 
   def non_members_recommend
-    render json: StorageBoard.update_recommend_for_non_members(configure_recommend_params),
+    render json: StorageBoard.update_recommend_for_non_members(non_members_configure_recommend_params),
            each_serializer: StorageBoardSerializer
   end
 
@@ -131,6 +131,10 @@ class V1::StorageBoardsController < V1::BaseController
     %w[storage_id id type]
   end
 
+  def non_members_recommend_attributes
+    %w[storage_id id type]
+  end
+
   def configure_index_params
     params.permit(index_attributes)
   end
@@ -163,6 +167,7 @@ class V1::StorageBoardsController < V1::BaseController
         raise Errors::BadRequest.new(code: 'COC000', message: "#{key} is required") if params[key].blank?
       end
     end
+
     params.permit(non_members_update_attributes)
   end
 
@@ -201,5 +206,9 @@ class V1::StorageBoardsController < V1::BaseController
 
   def configure_recommend_params
     params.permit(recommend_attributes).merge(user: current_v1_user, request: request)
+  end
+
+  def non_members_configure_recommend_params
+    params.permit(non_members_recommend_attributes).merge(request: request)
   end
 end

@@ -26,6 +26,7 @@ class StorageBoard < ApplicationRecord
   end
 
   def self.find_activation_with_options(options = {})
+    puts options
     options = options.merge(storage_id: options[:storage_id], is_draft: false, is_active: true)
     storage_board = find_by(options)
     raise Errors::BadRequest.new(code: 'COC006', message: "There's no such resource.") if storage_board.blank?
@@ -128,18 +129,24 @@ class StorageBoard < ApplicationRecord
   end
 
   def self.update_recommend_for_members(options = {})
-    storage_board = find_by(id: options[:id], storage_id: options[:storage_id])
-    raise Errors::BadRequest.new(code: 'COC006', message: "There's no such resource.") if storage_board.blank?
+    storage_board = find_activation_with_options(options.except(:user, :type, :request))
 
-    storage_board_recommend_log = StorageBoardRecommendLog.find_by(storage_board: storage_board, user: options[:user])
+    storage_board_recommend_log = StorageBoardRecommendLog.find_by(
+      storage_board: storage_board,
+      user: options[:user]
+    )
 
     if storage_board_recommend_log.present?
-      raise Errors::BadRequest.new(code: 'COC028', message: 'Already have a recommended record, type is thumb_up') if storage_board_recommend_log.log_type == 'thumb_up'
-      raise Errors::BadRequest.new(code: 'COC029', message: 'Already have a recommended record, type is thumb_down') if storage_board_recommend_log.log_type == 'thumb_down'
+      if storage_board_recommend_log.log_type == 'thumb_up'
+        raise Errors::BadRequest.new(code: 'COC028', message: 'Already have a recommended record, type is thumb_up.')
+      end
+      if storage_board_recommend_log.log_type == 'thumb_down'
+        raise Errors::BadRequest.new(code: 'COC029', message: 'Already have a recommended record, type is thumb_down.')
+      end
     end
 
-    storage_board.increment!(:thumb_up, 1) if options[:type] == 'thumb_up'
-    storage_board.increment!(:thumb_down, 1) if options[:type] == 'thumb_down'
+    storage_board.increment!(:thumb_up, 1) if options[:type] == 0
+    storage_board.increment!(:thumb_down, 1) if options[:type] == 1
     StorageBoardRecommendLog.create(
       storage_board_id: storage_board.id,
       user_id: options[:user].id,
@@ -152,19 +159,25 @@ class StorageBoard < ApplicationRecord
   end
 
   def self.update_recommend_for_non_members(options = {})
-    storage_board = find_by(id: options[:id], storage_id: options[:storage_id])
-    raise Errors::BadRequest.new(code: 'COC006', message: "There's no such resource.") if storage_board.blank?
+    storage_board = find_activation_with_options(options.except(:type, :request))
 
-    storage_board_recommend_log = StorageBoardRecommendLog.find_by(storage_board: storage_board, created_ip: options[:request].remote_ip)
+    storage_board_recommend_log = StorageBoardRecommendLog.find_by(
+      storage_board: storage_board,
+      created_ip: options[:request].remote_ip
+    )
 
     if storage_board_recommend_log.present?
-      raise Errors::BadRequest.new(code: 'COC028', message: 'Already have a recommended record, type is thumb_up') if storage_board_recommend_log.log_type == 'thumb_up'
-      raise Errors::BadRequest.new(code: 'COC029', message: 'Already have a recommended record, type is thumb_down') if storage_board_recommend_log.log_type == 'thumb_down'
+      if storage_board_recommend_log.log_type == 'thumb_up'
+        raise Errors::BadRequest.new(code: 'COC028', message: 'Already have a recommended record, type is thumb_up.')
+      end
+      if storage_board_recommend_log.log_type == 'thumb_down'
+        raise Errors::BadRequest.new(code: 'COC029', message: 'Already have a recommended record, type is thumb_down.')
+      end
     end
 
-    storage_board.increment!(:thumb_up, 1) if options[:type] == 'thumb_up'
-    storage_board.increment!(:thumb_down, 1) if options[:type] == 'thumb_down'
-    StorageBoardRecommendLog.create!(
+    storage_board.increment!(:thumb_up, 1) if options[:type] == 0
+    storage_board.increment!(:thumb_down, 1) if options[:type] == 1
+    StorageBoardRecommendLog.create(
       storage_board_id: storage_board.id,
       log_type: options[:type],
       created_ip: options[:request].remote_ip,
