@@ -12,43 +12,53 @@ class V1::StorageBoardsController < V1::BaseController
   end
 
   def show
-    render json: StorageBoard.find_activation_with_options(configure_show_params), each_serializer: StorageBoardSerializer
+    render json: StorageBoard.find_activation_with_options(configure_show_params),
+           each_serializer: StorageBoardSerializer
   end
 
   def edit
-    render json: StorageBoard.find_with_options(configure_edit_params), each_serializer: StorageBoardSerializer
+    render json: StorageBoard.find_with_options(configure_edit_params),
+           each_serializer: StorageBoardSerializer
   end
 
   def non_members_edit
-    render json: StorageBoard.find_and_authentication_with_options(configure_non_members_edit_params), each_serializer: StorageBoardSerializer
+    render json: StorageBoard.find_for_non_member(configure_non_members_edit_params),
+           each_serializer: StorageBoardSerializer
   end
 
   def update
-    render json: StorageBoard.update_with_options(configure_update_params), each_serializer: StorageBoardSerializer
+    render json: StorageBoard.update_for_member(configure_update_params),
+           each_serializer: StorageBoardSerializer
   end
 
   def non_members_update
-    render json: StorageBoard.update_and_authentication_with_options(configure_non_members_update_params), each_serializer: StorageBoardSerializer
+    render json: StorageBoard.update_for_non_member(configure_non_members_update_params),
+           each_serializer: StorageBoardSerializer
   end
 
   def destroy
-    render json: StorageBoard.destroy_with_options(configure_destroy_params), each_serializer: StorageBoardSerializer
+    render json: StorageBoard.destroy_for_member(configure_destroy_params),
+           each_serializer: StorageBoardSerializer
   end
 
   def non_members_destroy
-    render json: StorageBoard.destroy_and_authentication_with_options(configure_non_members_destroy_params), each_serializer: StorageBoardSerializer
+    render json: StorageBoard.destroy_for_non_member(configure_non_members_destroy_params),
+           each_serializer: StorageBoardSerializer
   end
 
   def drafts
-    render json: StorageBoard.create_draft_with_options(configure_draft_params)
+    render json: StorageBoard.create_draft(configure_draft_params),
+           each_serializer: StorageBoardSerializer
   end
 
   def non_members_drafts
-    render json: StorageBoard.create_draft_with_options(configure_draft_params)
+    render json: StorageBoard.create_draft(configure_draft_params),
+           each_serializer: StorageBoardSerializer
   end
 
   def view_count
-    render json: StorageBoard.update_activation_view_count_with_options(params), each_serializer: StorageBoardSerializer
+    render json: StorageBoard.update_activation_view_count(params),
+           each_serializer: StorageBoardSerializer
   end
 
   def images
@@ -70,11 +80,13 @@ class V1::StorageBoardsController < V1::BaseController
   end
 
   def recommend
-    render json: StorageBoard.update_recommend_for_members(configure_recommend_params), each_serializer: StorageBoardSerializer
+    render json: StorageBoard.update_recommend_for_members(configure_recommend_params),
+           each_serializer: StorageBoardSerializer
   end
 
   def non_members_recommend
-    render json: StorageBoard.update_recommend_for_non_members(configure_recommend_params), each_serializer: StorageBoardSerializer
+    render json: StorageBoard.update_recommend_for_non_members(configure_recommend_params),
+           each_serializer: StorageBoardSerializer
   end
 
   private
