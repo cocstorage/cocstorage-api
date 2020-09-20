@@ -30,6 +30,7 @@ Rails.application.routes.draw do
           get '/:id/edit', to: 'storage_boards#edit'
           get '/non-members/:id/edit', to: 'storage_boards#non_members_edit'
           put '/non-members/:id', to: 'storage_boards#non_members_update'
+          delete '/non-members/:id', to: 'storage_boards#non_members_destroy'
         end
       end
     end

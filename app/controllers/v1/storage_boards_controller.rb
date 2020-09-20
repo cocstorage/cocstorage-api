@@ -1,5 +1,5 @@
 class V1::StorageBoardsController < V1::BaseController
-  skip_before_action :authenticate_v1_user!, only: %i[index show non_members_edit non_members_update non_members_drafts view_count non_members_images]
+  skip_before_action :authenticate_v1_user!, only: %i[index show non_members_edit non_members_update non_members_destroy non_members_drafts view_count non_members_images]
 
   def index
     storage_boards = StorageBoard.fetch_with_options(configure_index_params)
@@ -29,6 +29,14 @@ class V1::StorageBoardsController < V1::BaseController
 
   def non_members_update
     render json: StorageBoard.update_and_authentication_with_options(configure_non_members_update_params), each_serializer: StorageBoardSerializer
+  end
+
+  def destroy
+    render json: StorageBoard.destroy_with_options(configure_destroy_params), each_serializer: StorageBoardSerializer
+  end
+
+  def non_members_destroy
+    render json: StorageBoard.destroy_and_authentication_with_options(configure_non_members_destroy_params), each_serializer: StorageBoardSerializer
   end
 
   def drafts
@@ -87,6 +95,14 @@ class V1::StorageBoardsController < V1::BaseController
     %w[storage_id id subject content nickname password]
   end
 
+  def destroy_attributes
+    %w[storage_id id]
+  end
+
+  def non_members_destroy_attributes
+    %w[storage_id id password]
+  end
+
   def images_attributes
     %w[storage_id id]
   end
@@ -124,6 +140,16 @@ class V1::StorageBoardsController < V1::BaseController
       end
     end
     params.permit(non_members_update_attributes)
+  end
+
+  def configure_destroy_params
+    params.permit(destroy_attributes).merge(user: current_v1_user)
+  end
+
+  def configure_non_members_destroy_params
+    raise Errors::BadRequest.new(code: 'COC000', message: 'password is required') if params[:password].blank?
+
+    params.permit(non_members_destroy_attributes)
   end
 
   def configure_draft_params

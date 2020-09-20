@@ -112,6 +112,16 @@ class StorageBoard < ApplicationRecord
     storage_board
   end
 
+  def self.destroy_with_options(options = {})
+    storage_board = find_with_options(options)
+    storage_board.destroy
+  end
+
+  def self.destroy_and_authentication_with_options(options = {})
+    storage_board = find_and_authentication_with_options(options)
+    storage_board.destroy
+  end
+
   def self.update_activation_view_count_with_options(options = {})
     storage = Storage.find(options[:storage_id])
     storage_board = find_by(id: options[:id], storage_id: storage.id, is_draft: false, is_active: true)
