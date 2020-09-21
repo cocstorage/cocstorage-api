@@ -23,6 +23,10 @@ class Storage < ApplicationRecord
     storages
   end
 
+  def self.find_activation(id)
+    find_by(id: id, is_active: true)
+  end
+
   def active_boards
     storage_boards.where(is_draft: false, is_active: true)
   end

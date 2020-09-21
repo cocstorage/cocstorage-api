@@ -26,7 +26,6 @@ class StorageBoard < ApplicationRecord
   end
 
   def self.find_activation_with_options(options = {})
-    puts options
     options = options.merge(storage_id: options[:storage_id], is_draft: false, is_active: true)
     storage_board = find_by(options)
     raise Errors::BadRequest.new(code: 'COC006', message: "There's no such resource.") if storage_board.blank?
@@ -58,7 +57,9 @@ class StorageBoard < ApplicationRecord
   end
 
   def self.create_draft(options = {})
-    storage = Storage.find(options[:storage_id])
+    storage = Storage.find_activation(options[:storage_id])
+    raise Errors::BadRequest.new(code: 'COC006', message: "There's no such resource.") if storage.blank?
+
     options = options.merge(storage_id: storage.id)
     options = options.merge(user_id: options[:user].id, is_member: true) if options[:user].present?
     options = options.except(:user)
