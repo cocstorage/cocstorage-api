@@ -34,7 +34,11 @@ Rails.application.routes.draw do
           put '/:id/recommend', to: 'storage_boards#recommend'
           put '/non-members/:id/recommend', to: 'storage_boards#non_members_recommend'
         end
-        resources :storage_board_comments, path: 'comments'
+        resources :storage_board_comments, path: 'comments' do
+          collection do
+            post :'/non-members', to: 'storage_board_comments#non_members_create'
+          end
+        end
       end
     end
   end
