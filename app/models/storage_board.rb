@@ -2,6 +2,7 @@ class StorageBoard < ApplicationRecord
   belongs_to :storage
   belongs_to :user, optional: true
 
+  has_many :storage_board_comments
   has_many :storage_board_recommend_logs
   has_many_attached :images
 
@@ -186,6 +187,10 @@ class StorageBoard < ApplicationRecord
     )
 
     storage_board
+  end
+
+  def active_comments
+    storage_board_comments.where(is_active: true)
   end
 
   def thumbnail_url

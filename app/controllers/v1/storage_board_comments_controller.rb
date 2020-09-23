@@ -1,5 +1,15 @@
 class V1::StorageBoardCommentsController < V1::BaseController
-  skip_before_action :authenticate_v1_user!, only: %i[non_members_create]
+  skip_before_action :authenticate_v1_user!, only: %i[index non_members_create]
+
+  def index
+    storage_board_comments = StorageBoardComment.fetch_with_options(configure_index_params)
+    storage_board_comments = storage_board_comments.page(params[:page]).per(params[:per] || 20)
+
+    render json: {
+      comments: ActiveModelSerializers::SerializableResource.new(storage_board_comments, each_serializer: StorageBoardCommentSerializer),
+      pagination: PaginationSerializer.new(storage_board_comments)
+    }
+  end
 
   def create
     render json: StorageBoardComment.create_with_options(configure_create_params)
@@ -11,12 +21,20 @@ class V1::StorageBoardCommentsController < V1::BaseController
 
   private
 
+  def index_attributes
+    %w[storage_id storage_board_id page per orderBy]
+  end
+
   def create_attributes
     %w[storage_id storage_board_id content]
   end
 
   def non_members_create_attributes
     %w[storage_id storage_board_id nickname password content]
+  end
+
+  def configure_index_params
+    params.permit(index_attributes)
   end
 
   def configure_create_params
