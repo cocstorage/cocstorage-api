@@ -23,7 +23,7 @@ class Storage < ApplicationRecord
     storages
   end
 
-  def self.find_activation(id)
+  def self.find_active(id)
     find_by(id: id, is_active: true)
   end
 

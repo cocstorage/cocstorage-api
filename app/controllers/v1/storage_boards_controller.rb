@@ -12,7 +12,7 @@ class V1::StorageBoardsController < V1::BaseController
   end
 
   def show
-    render json: StorageBoard.find_activation_with_options(configure_show_params),
+    render json: StorageBoard.find_active_with_options(configure_show_params),
            each_serializer: StorageBoardSerializer
   end
 
@@ -57,7 +57,7 @@ class V1::StorageBoardsController < V1::BaseController
   end
 
   def view_count
-    render json: StorageBoard.update_activation_view_count(params),
+    render json: StorageBoard.update_active_view_count(params),
            each_serializer: StorageBoardSerializer
   end
 

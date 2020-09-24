@@ -19,7 +19,7 @@ class StorageBoardComment < ApplicationRecord
   end
 
   def self.find_with_options(options = {})
-    StorageBoard.find_activation_with_options(
+    StorageBoard.find_active_with_options(
       options.except(:storage_board_id, :user, :password).merge(id: options[:storage_board_id])
     )
 
@@ -35,10 +35,10 @@ class StorageBoardComment < ApplicationRecord
   end
 
   def self.create_with_options(options = {})
-    storage = Storage.find_activation(options[:storage_id])
+    storage = Storage.find_active(options[:storage_id])
     raise Errors::BadRequest.new(code: 'COC006', message: "There's no such resource.") if storage.blank?
 
-    StorageBoard.find_activation_with_options(
+    StorageBoard.find_active_with_options(
       options.except(
         :storage_board_id,
         :user,
@@ -57,7 +57,7 @@ class StorageBoardComment < ApplicationRecord
   end
 
   def self.destroy_for_member(options = {})
-    storage = Storage.find_activation(options[:storage_id])
+    storage = Storage.find_active(options[:storage_id])
     raise Errors::BadRequest.new(code: 'COC006', message: "There's no such resource.") if storage.blank?
 
     storage_board_comment = find_with_options(options)
@@ -66,7 +66,7 @@ class StorageBoardComment < ApplicationRecord
   end
 
   def self.destroy_for_non_member(options = {})
-    storage = Storage.find_activation(options[:storage_id])
+    storage = Storage.find_active(options[:storage_id])
     raise Errors::BadRequest.new(code: 'COC006', message: "There's no such resource.") if storage.blank?
 
     storage_board_comment = find_with_options(options)

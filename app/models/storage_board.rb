@@ -26,7 +26,7 @@ class StorageBoard < ApplicationRecord
     storage_boards
   end
 
-  def self.find_activation_with_options(options = {})
+  def self.find_active_with_options(options = {})
     options = options.merge(storage_id: options[:storage_id], is_draft: false, is_active: true)
     storage_board = find_by(options)
     raise Errors::BadRequest.new(code: 'COC006', message: "There's no such resource.") if storage_board.blank?
@@ -37,7 +37,7 @@ class StorageBoard < ApplicationRecord
   def self.find_with_options(options = {})
     options = options.merge(storage_id: options[:storage_id], is_active: true)
     options = options.merge(is_member: true) if options[:user].present?
-    options = options.merge(user_id: nil, is_member: false) unless options[:user].present?
+    options = options.merge(user_id: nil, is_member: false) if options[:user].blank?
 
     storage_board = find_by(options)
     raise Errors::BadRequest.new(code: 'COC006', message: "There's no such resource.") if storage_board.blank?
@@ -58,7 +58,7 @@ class StorageBoard < ApplicationRecord
   end
 
   def self.create_draft(options = {})
-    storage = Storage.find_activation(options[:storage_id])
+    storage = Storage.find_active(options[:storage_id])
     raise Errors::BadRequest.new(code: 'COC006', message: "There's no such resource.") if storage.blank?
 
     options = options.merge(storage_id: storage.id)
@@ -123,7 +123,7 @@ class StorageBoard < ApplicationRecord
     storage_board.destroy
   end
 
-  def self.update_activation_view_count(options = {})
+  def self.update_active_view_count(options = {})
     storage_board = find_by(id: options[:id], storage_id: options[:storage_id], is_draft: false, is_active: true)
     raise Errors::BadRequest.new(code: 'COC006', message: "There's no such resource.") if storage_board.blank?
 
@@ -131,7 +131,7 @@ class StorageBoard < ApplicationRecord
   end
 
   def self.update_recommend_for_member(options = {})
-    storage_board = find_activation_with_options(options.except(:user, :type, :request))
+    storage_board = find_active_with_options(options.except(:user, :type, :request))
 
     storage_board_recommend_log = StorageBoardRecommendLog.find_by(
       storage_board: storage_board,
@@ -161,7 +161,7 @@ class StorageBoard < ApplicationRecord
   end
 
   def self.update_recommend_for_non_members(options = {})
-    storage_board = find_activation_with_options(options.except(:type, :request))
+    storage_board = find_active_with_options(options.except(:type, :request))
 
     storage_board_recommend_log = StorageBoardRecommendLog.find_by(
       storage_board: storage_board,
