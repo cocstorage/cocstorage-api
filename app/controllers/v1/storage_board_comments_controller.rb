@@ -19,6 +19,12 @@ class V1::StorageBoardCommentsController < V1::BaseController
     render json: StorageBoardComment.create_with_options(configure_non_members_create_params), each_serializer: StorageBoardCommentSerializer
   end
 
+  def destroy
+    render json: {
+      data: 'DESTROY'
+    }
+  end
+
   private
 
   def index_attributes

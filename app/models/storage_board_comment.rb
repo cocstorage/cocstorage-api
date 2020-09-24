@@ -34,10 +34,8 @@ class StorageBoardComment < ApplicationRecord
       ).merge(id: options[:storage_board_id])
     )
 
-    options = options.merge(user_id: options[:user].id) if options[:user].present?
+    options = options.merge(user_id: options[:user].id, is_member: true) if options[:user].present?
     options = options.except(:user, :storage_id)
-
-    puts options
 
     create(options)
   end
