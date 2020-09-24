@@ -37,6 +37,7 @@ Rails.application.routes.draw do
         resources :storage_board_comments, path: 'comments' do
           collection do
             post :'/non-members', to: 'storage_board_comments#non_members_create'
+            delete :'/non-members/:id', to: 'storage_board_comments#non_members_destroy'
           end
         end
       end

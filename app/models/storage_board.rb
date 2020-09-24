@@ -92,7 +92,7 @@ class StorageBoard < ApplicationRecord
     storage_board = find_with_options(options.except(:nickname, :password, :subject, :content))
     raise Errors::BadRequest.new(code: 'COC006', message: "There's no such resource.") if storage_board.blank?
 
-    if storage_board.password.present? && storage_board.password.to_s != options[:password].to_s
+    if storage_board.password.to_s != options[:password].to_s
       raise Errors::BadRequest.new(code: 'COC027', message: 'Password do not match.')
     end
 
@@ -130,7 +130,7 @@ class StorageBoard < ApplicationRecord
     storage_board.increment!(:view_count, 1)
   end
 
-  def self.update_recommend_for_members(options = {})
+  def self.update_recommend_for_member(options = {})
     storage_board = find_activation_with_options(options.except(:user, :type, :request))
 
     storage_board_recommend_log = StorageBoardRecommendLog.find_by(

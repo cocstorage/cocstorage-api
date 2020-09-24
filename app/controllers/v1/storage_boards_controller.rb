@@ -81,7 +81,7 @@ class V1::StorageBoardsController < V1::BaseController
 
   def recommend
     ApplicationRecord.transaction do
-      render json: StorageBoard.update_recommend_for_members(configure_recommend_params),
+      render json: StorageBoard.update_recommend_for_member(configure_recommend_params),
              each_serializer: StorageBoardSerializer
     end
   end

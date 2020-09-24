@@ -18,6 +18,22 @@ class StorageBoardComment < ApplicationRecord
     storage_board_comments
   end
 
+  def self.find_with_options(options = {})
+    StorageBoard.find_activation_with_options(
+      options.except(:storage_board_id, :user, :password).merge(id: options[:storage_board_id])
+    )
+
+    options = options.merge(user_id: options[:user].id, is_member: true) if options[:user].present?
+    options = options.merge(user_id: nil, is_member: false) if options[:user].blank?
+
+    options = options.except(:user, :storage_id)
+
+    storage_board_comment = find_by(options.except(:password))
+    raise Errors::BadRequest.new(code: 'COC006', message: "There's no such resource.") if storage_board_comment.blank?
+
+    storage_board_comment
+  end
+
   def self.create_with_options(options = {})
     storage = Storage.find_activation(options[:storage_id])
     raise Errors::BadRequest.new(code: 'COC006', message: "There's no such resource.") if storage.blank?
@@ -38,6 +54,28 @@ class StorageBoardComment < ApplicationRecord
     options = options.except(:user, :storage_id)
 
     create(options)
+  end
+
+  def self.destroy_for_member(options = {})
+    storage = Storage.find_activation(options[:storage_id])
+    raise Errors::BadRequest.new(code: 'COC006', message: "There's no such resource.") if storage.blank?
+
+    storage_board_comment = find_with_options(options)
+
+    storage_board_comment.destroy
+  end
+
+  def self.destroy_for_non_member(options = {})
+    storage = Storage.find_activation(options[:storage_id])
+    raise Errors::BadRequest.new(code: 'COC006', message: "There's no such resource.") if storage.blank?
+
+    storage_board_comment = find_with_options(options)
+
+    if storage_board_comment.password.to_s != options[:password].to_s
+      raise Errors::BadRequest.new(code: 'COC027', message: 'Password do not match.')
+    end
+
+    storage_board_comment.destroy
   end
 
   private
