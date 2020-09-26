@@ -2,6 +2,9 @@ class StorageBoardComment < ApplicationRecord
   belongs_to :storage_board
   belongs_to :user, optional: true
 
+  has_many :storage_board_comment_replies
+
+  validate :nickname_inspection, on: %i[create]
   validate :password_minimum_length, on: %i[create]
 
   def self.fetch_with_options(options = {})
@@ -19,10 +22,6 @@ class StorageBoardComment < ApplicationRecord
   end
 
   def self.find_with_options(options = {})
-    StorageBoard.find_active_with_options(
-      options.except(:storage_board_id, :user, :password).merge(id: options[:storage_board_id])
-    )
-
     options = options.merge(user_id: options[:user].id, is_member: true) if options[:user].present?
     options = options.merge(user_id: nil, is_member: false) if options[:user].blank?
 
@@ -35,40 +34,20 @@ class StorageBoardComment < ApplicationRecord
   end
 
   def self.create_with_options(options = {})
-    storage = Storage.find_active(options[:storage_id])
-    raise Errors::BadRequest.new(code: 'COC006', message: "There's no such resource.") if storage.blank?
-
-    StorageBoard.find_active_with_options(
-      options.except(
-        :storage_board_id,
-        :user,
-        :nickname,
-        :password,
-        :content,
-        :created_ip,
-        :created_user_agent
-      ).merge(id: options[:storage_board_id])
-    )
-
     options = options.merge(user_id: options[:user].id, is_member: true) if options[:user].present?
+    options = options.merge(user_id: nil, is_member: false) if options[:user].blank?
+
     options = options.except(:user, :storage_id)
 
-    create(options)
+    create!(options)
   end
 
   def self.destroy_for_member(options = {})
-    storage = Storage.find_active(options[:storage_id])
-    raise Errors::BadRequest.new(code: 'COC006', message: "There's no such resource.") if storage.blank?
-
     storage_board_comment = find_with_options(options)
-
     storage_board_comment.destroy
   end
 
   def self.destroy_for_non_member(options = {})
-    storage = Storage.find_active(options[:storage_id])
-    raise Errors::BadRequest.new(code: 'COC006', message: "There's no such resource.") if storage.blank?
-
     storage_board_comment = find_with_options(options)
 
     if storage_board_comment.password.to_s != options[:password].to_s
@@ -79,6 +58,17 @@ class StorageBoardComment < ApplicationRecord
   end
 
   private
+
+  def nickname_inspection
+    if !is_member && nickname.present?
+      regex = /[ㄱ-ㅎㅏ-ㅣ가-힣a-zA-Z0-9]{2,10}/
+      special_regex = "[ !@\#$%^&*(),.?\":{}|<>]"
+
+      raise Errors::BadRequest.new(code: 'COC001', message: 'nickname is invalid') unless nickname =~ regex
+      raise Errors::BadRequest.new(code: 'COC001', message: 'nickname is invalid') if nickname.length > 10
+      raise Errors::BadRequest.new(code: 'COC001', message: 'nickname is invalid') if nickname.match(special_regex)
+    end
+  end
 
   def password_minimum_length
     if !is_member && password.present? && password.length < 7

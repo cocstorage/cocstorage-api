@@ -18,7 +18,9 @@ class StorageBoardCommentReply < ApplicationRecord
     options = options.merge(is_active: true, is_member: true)
 
     storage_board_comment_reply = find_by(options)
-    raise Errors::BadRequest.new(code: 'COC006', message: "There's no such resource.") if storage_board_comment_reply.blank?
+    if storage_board_comment_reply.blank?
+      raise Errors::BadRequest.new(code: 'COC006', message: "There's no such resource.")
+    end
 
     storage_board_comment_reply.destroy
   end
@@ -27,7 +29,9 @@ class StorageBoardCommentReply < ApplicationRecord
     options = options.merge(user_id: nil, is_active: true, is_member: false)
 
     storage_board_comment_reply = find_by(options.except(:password))
-    raise Errors::BadRequest.new(code: 'COC006', message: "There's no such resource.") if storage_board_comment_reply.blank?
+    if storage_board_comment_reply.blank?
+      raise Errors::BadRequest.new(code: 'COC006', message: "There's no such resource.")
+    end
 
     if storage_board_comment_reply.password.to_s != options[:password].to_s
       raise Errors::BadRequest.new(code: 'COC027', message: 'Password do not match.')

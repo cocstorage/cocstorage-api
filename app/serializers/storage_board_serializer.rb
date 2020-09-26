@@ -12,7 +12,8 @@ class StorageBoardSerializer < ActiveModel::Serializer
       id: storage.id,
       storage_category_id: storage.storage_category_id,
       path: storage.path,
-      name: storage.name
+      name: storage.name,
+      avatar_url: storage.avatar_url
     }
   end
 
@@ -23,7 +24,8 @@ class StorageBoardSerializer < ActiveModel::Serializer
       {
         id: user.id,
         nickname: user.nickname,
-        role: user.role
+        role: user.role,
+        avatar_url: user.avatar_url
       }
     end
   end

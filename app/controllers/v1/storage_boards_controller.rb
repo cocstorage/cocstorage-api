@@ -57,7 +57,7 @@ class V1::StorageBoardsController < V1::BaseController
   end
 
   def view_count
-    render json: StorageBoard.update_active_view_count(params),
+    render json: StorageBoard.update_active_view_count(configure_view_count_params),
            each_serializer: StorageBoardSerializer
   end
 
@@ -81,14 +81,14 @@ class V1::StorageBoardsController < V1::BaseController
 
   def recommend
     ApplicationRecord.transaction do
-      render json: StorageBoard.update_recommend_for_member(configure_recommend_params),
+      render json: StorageBoard.update_recommend_with_options(configure_recommend_params),
              each_serializer: StorageBoardSerializer
     end
   end
 
   def non_members_recommend
     ApplicationRecord.transaction do
-      render json: StorageBoard.update_recommend_for_non_members(non_members_configure_recommend_params),
+      render json: StorageBoard.update_recommend_with_options(non_members_configure_recommend_params),
              each_serializer: StorageBoardSerializer
     end
   end
@@ -125,6 +125,10 @@ class V1::StorageBoardsController < V1::BaseController
 
   def non_members_destroy_attributes
     %w[storage_id id password]
+  end
+
+  def view_count_attributes
+    %w[storage_id id]
   end
 
   def images_attributes
@@ -183,6 +187,10 @@ class V1::StorageBoardsController < V1::BaseController
     raise Errors::BadRequest.new(code: 'COC000', message: 'password is required') if params[:password].blank?
 
     params.permit(non_members_destroy_attributes)
+  end
+
+  def configure_view_count_params
+    params.permit(view_count_attributes)
   end
 
   def configure_draft_params

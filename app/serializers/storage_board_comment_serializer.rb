@@ -11,7 +11,8 @@ class StorageBoardCommentSerializer < ActiveModel::Serializer
       {
         id: user.id,
         nickname: user.nickname,
-        role: user.role
+        role: user.role,
+        avatar_url: user.avatar_url
       }
     end
   end
