@@ -14,6 +14,28 @@ class StorageBoardCommentReply < ApplicationRecord
     create!(options)
   end
 
+  def self.destroy_for_member(options = {})
+    options = options.merge(is_active: true, is_member: true)
+
+    storage_board_comment_reply = find_by(options)
+    raise Errors::BadRequest.new(code: 'COC006', message: "There's no such resource.") if storage_board_comment_reply.blank?
+
+    storage_board_comment_reply.destroy
+  end
+
+  def self.destroy_for_non_member(options = {})
+    options = options.merge(user_id: nil, is_active: true, is_member: false)
+
+    storage_board_comment_reply = find_by(options.except(:password))
+    raise Errors::BadRequest.new(code: 'COC006', message: "There's no such resource.") if storage_board_comment_reply.blank?
+
+    if storage_board_comment_reply.password.to_s != options[:password].to_s
+      raise Errors::BadRequest.new(code: 'COC027', message: 'Password do not match.')
+    end
+
+    storage_board_comment_reply.destroy
+  end
+
   private
 
   def nickname_inspection
