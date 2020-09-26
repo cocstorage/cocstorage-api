@@ -12,7 +12,7 @@ class V1::StorageBoardCommentsController < V1::BaseController
   end
 
   def create
-    render json: StorageBoardComment.create_with_options(configure_create_params)
+    render json: StorageBoardComment.create_with_options(configure_create_params), each_serializer: StorageBoardCommentSerializer
   end
 
   def non_members_create
