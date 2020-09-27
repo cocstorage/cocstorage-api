@@ -15,6 +15,10 @@ class V1::Admin::NoticesController < V1::Admin::BaseController
     render json: Notice.find(params[:id])
   end
 
+  def edit
+    render json: Notice.find(params[:id])
+  end
+
   def update
     render json: Notice.update_with_options(configure_update_params)
   end
