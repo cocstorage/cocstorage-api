@@ -48,5 +48,12 @@ Rails.application.routes.draw do
         end
       end
     end
+    namespace :admin do
+      resources :notices do
+        collection do
+          post '/drafts', to: 'notices#drafts'
+        end
+      end
+    end
   end
 end

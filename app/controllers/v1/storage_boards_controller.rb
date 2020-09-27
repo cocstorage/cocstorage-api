@@ -147,6 +147,12 @@ class V1::StorageBoardsController < V1::BaseController
   end
 
   def configure_index_params
+    index_attributes.each do |key|
+      if params.key? key.to_sym
+        raise Errors::BadRequest.new(code: 'COC013', message: "#{key} is empty") if params[key.to_sym].blank?
+      end
+    end
+
     params.permit(index_attributes)
   end
 
@@ -165,6 +171,14 @@ class V1::StorageBoardsController < V1::BaseController
   end
 
   def configure_update_params
+    if params.key? :subject
+      raise Errors::BadRequest.new(code: 'COC013', message: 'subject is empty') if params[:subject].blank?
+    end
+
+    if params.key? :content
+      raise Errors::BadRequest.new(code: 'COC013', message: 'content is empty') if params[:content].blank?
+    end
+
     params.permit(update_attributes).merge(user: current_v1_user)
   end
 
@@ -177,6 +191,14 @@ class V1::StorageBoardsController < V1::BaseController
       if key == 'password'
         raise Errors::BadRequest.new(code: 'COC000', message: "#{key} is required") if params[key].blank?
       end
+    end
+
+    if params.key? :subject
+      raise Errors::BadRequest.new(code: 'COC013', message: 'subject is empty') if params[:subject].blank?
+    end
+
+    if params.key? :content
+      raise Errors::BadRequest.new(code: 'COC013', message: 'content is empty') if params[:content].blank?
     end
 
     params.permit(non_members_update_attributes)
@@ -220,6 +242,8 @@ class V1::StorageBoardsController < V1::BaseController
   end
 
   def configure_recommend_params
+    raise Errors::BadRequest.new(code: 'COC000', message: 'type is required') if params[:type].blank?
+
     params.permit(recommend_attributes).merge(user: current_v1_user, request: request)
   end
 

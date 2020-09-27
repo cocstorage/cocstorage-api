@@ -19,7 +19,10 @@ class ApplicationController < ActionController::API
   end
 
   def unauthorized
-    head :unauthorized
+    render status: :unauthorized, json: {
+      code: error.code,
+      message: error.message
+    }
   end
 
   def forbidden(error)

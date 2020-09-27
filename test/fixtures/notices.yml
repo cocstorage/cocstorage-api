@@ -1,0 +1,23 @@
+# Read about fixtures at https://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
+
+one:
+  user: one
+  subject: MyString
+  content: MyString
+  description: MyString
+  view_count: 1
+  is_draft: false
+  is_active: false
+  created_ip: MyString
+  created_user_agent: MyString
+
+two:
+  user: two
+  subject: MyString
+  content: MyString
+  description: MyString
+  view_count: 1
+  is_draft: false
+  is_active: false
+  created_ip: MyString
+  created_user_agent: MyString

@@ -8,7 +8,15 @@ class Errors
       @message = error[:message]
     end
   end
-  class Unauthorized < StandardError; end
+  class Unauthorized < StandardError
+    attr_reader :code, :message
+
+    def initialize(error)
+      super
+      @code = error[:code]
+      @message = error[:message]
+    end
+  end
   class WardenUnauthorized < StandardError
     attr_reader :code, :message
 

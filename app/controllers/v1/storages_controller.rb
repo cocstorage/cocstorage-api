@@ -40,6 +40,12 @@ class V1::StoragesController < V1::BaseController
   end
 
   def configure_index_params
+    index_attributes.each do |key|
+      if params.key? key.to_sym
+        raise Errors::BadRequest.new(code: 'COC013', message: "#{key} is empty") if params[key.to_sym].blank?
+      end
+    end
+
     params.permit(index_attributes)
   end
 
