@@ -6,7 +6,10 @@ class V1::StorageBoardCommentsController < V1::BaseController
     storage_board_comments = storage_board_comments.page(params[:page]).per(params[:per] || 20)
 
     render json: {
-      comments: ActiveModelSerializers::SerializableResource.new(storage_board_comments, each_serializer: StorageBoardCommentSerializer),
+      comments: ActiveModelSerializers::SerializableResource.new(
+        storage_board_comments,
+        each_serializer: StorageBoardCommentSerializer
+      ),
       pagination: PaginationSerializer.new(storage_board_comments)
     }
   end

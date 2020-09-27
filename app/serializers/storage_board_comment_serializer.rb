@@ -23,6 +23,9 @@ class StorageBoardCommentSerializer < ActiveModel::Serializer
   end
 
   def replys
-    ActiveModelSerializers::SerializableResource.new(object.storage_board_comment_replies, each_serializer: StorageBoardCommentReplySerializer)
+    ActiveModelSerializers::SerializableResource.new(
+      object.storage_board_comment_replies,
+      each_serializer: StorageBoardCommentReplySerializer
+    )
   end
 end

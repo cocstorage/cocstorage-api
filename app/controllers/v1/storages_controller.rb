@@ -6,7 +6,10 @@ class V1::StoragesController < V1::BaseController
     storages = storages.page(params[:page]).per(params[:per] || 20)
 
     render json: {
-      storages: ActiveModelSerializers::SerializableResource.new(storages, each_serializer: StorageSerializer),
+      storages: ActiveModelSerializers::SerializableResource.new(
+        storages,
+        each_serializer: StorageSerializer
+      ),
       pagination: PaginationSerializer.new(storages)
     }
   end
@@ -59,8 +62,6 @@ class V1::StoragesController < V1::BaseController
       created_ip: request.remote_ip,
       created_user_agent: request.user_agent
     }
-
-    puts other_require_params
 
     params.permit(create_attributes).merge(other_require_params)
   end
