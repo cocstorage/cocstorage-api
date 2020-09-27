@@ -1,5 +1,5 @@
 class V1::Admin::NoticesController < V1::Admin::BaseController
-  skip_before_action :authenticate_v1_admin!, only: %i[index]
+  skip_before_action :authenticate_v1_admin!, only: %i[index show]
 
   def index
     notices = Notice.fetch_with_options(configure_index_params)
@@ -9,6 +9,10 @@ class V1::Admin::NoticesController < V1::Admin::BaseController
       notices: notices,
       pagination: PaginationSerializer.new(notices)
     }
+  end
+
+  def show
+    render json: Notice.find(params[:id])
   end
 
   def update
@@ -22,6 +26,16 @@ class V1::Admin::NoticesController < V1::Admin::BaseController
       created_user_agent: request.user_agent
     )
   end
+
+  def images
+    notice = Notice.find_with_options(configure_images_params)
+    notice.images.attach(params[:image])
+
+    render json: {
+      image_url: notice.last_image_url
+    }
+  end
+
   private
 
   def index_attributes
@@ -30,6 +44,10 @@ class V1::Admin::NoticesController < V1::Admin::BaseController
 
   def update_attributes
     %w[id subject content]
+  end
+
+  def images_attributes
+    %w[id]
   end
 
   def configure_index_params
@@ -52,5 +70,21 @@ class V1::Admin::NoticesController < V1::Admin::BaseController
     end
 
     params.permit(update_attributes).merge(user: current_v1_user)
+  end
+
+  def configure_images_params
+    raise Errors::BadRequest.new(code: 'COC000', message: 'image is required') if params[:image].blank?
+
+    if params.key? :image
+      unless params[:image].is_a? ActionDispatch::Http::UploadedFile
+        raise Errors::BadRequest.new(code: 'COC014', message: 'image is not a file')
+      end
+
+      unless params[:image].content_type.in?(%w[image/png image/gif image/jpg image/jpeg])
+        raise Errors::BadRequest.new(code: 'COC016', message: "#{params[:image].content_type} is unacceptable image format")
+      end
+    end
+
+    params.permit(images_attributes).merge(user: current_v1_user)
   end
 end

@@ -52,6 +52,7 @@ Rails.application.routes.draw do
       resources :notices do
         collection do
           post '/drafts', to: 'notices#drafts'
+          post '/:id/images', to: 'notices#images'
         end
       end
     end

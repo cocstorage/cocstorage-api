@@ -228,6 +228,8 @@ class V1::StorageBoardsController < V1::BaseController
   end
 
   def configure_images_params
+    raise Errors::BadRequest.new(code: 'COC000', message: 'image is required') if params[:image].blank?
+
     if params.key? :image
       unless params[:image].is_a? ActionDispatch::Http::UploadedFile
         raise Errors::BadRequest.new(code: 'COC014', message: 'image is not a file')
