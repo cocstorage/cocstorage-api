@@ -53,6 +53,7 @@ Rails.application.routes.draw do
         collection do
           post '/drafts', to: 'notices#drafts'
           post '/:id/images', to: 'notices#images'
+          put '/:id/view-count', to: 'notices#view_count'
         end
       end
     end

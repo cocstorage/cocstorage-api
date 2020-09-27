@@ -37,6 +37,13 @@ class Notice < ApplicationRecord
     notice
   end
 
+  def self.update_active_view_count(options = {})
+    notice = find_by(options)
+    raise Errors::BadRequest.new(code: 'COC006', message: "There's no such resource.") if notice.blank?
+
+    notice.increment!(:view_count, 1)
+  end
+
   def thumbnail_url
     first_files_url_of(images)
   end

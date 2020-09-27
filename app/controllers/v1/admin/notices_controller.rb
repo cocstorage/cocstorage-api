@@ -1,5 +1,5 @@
 class V1::Admin::NoticesController < V1::Admin::BaseController
-  skip_before_action :authenticate_v1_admin!, only: %i[index show]
+  skip_before_action :authenticate_v1_admin!, only: %i[index show view_count]
 
   def index
     notices = Notice.fetch_with_options(configure_index_params)
@@ -36,6 +36,10 @@ class V1::Admin::NoticesController < V1::Admin::BaseController
     }
   end
 
+  def view_count
+    render json: Notice.update_active_view_count(configure_view_count_params)
+  end
+
   private
 
   def index_attributes
@@ -47,6 +51,10 @@ class V1::Admin::NoticesController < V1::Admin::BaseController
   end
 
   def images_attributes
+    %w[id]
+  end
+
+  def view_count_attributes
     %w[id]
   end
 
@@ -86,5 +94,9 @@ class V1::Admin::NoticesController < V1::Admin::BaseController
     end
 
     params.permit(images_attributes).merge(user: current_v1_user)
+  end
+
+  def configure_view_count_params
+    params.permit(view_count_attributes)
   end
 end
