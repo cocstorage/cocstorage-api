@@ -1,6 +1,7 @@
 class Notice < ApplicationRecord
   belongs_to :user
 
+  has_many :notice_comments
   has_many_attached :images
 
   def self.fetch_with_options(options = {})
@@ -50,6 +51,10 @@ class Notice < ApplicationRecord
     notice = find_active_with_options(options)
 
     notice.increment!(:view_count, 1)
+  end
+
+  def active_comments
+    notice_comments.where(is_active: true)
   end
 
   def thumbnail_url

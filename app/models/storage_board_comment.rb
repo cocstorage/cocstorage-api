@@ -8,7 +8,7 @@ class StorageBoardComment < ApplicationRecord
   validate :password_minimum_length, on: %i[create]
 
   def self.fetch_with_options(options = {})
-    storage_board = StorageBoard.find_by(id: options[:storage_board_id], is_active: true)
+    storage_board = StorageBoard.find_by(id: options[:storage_board_id], is_draft: false, is_active: true)
     raise Errors::BadRequest.new(code: 'COC006', message: "There's no such resource.") if storage_board.blank?
 
     storage_board_comments = storage_board.active_comments

@@ -3,6 +3,8 @@
 one:
   notice: one
   user: one
+  nickname: MyString
+  password: MyString
   content: MyText
   thumb_up: 1
   thumb_down: 1
@@ -14,6 +16,8 @@ one:
 two:
   notice: two
   user: two
+  nickname: MyString
+  password: MyString
   content: MyText
   thumb_up: 1
   thumb_down: 1

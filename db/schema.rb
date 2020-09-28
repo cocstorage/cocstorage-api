@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2020_09_28_160803) do
+ActiveRecord::Schema.define(version: 2020_09_28_165033) do
 
   create_table "active_storage_attachments", options: "ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci", force: :cascade do |t|
     t.string "name", null: false
@@ -47,6 +47,8 @@ ActiveRecord::Schema.define(version: 2020_09_28_160803) do
   create_table "notice_comments", options: "ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci", force: :cascade do |t|
     t.bigint "notice_id", null: false
     t.bigint "user_id"
+    t.string "nickname"
+    t.string "password"
     t.text "content"
     t.integer "thumb_up", default: 0
     t.integer "thumb_down", default: 0
