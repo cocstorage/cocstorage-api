@@ -6,21 +6,26 @@ class V1::Admin::NoticesController < V1::Admin::BaseController
     notices = notices.page(params[:page]).per(params[:per] || 20)
 
     render json: {
-      notices: notices,
+      notices: ActiveModelSerializers::SerializableResource.new(notices, each_serializer: NoticeSerializer),
       pagination: PaginationSerializer.new(notices)
     }
   end
 
   def show
-    render json: Notice.find(params[:id])
+    render json: Notice.find_active_with_options(configure_show_params), each_serializer: NoticeSerializer
   end
 
   def edit
-    render json: Notice.find(params[:id])
+    render json: Notice.find_active_with_options(configure_edit_params), each_serializer: NoticeSerializer
   end
 
   def update
-    render json: Notice.update_with_options(configure_update_params)
+    render json: Notice.update_with_options(configure_update_params), each_serializer: NoticeSerializer
+  end
+
+  def destroy
+    notice = Notice.find_active_with_options(configure_destroy_params)
+    render json: notice.destroy
   end
 
   def drafts
@@ -28,7 +33,7 @@ class V1::Admin::NoticesController < V1::Admin::BaseController
       user_id: current_v1_user.id,
       created_ip: request.remote_ip,
       created_user_agent: request.user_agent
-    )
+    ), each_serializer: NoticeSerializer
   end
 
   def images
@@ -50,8 +55,20 @@ class V1::Admin::NoticesController < V1::Admin::BaseController
     %w[orderBy per page]
   end
 
+  def show_attributes
+    %w[id]
+  end
+
+  def edit_attributes
+    %w[id]
+  end
+
   def update_attributes
     %w[id subject content]
+  end
+
+  def destroy_attributes
+    %w[id]
   end
 
   def images_attributes
@@ -72,6 +89,14 @@ class V1::Admin::NoticesController < V1::Admin::BaseController
     params.permit(index_attributes)
   end
 
+  def configure_show_params
+    params.permit(show_attributes)
+  end
+
+  def configure_edit_params
+    params.permit(edit_attributes)
+  end
+
   def configure_update_params
     if params.key? :subject
       raise Errors::BadRequest.new(code: 'COC013', message: 'subject is empty') if params[:subject].blank?
@@ -82,6 +107,10 @@ class V1::Admin::NoticesController < V1::Admin::BaseController
     end
 
     params.permit(update_attributes).merge(user: current_v1_user)
+  end
+
+  def configure_destroy_params
+    params.permit(destroy_attributes)
   end
 
   def configure_images_params

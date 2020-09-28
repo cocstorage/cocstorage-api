@@ -23,6 +23,15 @@ class Notice < ApplicationRecord
     notice
   end
 
+  def self.find_active_with_options(options = {})
+    options = options.merge(is_draft: false, is_active: true)
+
+    notice = find_by(options)
+    raise Errors::BadRequest.new(code: 'COC006', message: "There's no such resource.") if notice.blank?
+
+    notice
+  end
+
   def self.update_with_options(options = {})
     notice = find_by(options.except(:subject, :content))
     raise Errors::BadRequest.new(code: 'COC006', message: "There's no such resource.") if notice.blank?
@@ -38,8 +47,7 @@ class Notice < ApplicationRecord
   end
 
   def self.update_active_view_count(options = {})
-    notice = find_by(options)
-    raise Errors::BadRequest.new(code: 'COC006', message: "There's no such resource.") if notice.blank?
+    notice = find_active_with_options(options)
 
     notice.increment!(:view_count, 1)
   end

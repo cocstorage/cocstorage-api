@@ -1,0 +1,21 @@
+# Read about fixtures at https://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
+
+one:
+  user: one
+  content: MyText
+  thumb_up: 1
+  thumb_down: 1
+  is_active: false
+  is_member: false
+  created_ip: MyString
+  created_user_agent: MyString
+
+two:
+  user: two
+  content: MyText
+  thumb_up: 1
+  thumb_down: 1
+  is_active: false
+  is_member: false
+  created_ip: MyString
+  created_user_agent: MyString
