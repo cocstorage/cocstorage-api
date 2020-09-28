@@ -40,7 +40,7 @@ class V1::StorageBoardCommentsController < V1::BaseController
     %w[storage_id storage_board_id content]
   end
 
-  def non_member_create_attributes
+  def non_members_create_attributes
     %w[storage_id storage_board_id nickname password content]
   end
 
@@ -48,7 +48,7 @@ class V1::StorageBoardCommentsController < V1::BaseController
     %w[storage_id storage_board_id id]
   end
 
-  def non_member_destroy_attributes
+  def non_members_destroy_attributes
     %w[storage_id storage_board_id id password]
   end
 
@@ -73,11 +73,11 @@ class V1::StorageBoardCommentsController < V1::BaseController
   end
 
   def configure_non_member_create_params
-    non_member_create_attributes.each do |key|
+    non_members_create_attributes.each do |key|
       raise Errors::BadRequest.new(code: 'COC000', message: "#{key} is required") if params[key].blank?
     end
 
-    params.permit(non_member_create_attributes).merge(
+    params.permit(non_members_create_attributes).merge(
       created_ip: request.remote_ip,
       created_user_agent: request.user_agent
     )
@@ -90,6 +90,6 @@ class V1::StorageBoardCommentsController < V1::BaseController
   def configure_non_member_destroy_params
     raise Errors::BadRequest.new(code: 'COC000', message: 'password is required') if params[:password].blank?
 
-    params.permit(non_member_destroy_attributes)
+    params.permit(non_members_destroy_attributes)
   end
 end

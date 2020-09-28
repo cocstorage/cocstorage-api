@@ -1,6 +1,7 @@
 class CreateNoticeComments < ActiveRecord::Migration[6.0]
   def change
     create_table :notice_comments do |t|
+      t.references :notice, null: false, foreign_key: true
       t.references :user, null: true, foreign_key: true
       t.text :content
       t.integer :thumb_up, default: 0

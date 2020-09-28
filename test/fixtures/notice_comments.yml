@@ -1,6 +1,7 @@
 # Read about fixtures at https://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
 
 one:
+  notice: one
   user: one
   content: MyText
   thumb_up: 1
@@ -11,6 +12,7 @@ one:
   created_user_agent: MyString
 
 two:
+  notice: two
   user: two
   content: MyText
   thumb_up: 1

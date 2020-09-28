@@ -56,6 +56,11 @@ Rails.application.routes.draw do
           put '/:id/view-count', to: 'notices#view_count'
           put '/:id/edit', to: 'notices#edit'
         end
+        resources :notice_comments, path: 'comments' do
+          collection do
+            post '/non-members', to: 'notice_comments#non_members_create'
+          end
+        end
       end
     end
   end

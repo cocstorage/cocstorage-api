@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2020_09_28_160013) do
+ActiveRecord::Schema.define(version: 2020_09_28_160803) do
 
   create_table "active_storage_attachments", options: "ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci", force: :cascade do |t|
     t.string "name", null: false
@@ -45,6 +45,7 @@ ActiveRecord::Schema.define(version: 2020_09_28_160013) do
   end
 
   create_table "notice_comments", options: "ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci", force: :cascade do |t|
+    t.bigint "notice_id", null: false
     t.bigint "user_id"
     t.text "content"
     t.integer "thumb_up", default: 0
@@ -55,6 +56,7 @@ ActiveRecord::Schema.define(version: 2020_09_28_160013) do
     t.string "created_user_agent"
     t.datetime "created_at", precision: 6, null: false
     t.datetime "updated_at", precision: 6, null: false
+    t.index ["notice_id"], name: "index_notice_comments_on_notice_id"
     t.index ["user_id"], name: "index_notice_comments_on_user_id"
   end
 
@@ -218,6 +220,7 @@ ActiveRecord::Schema.define(version: 2020_09_28_160013) do
   end
 
   add_foreign_key "active_storage_attachments", "active_storage_blobs", column: "blob_id"
+  add_foreign_key "notice_comments", "notices"
   add_foreign_key "notice_comments", "users"
   add_foreign_key "notices", "users"
   add_foreign_key "storage_board_comment_replies", "storage_board_comments"
