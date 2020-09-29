@@ -1,6 +1,6 @@
 class V1::Admin::NoticeCommentsController < V1::Admin::BaseController
-  skip_before_action :authenticate_v1_admin!, only: %i[index create non_members_create]
-  before_action :authenticate_v1_user!, only: %i[create]
+  skip_before_action :authenticate_v1_admin!, only: %i[index create non_members_create destroy non_members_destroy]
+  before_action :authenticate_v1_user!, only: %i[create destroy]
 
   def index
     notice_comments = NoticeComment.fetch_with_options(configure_index_params)
@@ -23,6 +23,14 @@ class V1::Admin::NoticeCommentsController < V1::Admin::BaseController
     render json: NoticeComment.create_with_options(configure_non_members_create_params), each_serializer: NoticeCommentSerializer
   end
 
+  def destroy
+    render json: NoticeComment.destroy_for_member(configure_destroy_params), each_serializer: NoticeCommentSerializer
+  end
+
+  def non_members_destroy
+    render json: NoticeComment.destroy_for_non_member(configure_non_member_destroy_params), each_serializer: NoticeCommentSerializer
+  end
+
   private
 
   def index_attributes
@@ -35,6 +43,14 @@ class V1::Admin::NoticeCommentsController < V1::Admin::BaseController
 
   def non_members_create_attributes
     %w[notice_id nickname password content]
+  end
+
+  def destroy_attributes
+    %w[notice_id id]
+  end
+
+  def non_members_destroy_attributes
+    %w[notice_id id password]
   end
 
   def configure_index_params
@@ -66,5 +82,15 @@ class V1::Admin::NoticeCommentsController < V1::Admin::BaseController
       created_ip: request.remote_ip,
       created_user_agent: request.user_agent
     )
+  end
+
+  def configure_destroy_params
+    params.permit(destroy_attributes).merge(user: current_v1_user)
+  end
+
+  def configure_non_member_destroy_params
+    raise Errors::BadRequest.new(code: 'COC000', message: 'password is required') if params[:password].blank?
+
+    params.permit(non_members_destroy_attributes)
   end
 end

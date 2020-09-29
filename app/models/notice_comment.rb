@@ -19,6 +19,18 @@ class NoticeComment < ApplicationRecord
     notice_comments
   end
 
+  def self.find_with_options(options = {})
+    options = options.merge(user_id: options[:user].id, is_member: true) if options[:user].present?
+    options = options.merge(user_id: nil, is_member: false) if options[:user].blank?
+
+    options = options.except(:user)
+
+    notice_comment = find_by(options.except(:password))
+    raise Errors::BadRequest.new(code: 'COC006', message: "There's no such resource.") if notice_comment.blank?
+
+    notice_comment
+  end
+
   def self.create_with_options(options = {})
     options = options.merge(user_id: options[:user].id, is_member: true) if options[:user].present?
     options = options.merge(user_id: nil, is_member: false) if options[:user].blank?
@@ -26,6 +38,21 @@ class NoticeComment < ApplicationRecord
     options = options.except(:user)
 
     create!(options)
+  end
+
+  def self.destroy_for_member(options = {})
+    notice_comment = find_with_options(options)
+    notice_comment.destroy
+  end
+
+  def self.destroy_for_non_member(options = {})
+    notice_comment = find_with_options(options)
+
+    if notice_comment.password.to_s != options[:password].to_s
+      raise Errors::BadRequest.new(code: 'COC027', message: 'Password do not match.')
+    end
+
+    notice_comment.destroy
   end
 
   private

@@ -59,6 +59,7 @@ Rails.application.routes.draw do
         resources :notice_comments, path: 'comments' do
           collection do
             post '/non-members', to: 'notice_comments#non_members_create'
+            delete '/non-members/:id', to: 'notice_comments#non_members_destroy'
           end
         end
       end
