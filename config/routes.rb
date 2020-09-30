@@ -61,6 +61,11 @@ Rails.application.routes.draw do
             post '/non-members', to: 'notice_comments#non_members_create'
             delete '/non-members/:id', to: 'notice_comments#non_members_destroy'
           end
+          resources :notice_comment_replys, path: 'replys' do
+            collection do
+              post '/non-members', to: 'notice_comment_replys#non_members_create'
+            end
+          end
         end
       end
     end
