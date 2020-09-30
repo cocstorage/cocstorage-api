@@ -2,6 +2,8 @@ class NoticeComment < ApplicationRecord
   belongs_to :notice
   belongs_to :user, optional: true
 
+  has_many :notice_comment_replies
+
   validate :nickname_inspection, on: %i[create]
   validate :password_minimum_length, on: %i[create]
 
