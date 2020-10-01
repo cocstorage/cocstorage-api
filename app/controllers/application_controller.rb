@@ -1,4 +1,6 @@
 class ApplicationController < ActionController::API
+  before_action :validation_x_api_key
+
   rescue_from Errors::BadRequest, with: :bad_request
   rescue_from Errors::Unauthorized, with: :unauthorized
   rescue_from Errors::Forbidden, with: :forbidden
@@ -68,6 +70,12 @@ class ApplicationController < ActionController::API
   end
 
   private
+
+  def validation_x_api_key
+    if request.headers['X-Api-Key'] != ENV['X_API_KEY']
+      raise Errors::Forbidden.new(code: 'COC021', message: 'Do not have permission to perform the request.')
+    end
+  end
 
   def revoked_token
     token = request.env['warden-jwt_auth.token']
