@@ -71,11 +71,14 @@ class ApplicationController < ActionController::API
 
   def revoked_token
     token = request.env['warden-jwt_auth.token']
-    secret = ENV['DEVISE_JWT_SECRET_KEY']
-    jti = JWT.decode(token, secret, true, algorithm: 'HS256', verify_jti: true)[0]['jti']
-    exp = JWT.decode(token, secret, true, algorithm: 'HS256')[0]['exp']
 
-    request.env['warden-jwt_auth.token'] = nil
-    JwtDenylist.create(jti: jti, exp: Time.at(exp.to_i))
+    if token.present?
+      secret = ENV['DEVISE_JWT_SECRET_KEY']
+      jti = JWT.decode(token, secret, true, algorithm: 'HS256', verify_jti: true)[0]['jti']
+      exp = JWT.decode(token, secret, true, algorithm: 'HS256')[0]['exp']
+
+      request.env['warden-jwt_auth.token'] = nil
+      JwtDenylist.create(jti: jti, exp: Time.at(exp.to_i))
+    end
   end
 end
