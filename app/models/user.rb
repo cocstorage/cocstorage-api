@@ -1,7 +1,7 @@
 class User < ApplicationRecord
   # Include default devise modules. Others available are:
   # :confirmable, :lockable, :timeoutable, :trackable and :omniauthable
-  devise :database_authenticatable, :registerable,
+  devise :database_authenticatable, :registerable, :recoverable,
          :jwt_authenticatable, jwt_revocation_strategy: JwtDenylist
 
   has_one :user_email_access_log
@@ -82,6 +82,19 @@ class User < ApplicationRecord
 
   def avatar_url
     file_url_of(avatar)
+  end
+
+  def send_reset_password_and_token
+    raw, enc = Devise.token_generator.generate(self.class, :reset_password_token)
+
+    self.password               = raw
+    self.reset_password_token   = enc
+    self.reset_password_sent_at = Time.now.utc
+    save(validate: false)
+
+    UserPasswordResetMailerJob.perform_later(self, raw)
+
+    self
   end
 
   private

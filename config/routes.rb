@@ -12,7 +12,8 @@ Rails.application.routes.draw do
                },
                controllers: {
                  sessions: 'v1/users/sessions',
-                 registrations: 'v1/users/registrations'
+                 registrations: 'v1/users/registrations',
+                 passwords: 'v1/users/passwords'
                }
     resources :users do
       collection do

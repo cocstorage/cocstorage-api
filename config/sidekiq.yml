@@ -2,3 +2,4 @@
 :queues:
   - default
   - user_authentication_mailers
+  - user_password_reset_mailers
