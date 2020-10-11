@@ -66,4 +66,4 @@ Rails.application.configure do
   config.file_watcher = ActiveSupport::EventedFileUpdateChecker
   config.reload_classes_only_on_change = false
 end
-Rails.application.routes.default_url_options[:host] = 'http://localhost:3000'
+Rails.application.routes.default_url_options[:host] = 'http://localhost:3001'

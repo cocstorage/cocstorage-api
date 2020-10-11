@@ -61,7 +61,7 @@ class User < ApplicationRecord
       raise Errors::BadRequest.new(code: 'COC001', message: 'uuid is invalid')
     end
     if user_email_access_log.access_expired_at < DateTime.current
-      raise Errors::BadRequest.new(code: 'COC006', message: 'Access is expired.')
+      raise Errors::BadRequest.new(code: 'COC017', message: 'Access is expired.')
     end
 
     user.update(is_authenticated: true)
