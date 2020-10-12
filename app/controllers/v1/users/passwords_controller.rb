@@ -9,7 +9,7 @@ class V1::Users::PasswordsController < Devise::PasswordsController
   # POST /resource/password
   def create
     user = resource_class.find_by(name: resource_params[:name], email: resource_params[:email])
-    raise Errors::BadRequest.new(code: 'COC006', message: "There's no such resource.") if user.blank?
+    raise Errors::BadRequest.new(code: 'COC018', message: 'There is no account registered with the information you entered.') if user.blank?
 
     user.send_reset_password_and_token
 
