@@ -97,6 +97,10 @@ class User < ApplicationRecord
     self
   end
 
+  def jwt_payload
+    { 'pyl' => { id: id, nickname: nickname, avatarUrl: avatar_url, role: role, isAuthenticated: is_authenticated } }
+  end
+
   private
 
   def email_inspection
