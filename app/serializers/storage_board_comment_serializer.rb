@@ -3,7 +3,7 @@ class StorageBoardCommentSerializer < ActiveModel::Serializer
   attribute :storage_board_id
   attribute :user
   attributes StorageBoardComment.column_names.reject { |name| %w[id user_id storage_board_id password created_user_agent].include? name }
-  attribute :replys
+  attribute :replies
 
   def user
     user = object.user
@@ -22,7 +22,7 @@ class StorageBoardCommentSerializer < ActiveModel::Serializer
     object.created_ip.gsub(/\.[0-9]{1,3}\.[0-9]{1,3}/, '')
   end
 
-  def replys
+  def replies
     ActiveModelSerializers::SerializableResource.new(
       object.storage_board_comment_replies,
       each_serializer: StorageBoardCommentReplySerializer
