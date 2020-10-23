@@ -24,7 +24,11 @@ class Storage < ApplicationRecord
   end
 
   def self.find_active(id)
-    find_by(id: id, is_active: true)
+    storage = find_by(id: id, is_active: true)
+    storage = find_by(path: id, is_active: true) if storage.blank?
+    raise Errors::NotFound.new(code: 'COC006', message: "There's no such resource.") if storage.blank?
+
+    storage
   end
 
   def active_boards

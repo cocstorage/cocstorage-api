@@ -51,10 +51,10 @@ class User < ApplicationRecord
 
   def self.authentication(uuid)
     user_email_access_log = UserEmailAccessLog.find_by(access_uuid: uuid)
-    raise Errors::BadRequest.new(code: 'COC006', message: "There's no such resource.") if user_email_access_log.blank?
+    raise Errors::NotFound.new(code: 'COC006', message: "There's no such resource.") if user_email_access_log.blank?
 
     user = find(user_email_access_log.user_id)
-    raise Errors::BadRequest.new(code: 'COC006', message: "There's no such resource.") if user.blank?
+    raise Errors::NotFound.new(code: 'COC006', message: "There's no such resource.") if user.blank?
     raise Errors::BadRequest.new(code: 'COC007', message: 'Account is already authenticated.') if user.is_authenticated
 
     if user_email_access_log.access_uuid.length > 40

@@ -1,5 +1,5 @@
 class V1::StoragesController < V1::BaseController
-  skip_before_action :authenticate_v1_user!, only: :index
+  skip_before_action :authenticate_v1_user!, only: %i[index show]
 
   def index
     storages = Storage.fetch_with_options(configure_index_params)
@@ -12,6 +12,10 @@ class V1::StoragesController < V1::BaseController
       ),
       pagination: PaginationSerializer.new(storages)
     }
+  end
+
+  def show
+    render json: Storage.find_active(params[:id]), each_serializer: StorageSerializer
   end
 
   def create

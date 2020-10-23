@@ -12,12 +12,13 @@ class StorageBoard < ApplicationRecord
   def self.fetch_with_options(options = {})
     storage = Storage.find_by(id: options[:storage_id], is_active: true)
     storage = Storage.find_by(path: options[:storage_id], is_active: true) if storage.blank?
-    raise Errors::BadRequest.new(code: 'COC006', message: "There's no such resource.") if storage.blank?
+    raise Errors::NotFound.new(code: 'COC006', message: "There's no such resource.") if storage.blank?
 
     storage_boards = storage.active_boards
-    storage_boards = storage_boards.where('subject like ?', "#{options[:subject]}%") if options[:subject].present?
-    storage_boards = storage_boards.where('content like ?', "#{options[:content]}%") if options[:content].present?
-    storage_boards = storage_boards.where('nickname like ?', "#{options[:nickname]}%") if options[:nickname].present?
+
+    storage_boards = storage_boards.where('nickname like :search or subject like :search or content like :search', {
+                                            search: "%#{options[:nickname]}%"
+                                          })
 
     if options[:orderBy].present?
       storage_boards = storage_boards.order(created_at: :desc) if options[:orderBy] == 'latest'
@@ -31,7 +32,7 @@ class StorageBoard < ApplicationRecord
     options = options.merge(is_draft: false, is_active: true)
 
     storage_board = find_by(options)
-    raise Errors::BadRequest.new(code: 'COC006', message: "There's no such resource.") if storage_board.blank?
+    raise Errors::NotFound.new(code: 'COC006', message: "There's no such resource.") if storage_board.blank?
 
     storage_board
   end
@@ -41,7 +42,7 @@ class StorageBoard < ApplicationRecord
     options = options.merge(is_active: true, is_member: false) if options[:user].blank?
 
     storage_board = find_by(options)
-    raise Errors::BadRequest.new(code: 'COC006', message: "There's no such resource.") if storage_board.blank?
+    raise Errors::NotFound.new(code: 'COC006', message: "There's no such resource.") if storage_board.blank?
 
     storage_board
   end
@@ -50,7 +51,7 @@ class StorageBoard < ApplicationRecord
     options = options.merge(user_id: nil, is_active: true, is_member: false)
 
     storage_board = find_by(options.except(:password))
-    raise Errors::BadRequest.new(code: 'COC006', message: "There's no such resource.") if storage_board.blank?
+    raise Errors::NotFound.new(code: 'COC006', message: "There's no such resource.") if storage_board.blank?
 
     if storage_board.password.to_s != options[:password].to_s
       raise Errors::BadRequest.new(code: 'COC027', message: 'Password do not match.')
@@ -68,7 +69,7 @@ class StorageBoard < ApplicationRecord
 
   def self.update_for_member(options = {})
     storage_board = find_with_options(options.except(:subject, :content))
-    raise Errors::BadRequest.new(code: 'COC006', message: "There's no such resource.") if storage_board.blank?
+    raise Errors::NotFound.new(code: 'COC006', message: "There's no such resource.") if storage_board.blank?
 
     content_html = Nokogiri::HTML.parse(options[:content])
     options = options.merge(description: content_html.text)
@@ -88,7 +89,7 @@ class StorageBoard < ApplicationRecord
 
   def self.update_for_non_member(options = {})
     storage_board = find_with_options(options.except(:nickname, :password, :subject, :content))
-    raise Errors::BadRequest.new(code: 'COC006', message: "There's no such resource.") if storage_board.blank?
+    raise Errors::NotFound.new(code: 'COC006', message: "There's no such resource.") if storage_board.blank?
 
     if storage_board.password.present? && storage_board.password.to_s != options[:password].to_s
       raise Errors::BadRequest.new(code: 'COC027', message: 'Password do not match.')
@@ -123,7 +124,7 @@ class StorageBoard < ApplicationRecord
 
   def self.update_active_view_count(options = {})
     storage_board = find_active_with_options(options)
-    raise Errors::BadRequest.new(code: 'COC006', message: "There's no such resource.") if storage_board.blank?
+    raise Errors::NotFound.new(code: 'COC006', message: "There's no such resource.") if storage_board.blank?
 
     storage_board.increment!(:view_count, 1)
   end

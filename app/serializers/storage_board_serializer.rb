@@ -13,6 +13,7 @@ class StorageBoardSerializer < ActiveModel::Serializer
       storage_category_id: storage.storage_category_id,
       path: storage.path,
       name: storage.name,
+      description: storage.description,
       avatar_url: storage.avatar_url
     }
   end

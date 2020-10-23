@@ -9,7 +9,7 @@ class NoticeComment < ApplicationRecord
 
   def self.fetch_with_options(options = {})
     notice = Notice.find_by(id: options[:notice_id], is_draft: false, is_active: true)
-    raise Errors::BadRequest.new(code: 'COC006', message: "There's no such resource.") if notice.blank?
+    raise Errors::NotFound.new(code: 'COC006', message: "There's no such resource.") if notice.blank?
 
     notice_comments = notice.active_comments
 
@@ -28,7 +28,7 @@ class NoticeComment < ApplicationRecord
     options = options.except(:user)
 
     notice_comment = find_by(options.except(:password))
-    raise Errors::BadRequest.new(code: 'COC006', message: "There's no such resource.") if notice_comment.blank?
+    raise Errors::NotFound.new(code: 'COC006', message: "There's no such resource.") if notice_comment.blank?
 
     notice_comment
   end

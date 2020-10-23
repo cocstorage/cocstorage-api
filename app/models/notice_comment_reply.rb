@@ -19,7 +19,7 @@ class NoticeCommentReply < ApplicationRecord
 
     notice_comment_reply = find_by(options)
     if notice_comment_reply.blank?
-      raise Errors::BadRequest.new(code: 'COC006', message: "There's no such resource.")
+      raise Errors::NotFound.new(code: 'COC006', message: "There's no such resource.")
     end
 
     notice_comment_reply.destroy
@@ -30,7 +30,7 @@ class NoticeCommentReply < ApplicationRecord
 
     notice_comment_reply = find_by(options.except(:password))
     if notice_comment_reply.blank?
-      raise Errors::BadRequest.new(code: 'COC006', message: "There's no such resource.")
+      raise Errors::NotFound.new(code: 'COC006', message: "There's no such resource.")
     end
 
     if notice_comment_reply.password.to_s != options[:password].to_s

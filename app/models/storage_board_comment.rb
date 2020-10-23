@@ -9,7 +9,7 @@ class StorageBoardComment < ApplicationRecord
 
   def self.fetch_with_options(options = {})
     storage_board = StorageBoard.find_by(id: options[:storage_board_id], is_draft: false, is_active: true)
-    raise Errors::BadRequest.new(code: 'COC006', message: "There's no such resource.") if storage_board.blank?
+    raise Errors::NotFound.new(code: 'COC006', message: "There's no such resource.") if storage_board.blank?
 
     storage_board_comments = storage_board.active_comments
 
@@ -28,7 +28,7 @@ class StorageBoardComment < ApplicationRecord
     options = options.except(:user, :storage_id)
 
     storage_board_comment = find_by(options.except(:password))
-    raise Errors::BadRequest.new(code: 'COC006', message: "There's no such resource.") if storage_board_comment.blank?
+    raise Errors::NotFound.new(code: 'COC006', message: "There's no such resource.") if storage_board_comment.blank?
 
     storage_board_comment
   end

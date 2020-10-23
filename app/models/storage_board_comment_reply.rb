@@ -19,7 +19,7 @@ class StorageBoardCommentReply < ApplicationRecord
 
     storage_board_comment_reply = find_by(options)
     if storage_board_comment_reply.blank?
-      raise Errors::BadRequest.new(code: 'COC006', message: "There's no such resource.")
+      raise Errors::NotFound.new(code: 'COC006', message: "There's no such resource.")
     end
 
     storage_board_comment_reply.destroy
@@ -30,7 +30,7 @@ class StorageBoardCommentReply < ApplicationRecord
 
     storage_board_comment_reply = find_by(options.except(:password))
     if storage_board_comment_reply.blank?
-      raise Errors::BadRequest.new(code: 'COC006', message: "There's no such resource.")
+      raise Errors::NotFound.new(code: 'COC006', message: "There's no such resource.")
     end
 
     if storage_board_comment_reply.password.to_s != options[:password].to_s

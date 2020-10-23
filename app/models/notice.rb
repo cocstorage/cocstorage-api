@@ -19,7 +19,7 @@ class Notice < ApplicationRecord
     options = options.merge(is_active: true)
 
     notice = find_by(options)
-    raise Errors::BadRequest.new(code: 'COC006', message: "There's no such resource.") if notice.blank?
+    raise Errors::NotFound.new(code: 'COC006', message: "There's no such resource.") if notice.blank?
 
     notice
   end
@@ -28,14 +28,14 @@ class Notice < ApplicationRecord
     options = options.merge(is_draft: false, is_active: true)
 
     notice = find_by(options)
-    raise Errors::BadRequest.new(code: 'COC006', message: "There's no such resource.") if notice.blank?
+    raise Errors::NotFound.new(code: 'COC006', message: "There's no such resource.") if notice.blank?
 
     notice
   end
 
   def self.update_with_options(options = {})
     notice = find_by(options.except(:subject, :content))
-    raise Errors::BadRequest.new(code: 'COC006', message: "There's no such resource.") if notice.blank?
+    raise Errors::NotFound.new(code: 'COC006', message: "There's no such resource.") if notice.blank?
 
     content_html = Nokogiri::HTML.parse(options[:content])
     options = options.merge(description: content_html.text)
