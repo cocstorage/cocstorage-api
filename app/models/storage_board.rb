@@ -9,6 +9,9 @@ class StorageBoard < ApplicationRecord
   validate :nickname_inspection, on: %i[update]
   validate :password_minimum_length, on: %i[update]
 
+  before_destroy :destroy_storage_board_recommend_logs
+  before_destroy :destroy_storage_board_comments
+
   def self.fetch_with_options(options = {})
     storage = Storage.find_by(id: options[:storage_id], is_active: true)
     storage = Storage.find_by(path: options[:storage_id], is_active: true) if storage.blank?
@@ -53,7 +56,7 @@ class StorageBoard < ApplicationRecord
     storage_board = find_by(options.except(:password))
     raise Errors::NotFound.new(code: 'COC006', message: "There's no such resource.") if storage_board.blank?
 
-    if storage_board.password.to_s != options[:password].to_s
+    if BCrypt::Password.new(storage_board.password) != options[:password].to_s
       raise Errors::BadRequest.new(code: 'COC027', message: 'Password do not match.')
     end
 
@@ -68,11 +71,10 @@ class StorageBoard < ApplicationRecord
   end
 
   def self.update_for_member(options = {})
-    storage_board = find_with_options(options.except(:subject, :content))
+    storage_board = find_with_options(options.except(:subject, :content, :description))
     raise Errors::NotFound.new(code: 'COC006', message: "There's no such resource.") if storage_board.blank?
 
     content_html = Nokogiri::HTML.parse(options[:content])
-    options = options.merge(description: content_html.text)
     options = options.merge(has_image: false, has_video: false)
     %w[youtube kakao].each do |name|
       options = options.merge(has_video: true) if content_html.css('iframe').attr('src').to_s.index(name).present?
@@ -88,15 +90,16 @@ class StorageBoard < ApplicationRecord
   end
 
   def self.update_for_non_member(options = {})
-    storage_board = find_with_options(options.except(:nickname, :password, :subject, :content))
+    storage_board = find_with_options(options.except(:nickname, :password, :subject, :content, :description))
     raise Errors::NotFound.new(code: 'COC006', message: "There's no such resource.") if storage_board.blank?
 
-    if storage_board.password.present? && storage_board.password.to_s != options[:password].to_s
+    if storage_board.password.present? && BCrypt::Password.new(storage_board.password) != options[:password]
       raise Errors::BadRequest.new(code: 'COC027', message: 'Password do not match.')
     end
 
+    options[:password] = BCrypt::Password.create(options[:password])
+
     content_html = Nokogiri::HTML.parse(options[:content])
-    options = options.merge(description: content_html.text)
     options = options.merge(has_image: false, has_video: false)
     %w[youtube kakao].each do |name|
       options = options.merge(has_video: true) if content_html.css('iframe').attr('src').to_s.index(name).present?
@@ -114,11 +117,15 @@ class StorageBoard < ApplicationRecord
 
   def self.destroy_for_member(options = {})
     storage_board = find_with_options(options)
+    storage_board.images.purge
+
     storage_board.destroy
   end
 
   def self.destroy_for_non_member(options = {})
     storage_board = find_for_non_member(options)
+    storage_board.images.purge
+
     storage_board.destroy
   end
 
@@ -170,6 +177,22 @@ class StorageBoard < ApplicationRecord
 
   def last_image_url
     last_files_url_of(images)
+  end
+
+  def destroy_storage_board_comments
+    storage_board_comments.destroy_all
+  end
+
+  def destroy_storage_board_recommend_logs
+    storage_board_recommend_logs.destroy_all
+  end
+
+  def comment_count
+    storage_board_comments.size
+  end
+
+  def reply_count
+    StorageBoardCommentReply.where(storage_board_comment_id: storage_board_comments.map(&:id)).size
   end
 
   private

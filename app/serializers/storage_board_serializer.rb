@@ -4,6 +4,7 @@ class StorageBoardSerializer < ActiveModel::Serializer
   attribute :user
   attributes StorageBoard.column_names.reject { |name| %w[id storage_id user_id password created_user_agent].include? name }
   attribute :thumbnail_url
+  attribute :comment_total_count
 
   def storage
     storage = object.storage
@@ -37,5 +38,9 @@ class StorageBoardSerializer < ActiveModel::Serializer
 
   def created_ip
     object.created_ip.gsub(/\.[0-9]{1,3}\.[0-9]{1,3}/, '')
+  end
+
+  def comment_total_count
+    object.comment_count + object.reply_count
   end
 end

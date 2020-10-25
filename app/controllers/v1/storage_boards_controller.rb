@@ -115,11 +115,11 @@ class V1::StorageBoardsController < V1::BaseController
   end
 
   def update_attributes
-    %w[storage_id id subject content]
+    %w[storage_id id subject content description]
   end
 
   def non_members_update_attributes
-    %w[storage_id id subject content nickname password]
+    %w[storage_id id subject content nickname password description]
   end
 
   def destroy_attributes

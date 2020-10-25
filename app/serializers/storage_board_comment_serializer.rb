@@ -24,7 +24,7 @@ class StorageBoardCommentSerializer < ActiveModel::Serializer
 
   def replies
     ActiveModelSerializers::SerializableResource.new(
-      object.storage_board_comment_replies,
+      object.storage_board_comment_replies.order(created_at: :desc),
       each_serializer: StorageBoardCommentReplySerializer
     )
   end

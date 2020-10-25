@@ -1,4 +1,6 @@
 class ApplicationRecord < ActiveRecord::Base
+  require 'bcrypt'
+
   include Rails.application.routes.url_helpers
   self.abstract_class = true
 

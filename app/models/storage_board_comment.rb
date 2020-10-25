@@ -7,6 +7,8 @@ class StorageBoardComment < ApplicationRecord
   validate :nickname_inspection, on: %i[create]
   validate :password_minimum_length, on: %i[create]
 
+  before_destroy :destroy_storage_board_comment_replies
+
   def self.fetch_with_options(options = {})
     storage_board = StorageBoard.find_by(id: options[:storage_board_id], is_draft: false, is_active: true)
     raise Errors::NotFound.new(code: 'COC006', message: "There's no such resource.") if storage_board.blank?
@@ -39,6 +41,8 @@ class StorageBoardComment < ApplicationRecord
 
     options = options.except(:user, :storage_id)
 
+    options[:password] = BCrypt::Password.create(options[:password]) if options[:password].present?
+
     create!(options)
   end
 
@@ -50,11 +54,15 @@ class StorageBoardComment < ApplicationRecord
   def self.destroy_for_non_member(options = {})
     storage_board_comment = find_with_options(options)
 
-    if storage_board_comment.password.to_s != options[:password].to_s
+    if BCrypt::Password.new(storage_board_comment.password) != options[:password].to_s
       raise Errors::BadRequest.new(code: 'COC027', message: 'Password do not match.')
     end
 
     storage_board_comment.destroy
+  end
+
+  def destroy_storage_board_comment_replies
+    storage_board_comment_replies.destroy_all
   end
 
   private
