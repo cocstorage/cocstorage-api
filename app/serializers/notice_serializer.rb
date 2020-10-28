@@ -3,6 +3,7 @@ class NoticeSerializer < ActiveModel::Serializer
   attribute :user
   attributes Notice.column_names.reject { |name| %w[id user_id created_ip created_user_agent].include? name }
   attribute :thumbnail_url
+  attribute :comment_total_count
 
   def user
     user = object.user
@@ -19,5 +20,9 @@ class NoticeSerializer < ActiveModel::Serializer
 
   def thumbnail_url
     object.thumbnail_url
+  end
+
+  def comment_total_count
+    object.comment_count + object.reply_count
   end
 end

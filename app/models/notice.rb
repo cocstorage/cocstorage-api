@@ -61,4 +61,12 @@ class Notice < ApplicationRecord
   def last_image_url
     last_files_url_of(images)
   end
+
+  def comment_count
+    notice_comments.size
+  end
+
+  def reply_count
+    NoticeCommentReply.where(notice_comment_id: notice_comments.map(&:id)).size
+  end
 end
