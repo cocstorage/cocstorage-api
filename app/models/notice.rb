@@ -34,11 +34,8 @@ class Notice < ApplicationRecord
   end
 
   def self.update_with_options(options = {})
-    notice = find_by(options.except(:subject, :content))
+    notice = find_by(options.except(:subject, :content, :description))
     raise Errors::NotFound.new(code: 'COC006', message: "There's no such resource.") if notice.blank?
-
-    content_html = Nokogiri::HTML.parse(options[:content])
-    options = options.merge(description: content_html.text)
 
     options = options.except(:user)
     options = options.merge(is_draft: false)

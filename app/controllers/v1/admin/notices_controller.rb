@@ -64,7 +64,7 @@ class V1::Admin::NoticesController < V1::Admin::BaseController
   end
 
   def update_attributes
-    %w[id subject content]
+    %w[id subject content description]
   end
 
   def destroy_attributes
