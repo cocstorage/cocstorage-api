@@ -3,7 +3,7 @@ class NoticeCommentSerializer < ActiveModel::Serializer
   attribute :notice_id
   attribute :user
   attributes NoticeComment.column_names.reject { |name| %w[id notice_id user_id password created_user_agent].include? name }
-  attribute :replys
+  attribute :replies
 
   def user
     user = object.user
@@ -22,9 +22,9 @@ class NoticeCommentSerializer < ActiveModel::Serializer
     object.created_ip.gsub(/\.[0-9]{1,3}\.[0-9]{1,3}/, '')
   end
 
-  def replys
+  def replies
     ActiveModelSerializers::SerializableResource.new(
-      object.notice_comment_replies,
+      object.notice_comment_replies.order(created_at: :desc),
       each_serializer: NoticeCommentReplySerializer
     )
   end
