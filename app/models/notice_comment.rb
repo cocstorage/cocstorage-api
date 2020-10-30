@@ -7,6 +7,8 @@ class NoticeComment < ApplicationRecord
   validate :nickname_inspection, on: %i[create]
   validate :password_minimum_length, on: %i[create]
 
+  before_destroy :destroy_notice_comment_replies
+
   def self.fetch_with_options(options = {})
     notice = Notice.find_by(id: options[:notice_id], is_draft: false, is_active: true)
     raise Errors::NotFound.new(code: 'COC006', message: "There's no such resource.") if notice.blank?
@@ -39,6 +41,8 @@ class NoticeComment < ApplicationRecord
 
     options = options.except(:user)
 
+    options[:password] = BCrypt::Password.create(options[:password]) if options[:password].present?
+
     create!(options)
   end
 
@@ -50,11 +54,15 @@ class NoticeComment < ApplicationRecord
   def self.destroy_for_non_member(options = {})
     notice_comment = find_with_options(options)
 
-    if notice_comment.password.to_s != options[:password].to_s
+    if BCrypt::Password.new(notice_comment.password) != options[:password].to_s
       raise Errors::BadRequest.new(code: 'COC027', message: 'Password do not match.')
     end
 
     notice_comment.destroy
+  end
+
+  def destroy_notice_comment_replies
+    notice_comment_replies.destroy_all
   end
 
   private

@@ -11,6 +11,8 @@ class NoticeCommentReply < ApplicationRecord
       options = options.except(:user)
     end
 
+    options[:password] = BCrypt::Password.create(options[:password]) if options[:password].present?
+
     create!(options)
   end
 
@@ -33,7 +35,7 @@ class NoticeCommentReply < ApplicationRecord
       raise Errors::NotFound.new(code: 'COC006', message: "There's no such resource.")
     end
 
-    if notice_comment_reply.password.to_s != options[:password].to_s
+    if BCrypt::Password.new(notice_comment_reply.password) != options[:password].to_s
       raise Errors::BadRequest.new(code: 'COC027', message: 'Password do not match.')
     end
 
