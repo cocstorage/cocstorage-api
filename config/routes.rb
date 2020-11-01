@@ -18,6 +18,7 @@ Rails.application.routes.draw do
     resources :users do
       collection do
         put '/authentication/:uuid', to: 'users#authentication'
+        patch '/:id/privacy', to: 'users#privacy'
       end
     end
     resources :storages do

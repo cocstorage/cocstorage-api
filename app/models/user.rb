@@ -33,7 +33,13 @@ class User < ApplicationRecord
     end
 
     user = find(options[:user].id)
-    user.update(options.except(:user)).inspect
+    if options[:password].present?
+      if BCrypt::Password.new(user.encrypted_password) != options[:currentPassword]
+        raise Errors::BadRequest.new(code: 'COC027', message: 'Password do not match.')
+      end
+    end
+
+    user.update(options.except(:user, :currentPassword)).inspect
 
     user
   end
