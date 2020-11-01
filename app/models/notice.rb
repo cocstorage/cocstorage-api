@@ -15,6 +15,17 @@ class Notice < ApplicationRecord
     notices
   end
 
+  def self.fetch_active_with_options(options = {})
+    notices = all.where(is_draft: false, is_active: true)
+
+    if options[:orderBy].present?
+      notices = notices.order(created_at: :desc) if options[:orderBy] == 'latest'
+      notices = notices.order(created_at: :asc) if options[:orderBy] == 'old'
+    end
+
+    notices
+  end
+
   def self.find_with_options(options = {})
     options = options.merge(is_active: true)
 

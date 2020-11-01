@@ -49,6 +49,7 @@ Rails.application.routes.draw do
         end
       end
     end
+    resources :notices
     namespace :admin do
       resources :notices do
         collection do
