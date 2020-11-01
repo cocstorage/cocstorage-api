@@ -34,12 +34,12 @@ class User < ApplicationRecord
 
     user = find(options[:user].id)
     if options[:password].present?
-      if BCrypt::Password.new(user.encrypted_password) != options[:currentPassword]
+      if BCrypt::Password.new(user.encrypted_password) != options[:current_password]
         raise Errors::BadRequest.new(code: 'COC027', message: 'Password do not match.')
       end
     end
 
-    user.update(options.except(:user, :currentPassword)).inspect
+    user.update(options.except(:user, :current_password)).inspect
 
     user
   end
@@ -75,10 +75,14 @@ class User < ApplicationRecord
     user
   end
 
-  def self.withdrawal_reservation(id)
-    user = find(id)
+  def self.withdrawal_reservation_with_options(options = {})
+    user = find(options[:user].id)
     if user.withdrawaled_at.present?
       raise Errors::BadRequest.new(code: 'COC019', message: 'This account is already in the process of withdrawal.')
+    end
+
+    if BCrypt::Password.new(user.encrypted_password) != options[:password]
+      raise Errors::BadRequest.new(code: 'COC027', message: 'Password do not match.')
     end
 
     user.update(withdrawaled_at: DateTime.current + 7.day)

@@ -7,7 +7,7 @@ class V1::UsersController < V1::BaseController
   end
 
   def destroy
-    render json: User.withdrawal_reservation(current_v1_user.id), each_serializer: UserSerializer
+    render json: User.withdrawal_reservation_with_options(configure_destroy_params), each_serializer: UserSerializer
   end
 
   def authentication
@@ -30,7 +30,11 @@ class V1::UsersController < V1::BaseController
   private
 
   def update_attributes
-    %w[nickname currentPassword password avatar]
+    %w[nickname current_password password avatar]
+  end
+
+  def destroy_attributes
+    %w[password]
   end
 
   def privacy_attributes
@@ -43,7 +47,7 @@ class V1::UsersController < V1::BaseController
     end
 
     if params.key? :password
-      raise Errors::BadRequest.new(code: 'COC000', message: 'currentPassword is required') if params[:currentPassword].blank?
+      raise Errors::BadRequest.new(code: 'COC000', message: 'current_password is required') if params[:current_password].blank?
       raise Errors::BadRequest.new(code: 'COC013', message: 'password is empty') if params[:password].blank?
     end
 
@@ -54,6 +58,12 @@ class V1::UsersController < V1::BaseController
     end
 
     params.permit(update_attributes).merge(user: current_v1_user)
+  end
+
+  def configure_destroy_params
+    raise Errors::BadRequest.new(code: 'COC000', message: 'password is required') if params[:password].blank?
+
+    params.permit(destroy_attributes).merge(user: current_v1_user)
   end
 
   def configure_privacy_params
