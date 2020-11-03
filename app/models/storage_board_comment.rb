@@ -2,12 +2,10 @@ class StorageBoardComment < ApplicationRecord
   belongs_to :storage_board
   belongs_to :user, optional: true
 
-  has_many :storage_board_comment_replies
+  has_many :storage_board_comment_replies, dependent: :destroy
 
   validate :nickname_inspection, on: %i[create]
   validate :password_minimum_length, on: %i[create]
-
-  before_destroy :destroy_storage_board_comment_replies
 
   def self.fetch_with_options(options = {})
     storage_board = StorageBoard.find_by(id: options[:storage_board_id], is_draft: false, is_active: true)
@@ -59,10 +57,6 @@ class StorageBoardComment < ApplicationRecord
     end
 
     storage_board_comment.destroy
-  end
-
-  def destroy_storage_board_comment_replies
-    storage_board_comment_replies.destroy_all
   end
 
   private

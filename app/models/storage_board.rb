@@ -2,15 +2,12 @@ class StorageBoard < ApplicationRecord
   belongs_to :storage
   belongs_to :user, optional: true
 
-  has_many :storage_board_comments
-  has_many :storage_board_recommend_logs
-  has_many_attached :images
+  has_many :storage_board_comments, dependent: :destroy
+  has_many :storage_board_recommend_logs, dependent: :destroy
+  has_many_attached :images, dependent: :destroy
 
   validate :nickname_inspection, on: %i[update]
   validate :password_minimum_length, on: %i[update]
-
-  before_destroy :destroy_storage_board_recommend_logs
-  before_destroy :destroy_storage_board_comments
 
   def self.fetch_with_options(options = {})
     storage = Storage.find_by(id: options[:storage_id], is_active: true)
@@ -177,14 +174,6 @@ class StorageBoard < ApplicationRecord
 
   def last_image_url
     last_files_url_of(images)
-  end
-
-  def destroy_storage_board_comments
-    storage_board_comments.destroy_all
-  end
-
-  def destroy_storage_board_recommend_logs
-    storage_board_recommend_logs.destroy_all
   end
 
   def comment_count

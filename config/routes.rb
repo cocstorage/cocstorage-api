@@ -73,5 +73,12 @@ Rails.application.routes.draw do
         end
       end
     end
+    namespace :system do
+      resources :cron do
+        collection do
+          get '/users/withdrawaled', to: 'cron#user_withdrawaled'
+        end
+      end
+    end
   end
 end
