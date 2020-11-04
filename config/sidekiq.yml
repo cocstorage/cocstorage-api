@@ -4,3 +4,4 @@
   - user_authentication_mailers
   - user_password_reset_mailers
   - user_withdrawaled
+  - popular_storage_board_statistics

@@ -76,7 +76,8 @@ Rails.application.routes.draw do
     namespace :system do
       resources :cron do
         collection do
-          get '/users/withdrawaled', to: 'cron#user_withdrawaled'
+          get '/withdrawaled', to: 'cron#withdrawaled'
+          get '/collection', to: 'cron#collection'
         end
       end
     end
