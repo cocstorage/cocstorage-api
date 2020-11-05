@@ -2,8 +2,10 @@ class Storage < ApplicationRecord
   belongs_to :storage_category
   belongs_to :user
 
-  has_many :storage_boards
-  has_one_attached :avatar
+  has_many :storage_boards, dependent: :destroy
+  has_many :storage_user_roles, dependent: :destroy
+
+  has_one_attached :avatar, dependent: :destroy
 
   validate :path_inspection, on: %i[create update]
   validate :name_inspection, on: %i[create update]

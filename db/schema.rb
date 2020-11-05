@@ -194,7 +194,7 @@ ActiveRecord::Schema.define(version: 2020_11_04_163746) do
 
   create_table "storages", options: "ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci", force: :cascade do |t|
     t.bigint "storage_category_id", null: false
-    t.bigint "user_id", null: false
+    t.bigint "user_id"
     t.string "path"
     t.string "name"
     t.string "description"

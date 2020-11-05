@@ -4,7 +4,10 @@ class User < ApplicationRecord
   devise :database_authenticatable, :registerable, :recoverable,
          :jwt_authenticatable, jwt_revocation_strategy: JwtDenylist
 
+  has_many :storages, dependent: :destroy
+
   has_one :user_email_access_log, dependent: :destroy
+
   has_one_attached :avatar, dependent: :destroy
 
   enum role: %w[member admin]
