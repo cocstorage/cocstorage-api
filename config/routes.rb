@@ -2,6 +2,8 @@ Rails.application.routes.draw do
   require 'sidekiq/web'
   mount Sidekiq::Web => '/sidekiq'
 
+  root to: 'application#health_check'
+
   namespace :v1, defaults: { format: :json } do
     devise_for :users,
                path: 'users',

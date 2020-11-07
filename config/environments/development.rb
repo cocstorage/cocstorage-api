@@ -65,5 +65,7 @@ Rails.application.configure do
   # routes, locales, etc. This feature depends on the listen gem.
   config.file_watcher = ActiveSupport::EventedFileUpdateChecker
   config.reload_classes_only_on_change = false
+
+  config.secret_key_base = Rails.application.credentials.secret_key_base
 end
 Rails.application.routes.default_url_options[:host] = 'http://localhost:3001'

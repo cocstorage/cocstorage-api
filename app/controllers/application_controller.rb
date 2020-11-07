@@ -10,7 +10,10 @@ class ApplicationController < ActionController::API
   rescue_from ActiveRecord::RecordInvalid, with: :record_invalid
 
   def health_check
-    head :ok
+    render json: {
+      status: :ok,
+      environment: Rails.env
+    }
   end
 
   def bad_request(error)
