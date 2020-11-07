@@ -50,3 +50,4 @@ gem 'olive_branch'
 gem 'redis', '~> 4.1'
 gem 'redis-namespace', '~> 1.6'
 gem 'sidekiq'
+gem 'aws-sdk-s3', require: false

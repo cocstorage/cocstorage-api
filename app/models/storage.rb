@@ -61,10 +61,12 @@ class Storage < ApplicationRecord
 
   def name_inspection
     if name.present?
-      normal_regex = /[ㄱ-ㅎㅏ-ㅣ가-힣a-zA-Z0-9\-]{3,20}/
+      normal_regex = /[ㄱ-ㅎㅏ-ㅣ가-힣a-zA-Z0-9\-]{2,10}/
+      only_number_regex = /^[0-9]*$/
       special_regex = "[!@\#$%^&*(),.?\":{}|<>]"
 
       raise Errors::BadRequest.new(code: 'COC001', message: 'storage name is invalid') unless name =~ normal_regex
+      raise Errors::BadRequest.new(code: 'COC001', message: 'storage name is invalid') if name =~ only_number_regex
       raise Errors::BadRequest.new(code: 'COC001', message: 'storage name is invalid') if name.length > 20
       raise Errors::BadRequest.new(code: 'COC001', message: 'storage name is invalid') if name.match(special_regex)
 

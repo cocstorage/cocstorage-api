@@ -17,12 +17,13 @@ class StorageBoard < ApplicationRecord
     storage_boards = storage.active_boards
 
     storage_boards = storage_boards.where('nickname like :search or subject like :search or content like :search', {
-                                            search: "%#{options[:nickname]}%"
+                                            search: "%#{options[:subject] || options[:nickname] || options[:content]}%"
                                           })
 
     if options[:orderBy].present?
       storage_boards = storage_boards.order(created_at: :desc) if options[:orderBy] == 'latest'
       storage_boards = storage_boards.order(created_at: :asc) if options[:orderBy] == 'old'
+      storage_boards = storage_boards.where(is_popular: true).order(created_at: :desc) if options[:orderBy] == 'popular'
     end
 
     storage_boards

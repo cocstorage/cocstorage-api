@@ -50,5 +50,7 @@ test:
 production:
   <<: *default
   database: cocstorage_api_production
-  username: cocstorage_api
-  password: <%= ENV['COCSTORAGE_API_DATABASE_PASSWORD'] %>
+  username: <%= ENV['DATABASE_USERNAME'] %>
+  password: <%= ENV['DATABASE_PASSWORD'] %>
+  host: <%= ENV['DATABASE_HOST'] %>
+  port: 3306
