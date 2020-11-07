@@ -25,7 +25,7 @@ class V1::StoragesController < V1::BaseController
         storage_id: storage.id,
         user_id: current_v1_user.id,
         role: 1,
-        created_ip: request.remote_ip,
+        created_ip: request.headers['CF-Connecting-IP'] || request.remote_ip,
         created_user_agent: request.user_agent
       )
 

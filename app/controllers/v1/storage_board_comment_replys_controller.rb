@@ -40,7 +40,7 @@ class V1::StorageBoardCommentReplysController < V1::BaseController
 
     params.permit(create_attributes).merge(
       user: current_v1_user,
-      created_ip: request.remote_ip,
+      created_ip: request.headers['CF-Connecting-IP'] || request.remote_ip,
       created_user_agent: request.user_agent
     )
   end

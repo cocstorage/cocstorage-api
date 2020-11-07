@@ -222,7 +222,7 @@ class V1::StorageBoardsController < V1::BaseController
     {
       storage_id: params[:storage_id],
       user: current_v1_user,
-      created_ip: request.remote_ip,
+      created_ip: request.headers['CF-Connecting-IP'] || request.remote_ip,
       created_user_agent: request.user_agent
     }
   end

@@ -76,10 +76,6 @@ class ApplicationController < ActionController::API
   private
 
   def validation_x_api_key
-    logger.info '####################################'
-    logger.info request.headers['CF-Connecting-IP']
-    logger.info request.headers['X-Forwarded-For']
-    logger.info '####################################'
     if request.headers['X-Api-Key'] != ENV['X_API_KEY']
       raise Errors::Forbidden.new(code: 'COC021', message: 'Do not have permission to perform the request.')
     end
