@@ -1,5 +1,6 @@
 class ApplicationController < ActionController::API
   before_action :validation_x_api_key
+  skip_before_action :validation_x_api_key, only: :health_check
 
   rescue_from Errors::BadRequest, with: :bad_request
   rescue_from Errors::Unauthorized, with: :unauthorized
@@ -75,6 +76,10 @@ class ApplicationController < ActionController::API
   private
 
   def validation_x_api_key
+    logger.info '####################################'
+    logger.info request.headers['CF-Connecting-IP']
+    logger.info request.headers['X-Forwarded-For']
+    logger.info '####################################'
     if request.headers['X-Api-Key'] != ENV['X_API_KEY']
       raise Errors::Forbidden.new(code: 'COC021', message: 'Do not have permission to perform the request.')
     end

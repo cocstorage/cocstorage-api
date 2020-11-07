@@ -1,4 +1,4 @@
 class ApplicationMailer < ActionMailer::Base
-  default from: 'cocstoragehelps@gmail.com'
+  default from: 'cocstoragehelper@gmail.com'
   layout 'mailer'
 end
