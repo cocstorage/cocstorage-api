@@ -219,6 +219,10 @@ class V1::StorageBoardsController < V1::BaseController
   end
 
   def configure_draft_params
+    logger.info '###################################'
+    logger.info request.headers['X-Forwarded-For'] || request.remote_ip
+    logger.info request.headers['CF-Connecting-IP'] || request.remote_ip
+    logger.info '###################################'
     {
       storage_id: params[:storage_id],
       user: current_v1_user,
