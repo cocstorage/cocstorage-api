@@ -78,7 +78,7 @@ class StorageBoard < ApplicationRecord
       options = options.merge(has_video: true) if content_html.css('iframe').attr('src').to_s.index(name).present?
     end
     options = options.merge(has_video: true) if content_html.css('video').present?
-    options = options.merge(has_image: true) if content_html.css('img').present? || content_html.attached?
+    options = options.merge(has_image: true) if content_html.css('img').present? || storage_board.attached?
 
     options = options.except(:user)
     options = options.merge(is_draft: false)
