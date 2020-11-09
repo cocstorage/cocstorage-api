@@ -32,7 +32,7 @@ class NoticeCommentSerializer < ActiveModel::Serializer
 
   def replies
     ActiveModelSerializers::SerializableResource.new(
-      object.notice_comment_replies.order(created_at: :desc),
+      object.notice_comment_replies.order(created_at: :asc),
       each_serializer: NoticeCommentReplySerializer
     )
   end
