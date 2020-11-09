@@ -18,6 +18,14 @@ class NoticeCommentReplySerializer < ActiveModel::Serializer
   end
 
   def created_ip
-    object.created_ip.gsub(/\.[0-9]{1,3}\.[0-9]{1,3}/, '')
+    addr = IPAddr.new(object.created_ip)
+
+    if addr.ipv4?
+      # set last octet to 0
+      addr.to_s.gsub(/\.[0-9]{1,3}\.[0-9]{1,3}/, '')
+    else
+      # set last 80 bits to zeros
+      addr.mask(20).to_s
+    end
   end
 end
