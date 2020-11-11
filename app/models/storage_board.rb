@@ -103,7 +103,7 @@ class StorageBoard < ApplicationRecord
       options = options.merge(has_video: true) if content_html.css('iframe').attr('src').to_s.index(name).present?
     end
     options = options.merge(has_video: true) if content_html.css('video').present?
-    options = options.merge(has_image: true) if content_html.css('img').present?
+    options = options.merge(has_image: true) if content_html.css('img').present? || storage_board.images.attached?
 
     options = options.except(:nickname) if storage_board.nickname.present?
     options = options.except(:password) if storage_board.password.present?
