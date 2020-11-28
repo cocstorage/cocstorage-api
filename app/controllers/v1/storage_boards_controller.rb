@@ -100,11 +100,11 @@ class V1::StorageBoardsController < V1::BaseController
   end
 
   def latest
-    render json: StorageBoard.where(is_draft: false, is_active: true).limit(5).order(id: :desc)
+    render json: StorageBoard.where(is_draft: false, is_active: true).limit(10).order(id: :desc)
   end
 
   def popular
-    render json: StorageBoard.where(is_draft: false, is_active: true, is_popular: true).limit(5).order(id: :desc)
+    render json: StorageBoard.where(is_draft: false, is_active: true, is_popular: true).limit(10).order(id: :desc)
   end
 
   private
