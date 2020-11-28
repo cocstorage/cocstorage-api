@@ -1,5 +1,8 @@
 class V1::StorageBoardsController < V1::BaseController
-  skip_before_action :authenticate_v1_user!, only: %i[index show non_members_edit non_members_update non_members_destroy non_members_drafts view_count non_members_images non_members_recommend]
+  skip_before_action :authenticate_v1_user!, only: %i[
+    index show non_members_edit non_members_update non_members_destroy non_members_drafts
+    view_count non_members_images non_members_recommend latest popular
+  ]
 
   def index
     storage_boards = StorageBoard.fetch_with_options(configure_index_params)
@@ -94,6 +97,14 @@ class V1::StorageBoardsController < V1::BaseController
       render json: StorageBoard.update_recommend_with_options(non_members_configure_recommend_params),
              each_serializer: StorageBoardSerializer
     end
+  end
+
+  def latest
+    render json: StorageBoard.where(is_draft: false, is_active: true).limit(5).order(id: :desc)
+  end
+
+  def popular
+    render json: StorageBoard.where(is_draft: false, is_active: true, is_popular: true).limit(5).order(id: :desc)
   end
 
   private

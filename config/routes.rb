@@ -52,6 +52,8 @@ Rails.application.routes.draw do
         end
       end
     end
+    get 'storages/boards/latest', to: 'storage_boards#latest'
+    get 'storages/boards/popular', to: 'storage_boards#popular'
     resources :notices
     namespace :admin do
       resources :notices do
