@@ -14,4 +14,11 @@ class V1::System::CronController < ApplicationController
       message: 'Succeeded'
     }
   end
+
+  def scrap
+    StorageBoardScrapJob.perform_later
+    render json: {
+      status: :ok
+    }
+  end
 end

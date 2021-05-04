@@ -6,6 +6,8 @@ run Rails.application
 
 require 'sidekiq/web'
 map '/sidekiq' do
+  require 'securerandom'; File.open(".session.key", "w") {|f| f.write(SecureRandom.hex(32)) }
+  use Rack::Session::Cookie, secret: File.read(".session.key"), same_site: true, max_age: 86400
   use Rack::Auth::Basic, 'Protected Area' do |username, password|
     # Protect against timing attacks:
     # - See https://codahale.com/a-lesson-in-timing-attacks/

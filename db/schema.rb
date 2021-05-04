@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2020_11_07_215440) do
+ActiveRecord::Schema.define(version: 2021_05_01_063753) do
 
   create_table "active_storage_attachments", options: "ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci", force: :cascade do |t|
     t.string "name", null: false
@@ -164,6 +164,9 @@ ActiveRecord::Schema.define(version: 2020_11_07_215440) do
     t.datetime "created_at", precision: 6, null: false
     t.datetime "updated_at", precision: 6, null: false
     t.boolean "is_popular", default: false
+    t.string "scrap_code"
+    t.string "source_code"
+    t.index ["scrap_code"], name: "index_storage_boards_on_scrap_code", unique: true
     t.index ["storage_id"], name: "index_storage_boards_on_storage_id"
     t.index ["user_id"], name: "index_storage_boards_on_user_id"
   end
@@ -203,6 +206,7 @@ ActiveRecord::Schema.define(version: 2020_11_07_215440) do
     t.string "created_user_agent"
     t.datetime "created_at", precision: 6, null: false
     t.datetime "updated_at", precision: 6, null: false
+    t.string "code"
     t.index ["name"], name: "index_storages_on_name", unique: true
     t.index ["path"], name: "index_storages_on_path", unique: true
     t.index ["storage_category_id"], name: "index_storages_on_storage_category_id"

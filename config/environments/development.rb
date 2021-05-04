@@ -30,7 +30,9 @@ Rails.application.configure do
   # Optionally replace existing files instead of adding to them when assigning to a collection of attachments
   # config.active_storage.replace_on_assign_to_many = false
 
-  # config.active_job.queue_adapter = :sidekiq
+  # Use a real queuing backend for Active Job (and separate queues per environment).
+  config.active_job.queue_adapter = :async
+  # config.active_job.queue_name_prefix = "cocstorage_api_#{Rails.env}"
 
   # Don't care if the mailer can't send.
   config.action_mailer.raise_delivery_errors = true

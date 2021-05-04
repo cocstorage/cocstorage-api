@@ -12,7 +12,7 @@ gem 'puma', '~> 4.1'
 # Build JSON APIs with ease. Read more: https://github.com/rails/jbuilder
 # gem 'jbuilder', '~> 2.7'
 # Use Redis adapter to run Action Cable in production
-# gem 'redis', '~> 4.0'
+gem 'redis', '~> 4.1'
 # Use Active Model has_secure_password
 # gem 'bcrypt', '~> 3.1.7'
 
@@ -46,8 +46,13 @@ gem 'devise'
 gem 'devise-jwt', '~> 0.7.0'
 gem 'kaminari'
 gem 'nokogiri'
+gem 'selenium-webdriver'
+gem 'webdrivers'
 gem 'olive_branch'
-gem 'redis', '~> 4.1'
 gem 'redis-namespace', '~> 1.6'
 gem 'sidekiq'
 gem 'aws-sdk-s3', require: false
+
+# https://github.com/rails/rails/issues/41750
+# https://rubygems.org/gems/mimemagic/versions
+gem 'mimemagic', github: 'mimemagicrb/mimemagic', ref: 'af5a9b1c5b774e65fd84bd7ca4239a9f3eba2039', platforms: [:mingw, :mswin, :x64_mingw, :jruby]

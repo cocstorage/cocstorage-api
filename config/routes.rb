@@ -82,6 +82,7 @@ Rails.application.routes.draw do
         collection do
           get '/withdrawaled', to: 'cron#withdrawaled'
           get '/collection', to: 'cron#collection'
+          get '/scrap', to: 'cron#scrap'
         end
       end
     end

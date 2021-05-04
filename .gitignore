@@ -78,6 +78,10 @@ Thumbs.db
 
 # Dotenv
 .env
+
+# Sidekiq
+.session.key
+
 # Elastic Beanstalk Files
 .elasticbeanstalk/*
 !.elasticbeanstalk/*.cfg.yml

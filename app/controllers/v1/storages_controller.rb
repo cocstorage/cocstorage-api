@@ -70,7 +70,8 @@ class V1::StoragesController < V1::BaseController
       storage_category_id: 1,
       user_id: current_v1_user.id,
       created_ip: request.remote_ip,
-      created_user_agent: request.user_agent
+      created_user_agent: request.user_agent,
+      code: params[:path]
     }
 
     params.permit(create_attributes).merge(other_require_params)
