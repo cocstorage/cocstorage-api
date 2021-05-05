@@ -21,4 +21,11 @@ class V1::System::CronController < ApplicationController
       status: :ok
     }
   end
+
+  def migration
+    MigrationLegacyBoardJob.perform_later
+    render json: {
+      status: :ok
+    }
+  end
 end

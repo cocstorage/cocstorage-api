@@ -2,17 +2,15 @@ class V1::Admin::NoticesController < V1::Admin::BaseController
   skip_before_action :authenticate_v1_admin!, only: %i[index show view_count]
 
   def index
-    notices = Notice.fetch_with_options(configure_index_params)
-    notices = notices.page(params[:page]).per(params[:per] || 20)
+    data = Notice.fetch_active_by_cached_with_options(configure_index_params)
 
-    render json: {
-      notices: ActiveModelSerializers::SerializableResource.new(notices, each_serializer: NoticeSerializer),
-      pagination: PaginationSerializer.new(notices)
-    }
+    render json: data
   end
 
   def show
-    render json: Notice.find_active_with_options(configure_show_params), each_serializer: NoticeSerializer
+    data = Notice.find_active_by_cached(configure_show_params)
+
+    render json: data
   end
 
   def edit
@@ -20,10 +18,14 @@ class V1::Admin::NoticesController < V1::Admin::BaseController
   end
 
   def update
+    Rails.cache.clear(namespace: 'notices')
+    Rails.cache.clear(namespace: "notices-#{configure_update_params[:id]}")
     render json: Notice.update_with_options(configure_update_params), each_serializer: NoticeSerializer
   end
 
   def destroy
+    Rails.cache.clear(namespace: 'notices')
+    Rails.cache.clear(namespace: "notices-#{configure_destroy_params[:id]}")
     notice = Notice.find_active_with_options(configure_destroy_params)
     render json: notice.destroy
   end

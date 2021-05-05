@@ -18,6 +18,7 @@ class PopularStorageBoardCollectionJob < ApplicationJob
 
       if thumb_up >= 5 && comment_total_count >= 5 && thumb_up_percent >= 55
         storage_board.update(is_popular: true)
+        Rails.cache.clear(namespace: "storage-#{storage_board.storage_id}-boards")
       end
     end
   end

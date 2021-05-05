@@ -37,14 +37,18 @@ class StorageBoardSerializer < ActiveModel::Serializer
   end
 
   def created_ip
-    addr = IPAddr.new(object.created_ip)
+    begin
+      addr = IPAddr.new(object.created_ip)
 
-    if addr.ipv4?
-      # set last octet to 0
-      addr.to_s.gsub(/\.[0-9]{1,3}\.[0-9]{1,3}/, '')
-    else
-      # set last 80 bits to zeros
-      addr.mask(20).to_s
+      if addr.ipv4?
+        # set last octet to 0
+        addr.to_s.gsub(/\.[0-9]{1,3}\.[0-9]{1,3}/, '')
+      else
+        # set last 80 bits to zeros
+        addr.mask(20).to_s
+      end
+    rescue
+      object.created_ip
     end
   end
 

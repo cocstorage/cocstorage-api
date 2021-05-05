@@ -18,6 +18,8 @@ class MigrationLegacyBoardJob < ApplicationJob
             :password => 'dnflwlqdb@' }
         )
 
+        create_new_storage_board = false
+
         boards = ActiveRecord::Base.connection.execute("SELECT data_no, nickname, ip, subject, content, original_category_id, register_date FROM #{reg_code} LIMIT 10").map do |board|
           data_no = board[0]
           nickname = board[1]
@@ -27,7 +29,7 @@ class MigrationLegacyBoardJob < ApplicationJob
           original_category_id = board[5]
           register_date = board[6]
 
-          {
+          options = {
             storage_id: get_storage_id_by_reg_code(reg_code),
             scrap_code: data_no,
             source_code: original_category_id,
@@ -39,19 +41,26 @@ class MigrationLegacyBoardJob < ApplicationJob
             is_draft: false,
             created_at: register_date
           }
+
+          options
         end
 
         ActiveRecord::Base.establish_connection Rails.env.to_sym
 
         full_sanitizer = Rails::Html::FullSanitizer.new
+
         boards.each do |board|
           storage_board = StorageBoard.create(board)
+          create_new_storage_board = true
 
           parse_board_content = Nokogiri::HTML::DocumentFragment.parse(storage_board.content)
 
           images = parse_board_content.css('img')
           images.remove_attr('style')
           images.remove_attr('onclick')
+
+          has_image = false
+          has_video = false
 
           images.each do |image|
             begin
@@ -65,10 +74,23 @@ class MigrationLegacyBoardJob < ApplicationJob
             end
           end if images.present?
 
+          %w[youtube kakao].each do |name|
+            has_video = true if parse_board_content.css('iframe').attr('src').to_s.index(name).present?
+          end
+
+          has_image = true if images.present?
+
           storage_board.update(
             content: parse_board_content,
-            description: full_sanitizer.sanitize(parse_board_content.to_s).strip
+            description: full_sanitizer.sanitize(parse_board_content.to_s).strip,
+            has_image: has_image,
+            has_video: has_video
           )
+        end
+
+        if create_new_storage_board
+          namespace = "storage-#{storage_id}-boards"
+          Rails.cache.clear(namespace: namespace)
         end
       rescue
         next

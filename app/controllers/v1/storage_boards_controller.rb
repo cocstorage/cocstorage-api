@@ -5,21 +5,15 @@ class V1::StorageBoardsController < V1::BaseController
   ]
 
   def index
-    storage_boards = StorageBoard.fetch_with_options(configure_index_params)
-    storage_boards = storage_boards.page(params[:page]).per(params[:per] || 20)
+    data = StorageBoard.fetch_by_cached_with_options(configure_index_params)
 
-    render json: {
-      boards: ActiveModelSerializers::SerializableResource.new(
-        storage_boards,
-        each_serializer: StorageBoardSerializer
-      ),
-      pagination: PaginationSerializer.new(storage_boards)
-    }
+    render json: data
   end
 
   def show
-    render json: StorageBoard.find_active_with_options(configure_show_params),
-           each_serializer: StorageBoardSerializer
+    data = StorageBoard.find_active_by_cached(configure_show_params)
+
+    render json: data
   end
 
   def edit
@@ -33,21 +27,37 @@ class V1::StorageBoardsController < V1::BaseController
   end
 
   def update
+    namespace = "storage-#{configure_update_params[:storage_id]}-boards"
+
+    Rails.cache.clear(namespace: namespace)
+    Rails.cache.clear(namespace: "#{namespace}-detail")
     render json: StorageBoard.update_for_member(configure_update_params),
            each_serializer: StorageBoardSerializer
   end
 
   def non_members_update
+    namespace = "storage-#{configure_non_members_update_params[:storage_id]}-boards"
+
+    Rails.cache.clear(namespace: namespace)
+    Rails.cache.clear(namespace: "#{namespace}-detail")
     render json: StorageBoard.update_for_non_member(configure_non_members_update_params),
            each_serializer: StorageBoardSerializer
   end
 
   def destroy
+    namespace = "storage-#{configure_destroy_params[:storage_id]}-boards"
+
+    Rails.cache.clear(namespace: namespace)
+    Rails.cache.clear(namespace: "#{namespace}-detail")
     render json: StorageBoard.destroy_for_member(configure_destroy_params),
            each_serializer: StorageBoardSerializer
   end
 
   def non_members_destroy
+    namespace = "storage-#{configure_non_members_destroy_params[:storage_id]}-boards"
+
+    Rails.cache.clear(namespace: namespace)
+    Rails.cache.clear(namespace: "#{namespace}-detail")
     render json: StorageBoard.destroy_for_non_member(configure_non_members_destroy_params),
            each_serializer: StorageBoardSerializer
   end
@@ -87,6 +97,10 @@ class V1::StorageBoardsController < V1::BaseController
 
   def recommend
     ApplicationRecord.transaction do
+      redis_key = "storage-#{configure_recommend_params[:storage_id]}-boards-#{configure_recommend_params[:id]}"
+      namespace = "storage-#{configure_recommend_params[:storage_id]}-boards-detail"
+
+      Rails.cache.delete(redis_key, namespace: namespace)
       render json: StorageBoard.update_recommend_with_options(configure_recommend_params),
              each_serializer: StorageBoardSerializer
     end
@@ -94,17 +108,51 @@ class V1::StorageBoardsController < V1::BaseController
 
   def non_members_recommend
     ApplicationRecord.transaction do
+      redis_key = "storage-#{configure_recommend_params[:storage_id]}-boards-#{non_members_configure_recommend_params[:id]}"
+      namespace = "storage-#{non_members_configure_recommend_params[:storage_id]}-boards-detail"
+
+      Rails.cache.delete(redis_key, namespace: namespace)
       render json: StorageBoard.update_recommend_with_options(non_members_configure_recommend_params),
              each_serializer: StorageBoardSerializer
     end
   end
 
   def latest
-    render json: StorageBoard.where(is_draft: false, is_active: true).limit(10).order(id: :desc)
+    redis_key = 'storage-boards-latest'
+    namespace = 'storage-boards'
+
+    data = Rails.cache.read(redis_key, namespace: namespace)
+
+    if data.blank?
+      data = StorageBoard.where(is_draft: false, is_active: true).limit(10).order(id: :desc)
+
+      Rails.cache.write(redis_key, ActiveModelSerializers::SerializableResource.new(
+        data,
+        each_serializer: StorageBoardSerializer
+      ).as_json, expires_in: 5.minutes, namespace: namespace)
+      data = Rails.cache.read(redis_key, namespace: namespace)
+    end
+
+    render json: data
   end
 
   def popular
-    render json: StorageBoard.where(is_draft: false, is_active: true, is_popular: true).limit(10).order(id: :desc)
+    redis_key = 'storage-boards-popular'
+    namespace = 'storage-boards'
+
+    data = Rails.cache.read(redis_key, namespace: namespace)
+
+    if data.blank?
+      data = StorageBoard.where(is_draft: false, is_active: true, is_popular: true).limit(10).order(id: :desc)
+
+      Rails.cache.write(redis_key, ActiveModelSerializers::SerializableResource.new(
+        data,
+        each_serializer: StorageBoardSerializer
+      ).as_json, expires_in: 5.minutes, namespace: namespace)
+      data = Rails.cache.read(redis_key, namespace: namespace)
+    end
+
+    render json: data
   end
 
   private

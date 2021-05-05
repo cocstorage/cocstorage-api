@@ -2,13 +2,9 @@ class V1::NoticesController < V1::BaseController
   skip_before_action :authenticate_v1_user!, only: %i[index]
 
   def index
-    notices = Notice.fetch_active_with_options(configure_index_params)
-    notices = notices.page(params[:page]).per(params[:per] || 20)
+    data = Notice.fetch_active_by_cached_with_options(configure_index_params)
 
-    render json: {
-      notices: ActiveModelSerializers::SerializableResource.new(notices, each_serializer: NoticeSerializer),
-      pagination: PaginationSerializer.new(notices)
-    }
+    render json: data
   end
 
   private

@@ -14,6 +14,7 @@ class StorageBoardScrapJob < ApplicationJob
     storage_category.storages.each do |storage|
       referrer = "https://gall.dcinside.com/board/lists?id=#{storage.code}"
       url = "https://gall.dcinside.com/board/lists?id=#{storage.code}&exception_mode=recommend"
+      create_new_storage_board = false
 
       response = URI.open(url, 'User-Agent' => user_agent, 'Referrer' => referrer)
       raise Errors::NotFound.new(code: 'COC006', message: "There's no such resource.") if response.status.first.to_i != 200
@@ -36,7 +37,7 @@ class StorageBoardScrapJob < ApplicationJob
         ip = post.css('.gall_writer.ub-writer').first['data-ip']
         content = post.css('.write_div')
 
-        storage_board = StorageBoard.create(
+        options = {
           storage_id: storage.id,
           scrap_code: scrap_code,
           source_code: storage.code,
@@ -47,13 +48,35 @@ class StorageBoardScrapJob < ApplicationJob
           description: content.text,
           is_member: true,
           is_draft: false
-        ) unless StorageBoard.where(scrap_code: scrap_code).exists?
+        }
+
+        %w[youtube kakao].each do |name|
+          options = options.merge(has_video: true) if content.css('iframe').attr('src').to_s.index(name).present?
+        end
+
+        unless StorageBoard.where(scrap_code: scrap_code).exists?
+          storage_board = StorageBoard.create(
+            storage_id: storage.id,
+            scrap_code: scrap_code,
+            source_code: storage.code,
+            nickname: nickname,
+            created_ip: ip,
+            subject: subject,
+            content: content,
+            description: content.text,
+            is_member: true,
+            is_draft: false
+          )
+          create_new_storage_board = true
+        end
 
         parse_storage_board_content = Nokogiri::HTML::DocumentFragment.parse(storage_board.content)
 
         images = parse_storage_board_content.css('img')
         images.remove_attr('style')
         images.remove_attr('onclick')
+
+        has_image = false
 
         images.each do |image|
           download_image = URI.open(image['src'], 'User-Agent' => image_user_agent, 'Referrer' => post_url)
@@ -63,7 +86,9 @@ class StorageBoardScrapJob < ApplicationJob
           image['alt'] = 'Board Img'
         end if images.present?
 
-        storage_board.update(content: parse_storage_board_content)
+        has_image = true if images.present?
+
+        storage_board.update(content: parse_storage_board_content, has_image: has_image)
 
         storage_board_comment_url = "https://gall.dcinside.com/board/view/?id=#{storage.code}&no=#{scrap_code}&t=cv&exception_mode=recommend&page=1"
 
@@ -125,6 +150,11 @@ class StorageBoardScrapJob < ApplicationJob
         ensure
           browser.quit
         end
+      end
+
+      if create_new_storage_board
+        namespace = "storage-#{storage.id}-boards"
+        Rails.cache.clear(namespace: namespace)
       end
     end
   end

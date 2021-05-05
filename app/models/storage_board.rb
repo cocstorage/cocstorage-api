@@ -18,7 +18,7 @@ class StorageBoard < ApplicationRecord
 
     storage_boards = storage_boards.where('nickname like :search or subject like :search or content like :search', {
                                             search: "%#{options[:subject] || options[:nickname] || options[:content]}%"
-                                          })
+    })
 
     if options[:orderBy].present?
       storage_boards = storage_boards.order(created_at: :desc) if options[:orderBy] == 'latest'
@@ -29,11 +29,70 @@ class StorageBoard < ApplicationRecord
     storage_boards
   end
 
+  def self.fetch_by_cached_with_options(options = {})
+    storage = Storage.find_active_by_cached(options[:storage_id])
+
+    redis_key = "storage-#{storage[:id]}-boards-#{options.values.to_s}"
+    namespace = "storage-#{storage[:id]}-boards"
+
+    storage_boards = Rails.cache.read(redis_key, namespace: namespace)
+    pagination = Rails.cache.read("#{redis_key}/pagination", namespace: namespace)
+
+    if storage_boards.blank? || pagination.blank?
+      storage_boards = StorageBoard.where(storage_id: storage[:id])
+
+      storage_boards = storage_boards.where('nickname like :search or subject like :search or content like :search', {
+        search: "%#{options[:subject] || options[:nickname] || options[:content]}%"
+      })
+
+      if options[:orderBy].present?
+        storage_boards = storage_boards.order(created_at: :desc) if options[:orderBy] == 'latest'
+        storage_boards = storage_boards.order(created_at: :asc) if options[:orderBy] == 'old'
+        storage_boards = storage_boards.where(is_popular: true).order(created_at: :desc) if options[:orderBy] == 'popular'
+      end
+
+      storage_boards = storage_boards.page(options[:page]).per(options[:per] || 20)
+
+      Rails.cache.write(redis_key, ActiveModelSerializers::SerializableResource.new(
+        storage_boards,
+        each_serializer: StorageBoardSerializer
+      ).as_json, expires_in: 5.minutes, namespace: namespace)
+      Rails.cache.write("#{redis_key}/pagination", PaginationSerializer.new(storage_boards).as_json, namespace: namespace)
+
+      storage_boards = Rails.cache.read(redis_key, namespace: namespace)
+      pagination = Rails.cache.read("#{redis_key}/pagination", namespace: namespace)
+    end
+
+    {
+      boards: storage_boards,
+      pagination: pagination
+    }
+  end
+
   def self.find_active_with_options(options = {})
     options = options.merge(is_draft: false, is_active: true)
 
     storage_board = find_by(options)
     raise Errors::NotFound.new(code: 'COC006', message: "There's no such resource.") if storage_board.blank?
+
+    storage_board
+  end
+
+  def self.find_active_by_cached(options = {})
+    options = options.merge(is_draft: false, is_active: true)
+
+    redis_key = "storage-#{options[:storage_id]}-boards-#{options[:id]}"
+    namespace = "storage-#{options[:storage_id]}-boards-detail"
+
+    storage_board = Rails.cache.read(redis_key, namespace: namespace)
+
+    if storage_board.blank?
+      storage_board = find_by(options)
+      raise Errors::NotFound.new(code: 'COC006', message: "There's no such resource.") if storage_board.blank?
+
+      Rails.cache.write(redis_key, StorageBoardSerializer.new(storage_board).as_json, namespace: namespace)
+      storage_board = Rails.cache.read(redis_key, namespace: namespace)
+    end
 
     storage_board
   end
