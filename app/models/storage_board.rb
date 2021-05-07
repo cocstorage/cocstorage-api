@@ -73,7 +73,7 @@ class StorageBoard < ApplicationRecord
         storage_boards,
         each_serializer: StorageBoardSerializer
       ).as_json, expires_in: 5.minutes, namespace: namespace)
-      Rails.cache.write("#{redis_key}/pagination", PaginationSerializer.new(storage_boards).as_json, namespace: namespace)
+      Rails.cache.write("#{redis_key}/pagination", PaginationSerializer.new(storage_boards).as_json, expires_in: 5.minutes, namespace: namespace)
 
       storage_boards = Rails.cache.read(redis_key, namespace: namespace)
       pagination = Rails.cache.read("#{redis_key}/pagination", namespace: namespace)
