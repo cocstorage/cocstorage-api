@@ -67,7 +67,7 @@ class StorageBoard < ApplicationRecord
         storage_boards = storage_boards.where(is_popular: true).order(created_at: :desc) if options[:orderBy] == 'popular'
       end
 
-      storage_boards = storage_boards.page(options[:page]).per(options[:per] || 20)
+      storage_boards = storage_boards.page(options[:page]).per(options[:per] || 10)
 
       Rails.cache.write(redis_key, ActiveModelSerializers::SerializableResource.new(
         storage_boards,
