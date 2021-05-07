@@ -20,7 +20,7 @@ class MigrationLegacyBoardJob < ApplicationJob
 
         create_new_storage_board = false
 
-        boards = ActiveRecord::Base.connection.execute("SELECT data_no, nickname, ip, subject, content, original_category_id, register_date FROM #{reg_code} LIMIT 10").map do |board|
+        boards = ActiveRecord::Base.connection.execute("SELECT data_no, nickname, ip, subject, content, original_category_id, register_date FROM #{reg_code}").map do |board|
           data_no = board[0]
           nickname = board[1]
           ip = board[2]
@@ -96,6 +96,8 @@ class MigrationLegacyBoardJob < ApplicationJob
         next
       end
     end
+
+    ActiveRecord::Base.establish_connection Rails.env.to_sym
   end
 
   private
