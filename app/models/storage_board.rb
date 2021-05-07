@@ -16,9 +16,17 @@ class StorageBoard < ApplicationRecord
 
     storage_boards = storage.active_boards
 
-    storage_boards = storage_boards.where('nickname like :search or subject like :search or content like :search', {
-                                            search: "%#{options[:subject] || options[:nickname] || options[:content]}%"
-    })
+    storage_boards = storage_boards.where('nickname like :search', {
+      search: "%#{options[:nickname]}%"
+    }) if options[:nickname].present?
+
+    storage_boards = storage_boards.where('subject like :search', {
+      search: "%#{options[:subject]}%"
+    }) if options[:subject].present?
+
+    storage_boards = storage_boards.where('content like :search', {
+      search: "%#{options[:content]}%"
+    }) if options[:content].present?
 
     if options[:orderBy].present?
       storage_boards = storage_boards.order(created_at: :desc) if options[:orderBy] == 'latest'
@@ -41,9 +49,17 @@ class StorageBoard < ApplicationRecord
     if storage_boards.blank? || pagination.blank?
       storage_boards = StorageBoard.where(storage_id: storage[:id])
 
-      storage_boards = storage_boards.where('nickname like :search or subject like :search or content like :search', {
-        search: "%#{options[:subject] || options[:nickname] || options[:content]}%"
-      })
+      storage_boards = storage_boards.where('nickname like :search', {
+        search: "%#{options[:nickname]}%"
+      }) if options[:nickname].present?
+
+      storage_boards = storage_boards.where('subject like :search', {
+        search: "%#{options[:subject]}%"
+      }) if options[:subject].present?
+
+      storage_boards = storage_boards.where('content like :search', {
+        search: "%#{options[:content]}%"
+      }) if options[:content].present?
 
       if options[:orderBy].present?
         storage_boards = storage_boards.order(created_at: :desc) if options[:orderBy] == 'latest'
