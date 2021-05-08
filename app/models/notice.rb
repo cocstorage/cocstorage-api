@@ -43,8 +43,8 @@ class Notice < ApplicationRecord
 
       notices = notices.page(options[:page]).per(options[:per] || 20)
 
-      Rails.cache.write(redis_key, ActiveModelSerializers::SerializableResource.new(notices, each_serializer: NoticeSerializer).as_json, namespace: namespace)
-      Rails.cache.write("#{redis_key}/pagination", PaginationSerializer.new(notices).as_json, namespace: namespace)
+      Rails.cache.write(redis_key, ActiveModelSerializers::SerializableResource.new(notices, each_serializer: NoticeSerializer).as_json, expires_in: 5.minutes, namespace: namespace)
+      Rails.cache.write("#{redis_key}/pagination", PaginationSerializer.new(notices).as_json, expires_in: 5.minutes, namespace: namespace)
 
       notices = Rails.cache.read(redis_key, namespace: namespace)
       pagination = Rails.cache.read("#{redis_key}/pagination", namespace: namespace)

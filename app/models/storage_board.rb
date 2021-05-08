@@ -29,8 +29,8 @@ class StorageBoard < ApplicationRecord
     }) if options[:content].present?
 
     if options[:orderBy].present?
-      storage_boards = storage_boards.order(created_at: :desc) if options[:orderBy] == 'latest'
-      storage_boards = storage_boards.order(created_at: :asc) if options[:orderBy] == 'old'
+      storage_boards = storage_boards.order(id: :desc) if options[:orderBy] == 'latest'
+      storage_boards = storage_boards.order(id: :asc) if options[:orderBy] == 'old'
       storage_boards = storage_boards.where(is_popular: true).order(created_at: :desc) if options[:orderBy] == 'popular'
     end
 
@@ -47,7 +47,7 @@ class StorageBoard < ApplicationRecord
     pagination = Rails.cache.read("#{redis_key}/pagination", namespace: namespace)
 
     if storage_boards.blank? || pagination.blank?
-      storage_boards = StorageBoard.where(storage_id: storage[:id])
+      storage_boards = StorageBoard.where(storage_id: storage[:id], is_draft: false, is_active: true)
 
       storage_boards = storage_boards.where('nickname like :search', {
         search: "%#{options[:nickname]}%"
