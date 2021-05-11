@@ -30,6 +30,8 @@ class StorageBoardScrapJob < ApplicationJob
         response = URI.open(post_url, 'User-Agent' => user_agent, 'Referrer' => url)
         raise Errors::NotFound.new(code: 'COC006', message: "There's no such resource.") if response.status.first.to_i != 200
 
+        sleep 5
+
         post = Nokogiri::HTML(response)
 
         subject = post.css('.title_subject').text
@@ -130,7 +132,7 @@ class StorageBoardScrapJob < ApplicationJob
             page_nums.each do |page_num|
               if page_num > 1
                 browser.execute_script("viewComments(#{page_num}, 'D')")
-                sleep 2
+                sleep 3
               end
 
               # Comments & Replies
