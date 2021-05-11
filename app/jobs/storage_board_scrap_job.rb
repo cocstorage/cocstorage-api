@@ -52,6 +52,7 @@ class StorageBoardScrapJob < ApplicationJob
 
         %w[youtube kakao].each do |name|
           options = options.merge(has_video: true) if content.css('iframe').attr('src').to_s.index(name).present?
+          options = options.merge(has_video: true) if content.css('embed').attr('src').to_s.index(name).present?
         end
 
         unless StorageBoard.where(scrap_code: scrap_code).exists?
@@ -92,7 +93,7 @@ class StorageBoardScrapJob < ApplicationJob
 
         storage_board_comment_url = "https://gall.dcinside.com/board/view/?id=#{storage.code}&no=#{scrap_code}&t=cv&exception_mode=recommend&page=1"
 
-        Selenium::WebDriver::Chrome::Service.driver_path = '/opt/homebrew/bin/chromedriver'
+        Selenium::WebDriver::Chrome::Service.driver_path = ENV['CHROME_DRIVER_PATH']
 
         options = Selenium::WebDriver::Chrome::Options.new
         options.add_argument("--user-agent=#{user_agent}")

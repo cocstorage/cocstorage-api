@@ -28,6 +28,6 @@ class V1::Users::RegistrationsController < Devise::RegistrationsController
       raise Errors::BadRequest.new(code: 'COC000', message: "#{key} is required") if params[key].blank?
     end
 
-    params.permit(create_attributes).merge(created_ip: request.remote_ip)
+    params.permit(create_attributes).merge(created_ip: request.headers['CF-Connecting-IP'] || request.remote_ip)
   end
 end
