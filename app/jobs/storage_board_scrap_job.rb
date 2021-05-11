@@ -80,11 +80,15 @@ class StorageBoardScrapJob < ApplicationJob
         images.remove_attr('onclick')
 
         images.each do |image|
-          download_image = URI.open(image['src'], 'User-Agent' => image_user_agent, 'Referrer' => post_url)
-          storage_board.images.attach(io: download_image, filename: SecureRandom.urlsafe_base64(20))
+          begin
+            download_image = URI.open(image['src'], 'User-Agent' => image_user_agent, 'Referrer' => post_url)
+            storage_board.images.attach(io: download_image, filename: SecureRandom.urlsafe_base64(20))
 
-          image['src'] = storage_board.last_image_url
-          image['alt'] = 'Board Img'
+            image['src'] = storage_board.last_image_url
+            image['alt'] = 'Board Img'
+          rescue
+            next
+          end
         end if images.present?
 
         has_image = true if images.present?
@@ -94,11 +98,15 @@ class StorageBoardScrapJob < ApplicationJob
         gif_images.remove_attr('data-src')
 
         gif_images.each do |gif_image|
-          download_image = URI.open(gif_image.css('source')['src'], 'User-Agent' => image_user_agent, 'Referrer' => post_url)
-          storage_board.images.attach(io: download_image, filename: SecureRandom.urlsafe_base64(20))
+          begin
+            download_image = URI.open(gif_image.css('source').attr('src'), 'User-Agent' => image_user_agent, 'Referrer' => post_url)
+            storage_board.images.attach(io: download_image, filename: SecureRandom.urlsafe_base64(20))
 
-          gif_image['src'] = storage_board.last_image_url
-          gif_image['alt'] = 'Board Img'
+            gif_image['src'] = storage_board.last_image_url
+            gif_image['alt'] = 'Board Img'
+          rescue
+            next
+          end
         end if gif_images.present?
 
         has_image = true if gif_images.present?
