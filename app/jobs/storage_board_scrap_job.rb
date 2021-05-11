@@ -71,6 +71,8 @@ class StorageBoardScrapJob < ApplicationJob
           create_new_storage_board = true
         end
 
+        next if storage_board.blank?
+
         parse_storage_board_content = Nokogiri::HTML::DocumentFragment.parse(storage_board.content)
 
         images = parse_storage_board_content.css('img')
