@@ -39,7 +39,7 @@ class MigrationLegacyBoardGifJob < ApplicationJob
         end
       end if gif_images.present?
 
-      has_image = true if gif_images.present?
+      has_video = true if gif_images.present?
 
       storage_board.update(content: parse_storage_board_content, has_image: has_image, has_video: has_video)
     end

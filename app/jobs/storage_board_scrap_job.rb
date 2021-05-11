@@ -52,7 +52,8 @@ class StorageBoardScrapJob < ApplicationJob
 
         %w[youtube kakao].each do |name|
           options = options.merge(has_video: true) if content.css('iframe').attr('src').to_s.index(name).present?
-          options = options.merge(has_video: true) if content.css('embed').attr('src').to_s.index(name).present?
+          options = options.merge(has_video: true) if content.css('embed').present?
+          options = options.merge(has_video: true) if content.css('video').present?
         end
 
         unless StorageBoard.where(scrap_code: scrap_code).exists?
@@ -102,14 +103,12 @@ class StorageBoardScrapJob < ApplicationJob
             download_image = URI.open(gif_image.css('source').attr('src'), 'User-Agent' => image_user_agent, 'Referrer' => post_url)
             storage_board.images.attach(io: download_image, filename: SecureRandom.urlsafe_base64(20))
 
-            gif_image['src'] = storage_board.last_image_url
-            gif_image['alt'] = 'Board Img'
+            gif_image.at('source')['src'] = storage_board.last_image_url
+            gif_image.at('source')['alt'] = 'Board Img'
           rescue
             next
           end
         end if gif_images.present?
-
-        has_image = true if gif_images.present?
 
         storage_board.update(content: parse_storage_board_content, has_image: has_image)
 
