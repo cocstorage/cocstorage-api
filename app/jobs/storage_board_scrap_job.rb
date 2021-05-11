@@ -79,8 +79,6 @@ class StorageBoardScrapJob < ApplicationJob
         images.remove_attr('style')
         images.remove_attr('onclick')
 
-        has_image = false
-
         images.each do |image|
           download_image = URI.open(image['src'], 'User-Agent' => image_user_agent, 'Referrer' => post_url)
           storage_board.images.attach(io: download_image, filename: SecureRandom.urlsafe_base64(20))
@@ -90,6 +88,20 @@ class StorageBoardScrapJob < ApplicationJob
         end if images.present?
 
         has_image = true if images.present?
+
+        gif_images = parse_storage_board_content.css('video')
+        gif_images.remove_attr('onmousedown')
+        gif_images.remove_attr('data-src')
+
+        gif_images.each do |gif_image|
+          download_image = URI.open(gif_image.css('source')['src'], 'User-Agent' => image_user_agent, 'Referrer' => post_url)
+          storage_board.images.attach(io: download_image, filename: SecureRandom.urlsafe_base64(20))
+
+          gif_image['src'] = storage_board.last_image_url
+          gif_image['alt'] = 'Board Img'
+        end if gif_images.present?
+
+        has_image = true if gif_images.present?
 
         storage_board.update(content: parse_storage_board_content, has_image: has_image)
 
