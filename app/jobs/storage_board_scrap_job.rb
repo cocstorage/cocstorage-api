@@ -16,8 +16,10 @@ class StorageBoardScrapJob < ApplicationJob
       url = "https://gall.dcinside.com/board/lists?id=#{storage.code}&exception_mode=recommend"
       create_new_storage_board = false
 
+      sleep 1
+
       response = URI.open(url, 'User-Agent' => user_agent, 'Referrer' => referrer)
-      raise Errors::NotFound.new(code: 'COC006', message: "There's no such resource.") if response.status.first.to_i != 200
+      next if response.status.first.to_i != 200
 
       html = Nokogiri::HTML(response)
 
@@ -27,10 +29,10 @@ class StorageBoardScrapJob < ApplicationJob
         scrap_code = post['data-no']
         post_url = "https://gall.dcinside.com/board/view/?id=#{storage.code}&no=#{scrap_code}&page=1"
 
-        response = URI.open(post_url, 'User-Agent' => user_agent, 'Referrer' => url)
-        raise Errors::NotFound.new(code: 'COC006', message: "There's no such resource.") if response.status.first.to_i != 200
+        sleep 3
 
-        sleep 5
+        response = URI.open(post_url, 'User-Agent' => user_agent, 'Referrer' => url)
+        next if response.status.first.to_i != 200
 
         post = Nokogiri::HTML(response)
 
@@ -38,6 +40,8 @@ class StorageBoardScrapJob < ApplicationJob
         nickname = post.css('.gall_writer.ub-writer').first['data-nick']
         ip = post.css('.gall_writer.ub-writer').first['data-ip']
         content = post.css('.write_div')
+
+        next if subject.blank? || content.blank?
 
         options = {
           storage_id: storage.id,
@@ -59,7 +63,7 @@ class StorageBoardScrapJob < ApplicationJob
         end
 
         unless StorageBoard.where(scrap_code: scrap_code).exists?
-          storage_board = StorageBoard.create!(
+          storage_board = StorageBoard.create(
             storage_id: storage.id,
             scrap_code: scrap_code,
             source_code: storage.code,
@@ -72,8 +76,6 @@ class StorageBoardScrapJob < ApplicationJob
             is_draft: false
           )
           create_new_storage_board = true
-
-          next if storage_board.blank?
 
           parse_storage_board_content = Nokogiri::HTML::DocumentFragment.parse(storage_board.content)
 
@@ -181,7 +183,7 @@ class StorageBoardScrapJob < ApplicationJob
           namespace = "storage-#{storage.id}-boards"
           Rails.cache.clear(namespace: namespace)
         end
-        end
+      end
     end
   end
 end
