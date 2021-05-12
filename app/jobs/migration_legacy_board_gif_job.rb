@@ -16,28 +16,14 @@ class MigrationLegacyBoardGifJob < ApplicationJob
 
       %w[youtube kakao].each do |name|
         has_video = true if parse_storage_board_content.css('iframe').attr('src').to_s.index(name).present?
-        has_video = true if parse_storage_board_content.css('embed').attr('src').to_s.index(name).present?
+        has_video = true if parse_storage_board_content.css('embed').present?
       end
 
       gif_images = parse_storage_board_content.css('video')
+      gif_images.remove_attr('class')
+      gif_images.remove_attr('poster')
       gif_images.remove_attr('onmousedown')
       gif_images.remove_attr('data-src')
-
-      gif_images.each do |gif_image|
-        begin
-          src = gif_image.css('source').attr('src')
-
-          if src.present? && src.to_s.index('api.cocstorage').present?
-            download_image = URI.open(src)
-            storage_board.images.attach(io: download_image, filename: SecureRandom.urlsafe_base64(20))
-
-            gif_image.at('source')['src'] = storage_board.last_image_url
-            gif_image.at('source')['alt'] = 'Board Img'
-          end
-        rescue
-          next
-        end
-      end if gif_images.present?
 
       has_video = true if gif_images.present?
 

@@ -63,18 +63,7 @@ class StorageBoardScrapJob < ApplicationJob
         end
 
         unless StorageBoard.where(scrap_code: scrap_code).exists?
-          storage_board = StorageBoard.create(
-            storage_id: storage.id,
-            scrap_code: scrap_code,
-            source_code: storage.code,
-            nickname: nickname,
-            created_ip: ip,
-            subject: subject,
-            content: content,
-            description: content.text,
-            is_member: true,
-            is_draft: false
-          )
+          storage_board = StorageBoard.create(options)
           create_new_storage_board = true
 
           parse_storage_board_content = Nokogiri::HTML::DocumentFragment.parse(storage_board.content)
@@ -98,6 +87,8 @@ class StorageBoardScrapJob < ApplicationJob
           has_image = true if images.present?
 
           gif_images = parse_storage_board_content.css('video')
+          gif_images.remove_attr('class')
+          gif_images.remove_attr('poster')
           gif_images.remove_attr('onmousedown')
           gif_images.remove_attr('data-src')
 
