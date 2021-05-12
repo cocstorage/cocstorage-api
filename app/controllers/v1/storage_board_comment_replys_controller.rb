@@ -2,48 +2,48 @@ class V1::StorageBoardCommentReplysController < V1::BaseController
   skip_before_action :authenticate_v1_user!, only: %i[non_members_create non_members_destroy]
 
   def create
-    namespace = "storage-#{params[:storage_id]}-boards-#{params[:storage_board_id]}-comments"
+    namespace = "storages-#{params[:storage_id]}-boards-#{params[:storage_board_id]}-comments"
 
     Rails.cache.clear(namespace: namespace)
 
-    redis_key = "storage-#{params[:storage_id]}-boards-#{params[:storage_board_id]}"
-    namespace = "storage-#{params[:storage_id]}-boards-detail"
+    redis_key = "storages-#{params[:storage_id]}-boards-#{params[:storage_board_id]}"
+    namespace = "storages-#{params[:storage_id]}-boards-detail"
 
     Rails.cache.delete(redis_key, namespace: namespace)
     render json: StorageBoardCommentReply.create_with_options(create_params), each_serializer: StorageBoardCommentReplySerializer
   end
 
   def non_members_create
-    namespace = "storage-#{params[:storage_id]}-boards-#{params[:storage_board_id]}-comments"
+    namespace = "storages-#{params[:storage_id]}-boards-#{params[:storage_board_id]}-comments"
 
     Rails.cache.clear(namespace: namespace)
 
-    redis_key = "storage-#{params[:storage_id]}-boards-#{params[:storage_board_id]}"
-    namespace = "storage-#{params[:storage_id]}-boards-detail"
+    redis_key = "storages-#{params[:storage_id]}-boards-#{params[:storage_board_id]}"
+    namespace = "storages-#{params[:storage_id]}-boards-detail"
 
     Rails.cache.delete(redis_key, namespace: namespace)
     render json: StorageBoardCommentReply.create_with_options(non_members_create_params), each_serializer: StorageBoardCommentReplySerializer
   end
 
   def destroy
-    namespace = "storage-#{params[:storage_id]}-boards-#{params[:storage_board_id]}-comments"
+    namespace = "storages-#{params[:storage_id]}-boards-#{params[:storage_board_id]}-comments"
 
     Rails.cache.clear(namespace: namespace)
 
-    redis_key = "storage-#{params[:storage_id]}-boards-#{params[:storage_board_id]}"
-    namespace = "storage-#{params[:storage_id]}-boards-detail"
+    redis_key = "storages-#{params[:storage_id]}-boards-#{params[:storage_board_id]}"
+    namespace = "storages-#{params[:storage_id]}-boards-detail"
 
     Rails.cache.delete(redis_key, namespace: namespace)
     render json: StorageBoardCommentReply.destroy_for_member(destroy_params), each_serializer: StorageBoardCommentReplySerializer
   end
 
   def non_members_destroy
-    namespace = "storage-#{params[:storage_id]}-boards-#{params[:storage_board_id]}-comments"
+    namespace = "storages-#{params[:storage_id]}-boards-#{params[:storage_board_id]}-comments"
 
     Rails.cache.clear(namespace: namespace)
 
-    redis_key = "storage-#{params[:storage_id]}-boards-#{params[:storage_board_id]}"
-    namespace = "storage-#{params[:storage_id]}-boards-detail"
+    redis_key = "storages-#{params[:storage_id]}-boards-#{params[:storage_board_id]}"
+    namespace = "storages-#{params[:storage_id]}-boards-detail"
 
     Rails.cache.delete(redis_key, namespace: namespace)
     render json: StorageBoardCommentReply.destroy_for_non_member(non_members_destroy_params), each_serializer: StorageBoardCommentReplySerializer

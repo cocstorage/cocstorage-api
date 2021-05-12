@@ -23,6 +23,41 @@ class NoticeComment < ApplicationRecord
     notice_comments
   end
 
+  def self.fetch_by_cached_with_options(options = {})
+    notice = Notice.find_active_by_cached(id: options[:notice_id])
+
+    redis_key = "notices-#{options[:notice_id]}-comments-#{options.values.to_s}"
+    namespace = "notices-#{options[:notice_id]}-comments"
+
+    notice_comments = Rails.cache.read(redis_key, namespace: namespace)
+    pagination = Rails.cache.read("#{redis_key}/pagination", namespace: namespace)
+
+    if notice_comments.blank? || pagination.blank?
+      notice_comments = NoticeComment.where(notice_id: notice[:id])
+
+      if options[:orderBy]
+        notice_comments = notice_comments.order(created_at: :desc) if options[:orderBy] == 'latest'
+        notice_comments = notice_comments.order(created_at: :asc) if options[:orderBy] == 'old'
+      end
+
+      notice_comments = notice_comments.page(options[:page]).per(options[:per] || 20)
+
+      Rails.cache.write(redis_key, ActiveModelSerializers::SerializableResource.new(
+        notice_comments,
+        each_serializer: NoticeCommentSerializer
+      ).as_json, namespace: namespace)
+      Rails.cache.write("#{redis_key}/pagination", PaginationSerializer.new(notice_comments).as_json, namespace: namespace)
+
+      notice_comments = Rails.cache.read(redis_key, namespace: namespace)
+      pagination = Rails.cache.read("#{redis_key}/pagination", namespace: namespace)
+    end
+
+    {
+      comments: notice_comments,
+      pagination: pagination
+    }
+  end
+
   def self.find_with_options(options = {})
     options = options.merge(user_id: options[:user].id, is_member: true) if options[:user].present?
     options = options.merge(user_id: nil, is_member: false) if options[:user].blank?

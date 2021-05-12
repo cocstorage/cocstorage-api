@@ -40,8 +40,8 @@ class StorageBoard < ApplicationRecord
   def self.fetch_by_cached_with_options(options = {})
     storage = Storage.find_active_by_cached(options[:storage_id])
 
-    redis_key = "storage-#{storage[:id]}-boards-#{options.values.to_s}"
-    namespace = "storage-#{storage[:id]}-boards"
+    redis_key = "storages-#{storage[:id]}-boards-#{options.values.to_s}"
+    namespace = "storages-#{storage[:id]}-boards"
 
     storage_boards = Rails.cache.read(redis_key, namespace: namespace)
     pagination = Rails.cache.read("#{redis_key}/pagination", namespace: namespace)
@@ -97,8 +97,8 @@ class StorageBoard < ApplicationRecord
   def self.find_active_by_cached(options = {})
     options = options.merge(is_draft: false, is_active: true)
 
-    redis_key = "storage-#{options[:storage_id]}-boards-#{options[:id]}"
-    namespace = "storage-#{options[:storage_id]}-boards-detail"
+    redis_key = "storages-#{options[:storage_id]}-boards-#{options[:id]}"
+    namespace = "storages-#{options[:storage_id]}-boards-detail"
 
     storage_board = Rails.cache.read(redis_key, namespace: namespace)
 

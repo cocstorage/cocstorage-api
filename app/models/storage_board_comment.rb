@@ -24,8 +24,8 @@ class StorageBoardComment < ApplicationRecord
   def self.fetch_by_cached_with_options(options = {})
     storage_board = StorageBoard.find_active_by_cached(storage_id: options[:storage_id], id: options[:storage_board_id])
 
-    redis_key = "storage-#{options[:storage_id]}-boards-#{options[:storage_board_id]}-comments-#{options.values.to_s}"
-    namespace = "storage-#{options[:storage_id]}-boards-#{options[:storage_board_id]}-comments"
+    redis_key = "storages-#{options[:storage_id]}-boards-#{options[:storage_board_id]}-comments-#{options.values.to_s}"
+    namespace = "storages-#{options[:storage_id]}-boards-#{options[:storage_board_id]}-comments"
 
     storage_board_comments = Rails.cache.read(redis_key, namespace: namespace)
     pagination = Rails.cache.read("#{redis_key}/pagination", namespace: namespace)

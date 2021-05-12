@@ -19,7 +19,7 @@ class StorageBoardScrapJob < ApplicationJob
       sleep 1
 
       response = URI.open(url, 'User-Agent' => user_agent, 'Referrer' => referrer)
-      next if response.status.first.to_i != 200
+      next if response.status.first.to_i >= 400
 
       html = Nokogiri::HTML(response)
 
@@ -32,7 +32,7 @@ class StorageBoardScrapJob < ApplicationJob
         sleep 3
 
         response = URI.open(post_url, 'User-Agent' => user_agent, 'Referrer' => url)
-        next if response.status.first.to_i != 200
+        next if response.status.first.to_i >= 400
 
         post = Nokogiri::HTML(response)
 
@@ -41,7 +41,9 @@ class StorageBoardScrapJob < ApplicationJob
         ip = post.css('.gall_writer.ub-writer').first['data-ip']
         content = post.css('.write_div')
 
-        next if subject.blank? || content.blank?
+        if subject.blank? || content.blank?
+          logger.debug "Title or content does not exist in (#{storage.code}-#{scrap_code})"
+        end
 
         options = {
           storage_id: storage.id,
@@ -127,7 +129,7 @@ class StorageBoardScrapJob < ApplicationJob
             page_nums.each do |page_num|
               if page_num > 1
                 browser.execute_script("viewComments(#{page_num}, 'D')")
-                sleep 3
+                sleep 1.5
               end
 
               # Comments & Replies
@@ -171,7 +173,7 @@ class StorageBoardScrapJob < ApplicationJob
         end
 
         if create_new_storage_board
-          namespace = "storage-#{storage.id}-boards"
+          namespace = "storages-#{storage.id}-boards"
           Rails.cache.clear(namespace: namespace)
         end
       end
