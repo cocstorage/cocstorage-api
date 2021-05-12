@@ -1,6 +1,6 @@
 class ApplicationController < ActionController::API
-  before_action :validation_x_api_key
-  skip_before_action :validation_x_api_key, only: :health_check
+  # before_action :validation_x_api_key
+  # skip_before_action :validation_x_api_key, only: :health_check
 
   rescue_from Errors::BadRequest, with: :bad_request
   rescue_from Errors::Unauthorized, with: :unauthorized
