@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2021_05_01_063753) do
+ActiveRecord::Schema.define(version: 2021_05_13_235527) do
 
   create_table "active_storage_attachments", options: "ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci", force: :cascade do |t|
     t.string "name", null: false
@@ -149,7 +149,7 @@ ActiveRecord::Schema.define(version: 2021_05_01_063753) do
     t.string "nickname"
     t.string "password"
     t.string "subject"
-    t.text "content"
+    t.text "content", size: :long
     t.text "description"
     t.integer "view_count", default: 0
     t.integer "thumb_up", default: 0
