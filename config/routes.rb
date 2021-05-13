@@ -83,8 +83,6 @@ Rails.application.routes.draw do
           get '/withdrawaled', to: 'cron#withdrawaled'
           get '/collection', to: 'cron#collection'
           get '/scrap', to: 'cron#scrap'
-          get '/migration', to: 'cron#migration'
-          get '/migration-gif', to: 'cron#migration_gif'
         end
       end
     end

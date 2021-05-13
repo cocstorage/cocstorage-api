@@ -5,6 +5,7 @@ class StorageBoardSerializer < ActiveModel::Serializer
   attributes StorageBoard.column_names.reject { |name| %w[id storage_id user_id password created_user_agent].include? name }
   attribute :thumbnail_url
   attribute :comment_total_count
+  attribute :comment_latest_page
 
   def storage
     storage = object.storage
@@ -53,6 +54,13 @@ class StorageBoardSerializer < ActiveModel::Serializer
   end
 
   def comment_total_count
-    object.comment_count + object.reply_count
+    @comment_count = object.comment_count
+    @reply_count = object.reply_count
+    @comment_total_count = @comment_count + @reply_count
+    @comment_total_count
+  end
+
+  def comment_latest_page
+    @comment_total_count % 10 != 0 ? ((@comment_total_count) / 10).ceil + 1 : ((@comment_total_count) / 10).ceil
   end
 end
