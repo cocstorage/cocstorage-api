@@ -168,7 +168,7 @@ class StorageBoardScrapJob < ApplicationJob
               end
             end
 
-            Rails.cache.clear("storages-#{storage.id}-boards-#{storage_board.id}", namespace: "storages-#{storage.id}-boards-detail")
+            Rails.cache.delete("storages-#{storage.id}-boards-#{storage_board.id}", namespace: "storages-#{storage.id}-boards-detail")
           ensure
             browser.quit
           end
