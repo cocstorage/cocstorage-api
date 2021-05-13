@@ -57,10 +57,11 @@ class StorageBoardSerializer < ActiveModel::Serializer
     @comment_count = object.comment_count
     @reply_count = object.reply_count
     @comment_total_count = @comment_count + @reply_count
+
     @comment_total_count
   end
 
   def comment_latest_page
-    @comment_total_count % 10 != 0 ? ((@comment_total_count) / 10).ceil + 1 : ((@comment_total_count) / 10).ceil
+    @comment_count  % 10 != 0 ? ((@comment_count) / 10).ceil + 1 : ((@comment_count) / 10).ceil
   end
 end
