@@ -28,7 +28,11 @@ class StorageBoardScrapJob < ApplicationJob
 
       posts = html.css('.ub-content.us-post')
 
+      post_already_exist_check_count = 0
+
       posts.each do |post|
+        break if post_already_exist_check_count >= 3
+
         scrap_code = post['data-no']
         post_url = "https://gall.dcinside.com/board/view/?id=#{storage.code}&no=#{scrap_code}&page=1"
 
@@ -67,7 +71,7 @@ class StorageBoardScrapJob < ApplicationJob
           options = options.merge(has_video: true) if content.css('video').present?
         end
 
-        unless StorageBoard.where(scrap_code: scrap_code).exists?
+        unless StorageBoard.where(storage_id: storage.id, scrap_code: scrap_code).exists?
           storage_board = StorageBoard.create(options)
           create_new_storage_board = true
 
@@ -178,6 +182,8 @@ class StorageBoardScrapJob < ApplicationJob
           ensure
             browser.quit
           end
+        else
+          post_already_exist_check_count += 1
         end
 
         if create_new_storage_board
