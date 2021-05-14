@@ -136,30 +136,33 @@ class StorageBoardScrapJob < ApplicationJob
               browser.find_element(css: '.cmt_list').find_elements(:xpath => "*").each do |comment|
                 begin
                   comment_data_no = comment.attribute('id').split('_').last
-                  comment_writer = comment.find_element(css: '.gall_writer.ub-writer')
-                  comment_content = comment.find_element(css: '.usertxt.ub-word')
 
-                  storage_board_comment = StorageBoardComment.create(
-                    storage_board_id: storage_board.id,
-                    nickname: comment_writer.attribute('data-nick'),
-                    content: comment_content.text,
-                    created_ip: comment_writer.attribute('data-ip'),
-                    is_member: 1
-                  )
+                  if comment_data_no.present?
+                    comment_writer = comment.find_element(css: '.gall_writer.ub-writer')
+                    comment_content = comment.find_element(css: '.usertxt.ub-word')
 
-                  # Replies
-                  browser.find_elements(id: "reply_list_#{comment_data_no}").each do |reply_list|
-                    reply_list.find_elements(:xpath => "*").each do |reply|
-                      reply_writer = reply.find_element(css: '.gall_writer.ub-writer')
-                      reply_content = reply.find_element(css: '.usertxt.ub-word')
+                    storage_board_comment = StorageBoardComment.create(
+                      storage_board_id: storage_board.id,
+                      nickname: comment_writer.attribute('data-nick'),
+                      content: comment_content.text,
+                      created_ip: comment_writer.attribute('data-ip'),
+                      is_member: 1
+                    )
 
-                      StorageBoardCommentReply.create(
-                        storage_board_comment_id: storage_board_comment.id,
-                        nickname: reply_writer.attribute('data-nick'),
-                        content: reply_content.text,
-                        created_ip: reply_writer.attribute('data-ip'),
-                        is_member: 1
-                      )
+                    # Replies
+                    browser.find_elements(id: "reply_list_#{comment_data_no}").each do |reply_list|
+                      reply_list.find_elements(:xpath => "*").each do |reply|
+                        reply_writer = reply.find_element(css: '.gall_writer.ub-writer')
+                        reply_content = reply.find_element(css: '.usertxt.ub-word')
+
+                        StorageBoardCommentReply.create(
+                          storage_board_comment_id: storage_board_comment.id,
+                          nickname: reply_writer.attribute('data-nick'),
+                          content: reply_content.text,
+                          created_ip: reply_writer.attribute('data-ip'),
+                          is_member: 1
+                        )
+                      end
                     end
                   end
                 rescue
