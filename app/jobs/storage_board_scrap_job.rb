@@ -13,7 +13,10 @@ class StorageBoardScrapJob < ApplicationJob
 
     storage_category.storages.each do |storage|
       referrer = "https://gall.dcinside.com/board/lists?id=#{storage.code}"
+
       url = "https://gall.dcinside.com/board/lists?id=#{storage.code}&exception_mode=recommend"
+      url = "https://gall.dcinside.com/mgallery/board/lists?id=#{storage.code}&exception_mode=recommend" if storage.type == "minor"
+
       create_new_storage_board = false
 
       sleep 1
