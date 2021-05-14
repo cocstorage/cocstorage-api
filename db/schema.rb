@@ -207,7 +207,7 @@ ActiveRecord::Schema.define(version: 2021_05_14_065534) do
     t.datetime "created_at", precision: 6, null: false
     t.datetime "updated_at", precision: 6, null: false
     t.string "code"
-    t.integer "type", default: 0
+    t.integer "storage_type", default: 0
     t.index ["name"], name: "index_storages_on_name", unique: true
     t.index ["path"], name: "index_storages_on_path", unique: true
     t.index ["storage_category_id"], name: "index_storages_on_storage_category_id"

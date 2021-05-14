@@ -2,7 +2,7 @@ class Storage < ApplicationRecord
   belongs_to :storage_category
   belongs_to :user
 
-  enum type: %w[major minor]
+  enum storage_type: %w[major minor]
 
   has_many :storage_boards, dependent: :destroy
   has_many :storage_user_roles, dependent: :destroy
