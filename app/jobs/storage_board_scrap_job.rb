@@ -35,6 +35,7 @@ class StorageBoardScrapJob < ApplicationJob
 
         scrap_code = post['data-no']
         post_url = "https://gall.dcinside.com/board/view/?id=#{storage.code}&no=#{scrap_code}&page=1"
+        post_url = "https://gall.dcinside.com/mgallery/board/view/?id=#{storage.code}&no=#{scrap_code}&exception_mode=recommend&page=1" if storage.storage_type == "minor"
 
         sleep 3
 
@@ -116,6 +117,7 @@ class StorageBoardScrapJob < ApplicationJob
           storage_board.update(content: parse_storage_board_content, has_image: has_image)
 
           storage_board_comment_url = "https://gall.dcinside.com/board/view/?id=#{storage.code}&no=#{scrap_code}&t=cv&exception_mode=recommend&page=1"
+          storage_board_comment_url = "https://gall.dcinside.com/mgallery/board/view/?id=#{storage.code}&no=#{scrap_code}&t=cv&exception_mode=recommend&page=1" if storage.storage_type == "minor"
 
           Selenium::WebDriver::Chrome::Service.driver_path = ENV['CHROME_DRIVER_PATH']
 
