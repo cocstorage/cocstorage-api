@@ -31,7 +31,7 @@ class StorageBoardScrapJob < ApplicationJob
       post_already_exist_check_count = 0
 
       posts.each do |post|
-        break if post_already_exist_check_count >= 3
+        break if post_already_exist_check_count >= 7
 
         scrap_code = post['data-no']
         post_url = "https://gall.dcinside.com/board/view/?id=#{storage.code}&no=#{scrap_code}&page=1"
