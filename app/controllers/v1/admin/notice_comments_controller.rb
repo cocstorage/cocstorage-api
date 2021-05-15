@@ -9,25 +9,25 @@ class V1::Admin::NoticeCommentsController < V1::Admin::BaseController
   end
 
   def create
-    Rails.cache.clear("notices-#{configure_create_params[:notice_id]}", namespace: 'notices-detail')
+    Rails.cache.delete("notices-#{configure_create_params[:notice_id]}", namespace: 'notices-detail')
     Rails.cache.clear(namespace: "notices-#{configure_create_params[:notice_id]}-comments")
     render json: NoticeComment.create_with_options(configure_create_params), each_serializer: NoticeCommentSerializer
   end
 
   def non_members_create
-    Rails.cache.clear("notices-#{configure_create_params[:notice_id]}", namespace: 'notices-detail')
+    Rails.cache.delete("notices-#{configure_create_params[:notice_id]}", namespace: 'notices-detail')
     Rails.cache.clear(namespace: "notices-#{configure_create_params[:notice_id]}-comments")
     render json: NoticeComment.create_with_options(configure_non_members_create_params), each_serializer: NoticeCommentSerializer
   end
 
   def destroy
-    Rails.cache.clear("notices-#{configure_create_params[:notice_id]}", namespace: 'notices-detail')
+    Rails.cache.delete("notices-#{configure_create_params[:notice_id]}", namespace: 'notices-detail')
     Rails.cache.clear(namespace: "notices-#{configure_create_params[:notice_id]}-comments")
     render json: NoticeComment.destroy_for_member(configure_destroy_params), each_serializer: NoticeCommentSerializer
   end
 
   def non_members_destroy
-    Rails.cache.clear("notices-#{configure_create_params[:notice_id]}", namespace: 'notices-detail')
+    Rails.cache.delete("notices-#{configure_create_params[:notice_id]}", namespace: 'notices-detail')
     Rails.cache.clear(namespace: "notices-#{configure_create_params[:notice_id]}-comments")
     render json: NoticeComment.destroy_for_non_member(configure_non_member_destroy_params), each_serializer: NoticeCommentSerializer
   end
@@ -69,7 +69,7 @@ class V1::Admin::NoticeCommentsController < V1::Admin::BaseController
 
     params.permit(create_attributes).merge(
       user: current_v1_user,
-      created_ip: request.remote_ip,
+      created_ip: request.headers['CF-Connecting-IP'] || request.remote_ip,
       created_user_agent: request.user_agent
     )
   end
@@ -80,7 +80,7 @@ class V1::Admin::NoticeCommentsController < V1::Admin::BaseController
     end
 
     params.permit(non_members_create_attributes).merge(
-      created_ip: request.remote_ip,
+      created_ip: request.headers['CF-Connecting-IP'] || request.remote_ip,
       created_user_agent: request.user_agent
     )
   end

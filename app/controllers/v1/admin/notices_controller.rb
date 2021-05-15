@@ -33,7 +33,7 @@ class V1::Admin::NoticesController < V1::Admin::BaseController
   def drafts
     render json: Notice.create!(
       user_id: current_v1_user.id,
-      created_ip: request.remote_ip,
+      created_ip: request.headers['CF-Connecting-IP'] || request.remote_ip,
       created_user_agent: request.user_agent
     ), each_serializer: NoticeSerializer
   end

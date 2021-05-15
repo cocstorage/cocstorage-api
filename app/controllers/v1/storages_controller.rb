@@ -65,7 +65,7 @@ class V1::StoragesController < V1::BaseController
     other_require_params = {
       storage_category_id: 1,
       user_id: current_v1_user.id,
-      created_ip: request.remote_ip,
+      created_ip: request.headers['CF-Connecting-IP'] || request.remote_ip,
       created_user_agent: request.user_agent,
       code: params[:path]
     }
