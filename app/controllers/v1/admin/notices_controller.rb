@@ -18,14 +18,12 @@ class V1::Admin::NoticesController < V1::Admin::BaseController
   end
 
   def update
-    Rails.cache.clear(namespace: 'notices')
-    Rails.cache.clear(namespace: "notices-#{configure_update_params[:id]}")
+    Rails.cache.delete("notices-#{configure_update_params[:id]}", namespace: 'notices-detail')
     render json: Notice.update_with_options(configure_update_params), each_serializer: NoticeSerializer
   end
 
   def destroy
-    Rails.cache.clear(namespace: 'notices')
-    Rails.cache.clear(namespace: "notices-#{configure_destroy_params[:id]}")
+    Rails.cache.delete("notices-#{configure_destroy_params[:id]}", namespace: 'notices-detail')
     notice = Notice.find_active_with_options(configure_destroy_params)
     render json: notice.destroy
   end
