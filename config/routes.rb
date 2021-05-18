@@ -4,6 +4,8 @@ Rails.application.routes.draw do
 
   root to: 'application#health_check'
 
+  get 'rss', to: 'rss#index'
+
   namespace :v1, defaults: { format: :json } do
     devise_for :users,
                path: 'users',
