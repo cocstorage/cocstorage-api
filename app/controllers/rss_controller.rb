@@ -2,7 +2,7 @@ class RssController < ApplicationController
   skip_before_action :validation_x_api_key
 
   def index
-    storage_boards = StorageBoard.where(is_draft: false, is_active: true).order(id: :desc).limit(10)
+    storage_boards = StorageBoard.where(is_draft: false, is_active: true).order(id: :desc).limit(100)
 
     xml = "<?xml version='1.0' encoding='UTF-8'?>
     <rss version='2.0'>
