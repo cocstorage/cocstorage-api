@@ -23,7 +23,7 @@ class SitemapController < ApplicationController
           <loc>https://www.cocstorage.com/storages/#{storage.path}</loc>
           <lastmod>#{storage.created_at.xmlschema}</lastmod>
           <changefreq>hourly</changefreq>
-          <priority>0.6</priority>
+          <priority>0.8</priority>
         </url>"
       end.join('')}
       #{storage_boards.map do |storage_board|
