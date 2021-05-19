@@ -12,6 +12,12 @@ class SitemapController < ApplicationController
         <changefreq>hourly</changefreq>
         <priority>1.0</priority>
       </url>
+      <url>
+        <loc>https://www.cocstorage.com/storages</loc>
+        <lastmod>#{DateTime.current.xmlschema}</lastmod>
+        <changefreq>hourly</changefreq>
+        <priority>0.6</priority>
+      </url>
       #{storages.map do |storage|
         "<url>
           <loc>https://www.cocstorage.com/storages/#{storage.path}</loc>
