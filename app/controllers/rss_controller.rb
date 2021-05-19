@@ -1,5 +1,4 @@
 class RssController < ApplicationController
-  skip_before_action :validation_x_api_key
 
   def index
     storage_boards = StorageBoard.where(is_draft: false, is_active: true).order(id: :desc).limit(100)

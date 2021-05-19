@@ -4,6 +4,7 @@ Rails.application.routes.draw do
 
   root to: 'application#health_check'
 
+  get 'sitemap.xml', to: 'sitemap#index'
   get 'rss', to: 'rss#index'
 
   namespace :v1, defaults: { format: :json } do
