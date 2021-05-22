@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2021_05_14_065534) do
+ActiveRecord::Schema.define(version: 2021_05_22_095423) do
 
   create_table "active_storage_attachments", options: "ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci", force: :cascade do |t|
     t.string "name", null: false
@@ -166,7 +166,7 @@ ActiveRecord::Schema.define(version: 2021_05_14_065534) do
     t.boolean "is_popular", default: false
     t.string "scrap_code"
     t.string "source_code"
-    t.index ["scrap_code"], name: "index_storage_boards_on_scrap_code", unique: true
+    t.index ["scrap_code"], name: "index_storage_boards_on_scrap_code"
     t.index ["storage_id"], name: "index_storage_boards_on_storage_id"
     t.index ["user_id"], name: "index_storage_boards_on_user_id"
   end
