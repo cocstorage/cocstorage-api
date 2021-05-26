@@ -14,7 +14,7 @@ class RssController < ApplicationController
             "<item>
               <title>#{CGI.escapeHTML(storage_board.subject)}</title>
               <link>https://www.cocstorage.com/storages/#{storage.path}/#{storage_board.id}</link>
-              <description>#{CGI.escapeHTML(storage_board.description || '')[0..158]}</description>
+              <description><![CDATA[#{CGI.escapeHTML(storage_board.description || '')[0..159]}]]></description>
               <pubDate>#{storage_board.created_at.rfc822}</pubDate>
               <guid>https://www.cocstorage.com/storages/#{storage.path}/#{storage_board.id}</guid>
             </item>"
