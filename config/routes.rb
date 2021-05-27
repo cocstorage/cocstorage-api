@@ -6,6 +6,7 @@ Rails.application.routes.draw do
 
   get 'sitemap.xml', to: 'sitemap#index'
   get 'rss', to: 'rss#index'
+  get 'rss/root', to: 'rss#root'
 
   namespace :v1, defaults: { format: :json } do
     devise_for :users,
