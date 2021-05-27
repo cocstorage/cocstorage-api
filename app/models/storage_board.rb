@@ -233,7 +233,7 @@ class StorageBoard < ApplicationRecord
       storage_board_id: storage_board.id,
       user_id: options[:user].present? ? options[:user].id : nil,
       log_type: options[:type],
-      created_ip: options[:request].remote_ip,
+      created_ip: options[:request].headers['CF-Connecting-IP'] || options[:request].remote_ip,
       created_user_agent: options[:request].user_agent
     )
 
