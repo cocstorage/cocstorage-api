@@ -214,7 +214,7 @@ class StorageBoard < ApplicationRecord
 
     storage_board_recommend_log = StorageBoardRecommendLog.find_by(
       storage_board: storage_board,
-      created_ip: options[:request].remote_ip
+      created_ip: options[:request].headers['CF-Connecting-IP'] || options[:request].remote_ip
     )
 
     if storage_board_recommend_log.present?
