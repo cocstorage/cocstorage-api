@@ -51,15 +51,19 @@ class StorageBoard < ApplicationRecord
 
       storage_boards = storage_boards.where('nickname like :search', {
         search: "%#{options[:nickname]}%"
-      }) if options[:nickname].present?
+      }) if options[:nickname].present? && options[:subject].blank? && options[:content].blank?
 
       storage_boards = storage_boards.where('subject like :search', {
         search: "%#{options[:subject]}%"
-      }) if options[:subject].present?
+      }) if options[:subject].present? && options[:nickname].blank? && options[:content].blank?
 
       storage_boards = storage_boards.where('content like :search', {
         search: "%#{options[:content]}%"
-      }) if options[:content].present?
+      }) if options[:content].present? && options[:nickname].blank? && options[:subject].blank?
+
+      storage_boards = storage_boards.where('nickname like :search or subject like :search or content like :search', {
+        search: "%#{options[:nickname]}%"
+      }) if options[:nickname].present? && options[:subject].present? && options[:content].present?
 
       if options[:orderBy].present?
         storage_boards = storage_boards.order(id: :desc) if options[:orderBy] == 'latest'
