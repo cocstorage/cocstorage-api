@@ -3,9 +3,16 @@ class V1::Admin::NoticeCommentsController < V1::Admin::BaseController
   before_action :authenticate_v1_user!, only: %i[create destroy]
 
   def index
-    data = NoticeComment.fetch_by_cached_with_options(configure_index_params)
+    notice_comments = NoticeComment.fetch_with_options(configure_index_params)
+    notice_comments = notice_comments.page(params[:page]).per(params[:per] || 20)
 
-    render json: data
+    render json: {
+      comments: ActiveModelSerializers::SerializableResource.new(
+        notice_comments,
+        each_serializer: NoticeCommentSerializer
+      ),
+      pagination: PaginationSerializer.new(notice_comments)
+    }
   end
 
   def create

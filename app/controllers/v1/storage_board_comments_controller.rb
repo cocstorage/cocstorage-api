@@ -2,9 +2,16 @@ class V1::StorageBoardCommentsController < V1::BaseController
   skip_before_action :authenticate_v1_user!, only: %i[index non_members_create non_members_destroy]
 
   def index
-    data = StorageBoardComment.fetch_by_cached_with_options(configure_index_params)
+    storage_board_comments = StorageBoardComment.fetch_with_options(configure_index_params)
+    storage_board_comments = storage_board_comments.page(params[:page]).per(params[:per] || 20)
 
-    render json: data
+    render json: {
+      comments: ActiveModelSerializers::SerializableResource.new(
+        storage_board_comments,
+        each_serializer: StorageBoardCommentSerializer
+      ),
+      pagination: PaginationSerializer.new(storage_board_comments)
+    }
   end
 
   def create
