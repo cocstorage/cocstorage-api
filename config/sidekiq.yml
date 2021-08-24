@@ -8,3 +8,7 @@
   - user_withdrawaled
   - popular_storage_board_statistics
   - popular_storage_board_collection
+:limits:
+  default: 1
+  popular_storage_board_statistics: 1
+  popular_storage_board_collection: 1

@@ -52,6 +52,7 @@ gem 'olive_branch'
 gem 'redis-namespace', '~> 1.6'
 gem 'sidekiq'
 gem 'aws-sdk-s3', require: false
+gem 'sidekiq-limit_fetch'
 
 # https://github.com/rails/rails/issues/41750
 # https://rubygems.org/gems/mimemagic/versions

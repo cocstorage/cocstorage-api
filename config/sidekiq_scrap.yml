@@ -1,3 +1,5 @@
 :concurrency: 1
 :queues:
   - storage_board_scrap
+:limits:
+  storage_board_scrap: 1
