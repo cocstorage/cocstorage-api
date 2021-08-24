@@ -1,4 +1,5 @@
 class ApplicationJob < ActiveJob::Base
+  require 'sidekiq-limit_fetch'
   # Automatically retry jobs that encountered a deadlock
   # retry_on ActiveRecord::Deadlocked
 
