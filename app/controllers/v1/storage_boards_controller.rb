@@ -124,41 +124,11 @@ class V1::StorageBoardsController < V1::BaseController
   end
 
   def latest
-    redis_key = 'storages-boards-latest'
-    namespace = 'storages-boards'
-
-    data = Rails.cache.read(redis_key, namespace: namespace)
-
-    if data.blank?
-      data = StorageBoard.where(is_draft: false, is_active: true).limit(10).order(id: :desc)
-
-      Rails.cache.write(redis_key, ActiveModelSerializers::SerializableResource.new(
-        data,
-        each_serializer: StorageBoardSerializer
-      ).as_json, expires_in: 5.minutes, namespace: namespace)
-      data = Rails.cache.read(redis_key, namespace: namespace)
-    end
-
-    render json: data
+    render json: StorageBoard.where(is_draft: false, is_active: true).limit(10).order(id: :desc)
   end
 
   def popular
-    redis_key = 'storages-boards-popular'
-    namespace = 'storages-boards'
-
-    data = Rails.cache.read(redis_key, namespace: namespace)
-
-    if data.blank?
-      data = StorageBoard.where(is_draft: false, is_active: true, is_popular: true).limit(10).order(id: :desc)
-
-      Rails.cache.write(redis_key, ActiveModelSerializers::SerializableResource.new(
-        data,
-        each_serializer: StorageBoardSerializer
-      ).as_json, expires_in: 5.minutes, namespace: namespace)
-      data = Rails.cache.read(redis_key, namespace: namespace)
-    end
-
-    render json: data
+    render json: StorageBoard.where(is_draft: false, is_active: true, is_popular: true).limit(10).order(id: :desc)
   end
 
   private
