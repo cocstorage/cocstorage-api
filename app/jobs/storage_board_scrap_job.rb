@@ -114,6 +114,31 @@ class StorageBoardScrapJob < ApplicationJob
             end
           end if gif_images.present?
 
+          iframes = parse_storage_board_content.css('iframe')
+
+          iframes.each do |iframe|
+            if iframe.attr('src').to_s.index('dcinside').present?
+              video = iframe.css('video')
+
+              if video.present?
+                begin
+                  download_image = URI.open(video.css('source').attr('src'), 'User-Agent' => image_user_agent, 'Referrer' => post_url)
+
+                  storage_board.images.attach(io: download_image, filename: SecureRandom.urlsafe_base64(20))
+
+                  new_video = Nokogiri::HTML::DocumentFragment.parse("<video controls playsinline controlslist='nodownload'>
+                    <source src=#{storage_board.last_image_url} type='video/mp4' />
+                  </video>")
+
+                  iframe.add_next_sibling(new_video)
+                  iframe.remove
+                rescue
+                  next
+                end
+              end
+            end
+          end
+
           storage_board.update(content: parse_storage_board_content, has_image: has_image)
 
           storage_board_comment_url = "https://gall.dcinside.com/board/view/?id=#{storage.code}&no=#{scrap_code}&t=cv&exception_mode=recommend&page=1"
