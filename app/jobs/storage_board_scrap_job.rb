@@ -9,15 +9,23 @@ class StorageBoardScrapJob < ApplicationJob
     user_agent = 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_6) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/14.0.2 Safari/605.1.15'
     image_user_agent = 'Mozilla/5.0 (Linux; Android 6.0; Nexus 5 Build/MRA58N) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/89.0.4389.128 Mobile Safari/537.36'
 
-    storage_category = StorageCategory.find_by(code: "CCA000")
+    Selenium::WebDriver::Chrome::Service.driver_path = ENV['CHROME_DRIVER_PATH']
+
+    options = Selenium::WebDriver::Chrome::Options.new
+    options.add_argument('--headless')
+    options.add_argument('--no-sandbox')
+    options.add_argument('--disable-dev-shm-usage')
+    options.add_argument("--user-agent=#{user_agent}")
+
+    browser = Selenium::WebDriver.for :chrome, options: options
+
+    storage_category = StorageCategory.find_by(code: 'CCA000')
 
     storage_category.storages.each do |storage|
       referrer = "https://gall.dcinside.com/board/lists?id=#{storage.code}"
 
       url = "https://gall.dcinside.com/board/lists?id=#{storage.code}&exception_mode=recommend"
       url = "https://gall.dcinside.com/mgallery/board/lists?id=#{storage.code}&exception_mode=recommend" if storage.storage_type == "minor"
-
-      create_new_storage_board = false
 
       sleep 1
 
@@ -74,9 +82,74 @@ class StorageBoardScrapJob < ApplicationJob
 
         unless StorageBoard.where(storage_id: storage.id, scrap_code: scrap_code).exists?
           storage_board = StorageBoard.create(options)
-          create_new_storage_board = true
 
           parse_storage_board_content = Nokogiri::HTML::DocumentFragment.parse(storage_board.content)
+
+          iframes = parse_storage_board_content.css('iframe')
+          has_video_iframe = false
+          has_video = false
+
+          iframes.each do |iframe|
+            if iframe.attr('src').to_s.index('dcinside').present?
+              has_video_iframe = true
+              break
+            end
+          end
+
+          if has_video_iframe
+            begin
+              browser.get(post_url)
+
+              iframes = browser.find_element(css: '.write_div').find_elements(css: 'iframe')
+              iframes.each do |iframe|
+                id = iframe.attribute('id')
+
+                browser.switch_to.frame(iframe)
+
+                if id === "pollFrame"
+                  browser.switch_to.default_content
+
+                  browser.execute_script("
+                    const element = document.getElementById('#{id}')
+                    if (element) {
+                        element.outerHTML = '현재 지원되지 않는 기능입니다.';
+                    }
+                  ")
+                else
+                  source = browser.find_element(css: "source")
+                  next if source.blank?
+
+                  src = source.attribute('src')
+                  browser.switch_to.default_content
+
+                  download_image = URI.open(src, 'User-Agent' => image_user_agent, 'Referrer' => post_url)
+                  storage_board.images.attach(io: download_image, filename: SecureRandom.urlsafe_base64(20))
+
+                  src = storage_board.last_image_url
+
+                  browser.execute_script("
+                    const element = document.getElementById('#{id}')
+                    const video = document.createElement('video');
+                    video.setAttribute('controls', 'controls');
+                    video.setAttribute('playsinline', 'playsinline');
+                    video.setAttribute('controlslist', 'nodownload');
+                    const source = document.createElement('source');
+                    source.src = '#{src}';
+                    source.type = 'video/mp4';
+                    if (element) {
+                        video.innerHTML = source.outerHTML;
+                        element.outerHTML = video.outerHTML;
+                    }
+                  ")
+
+                  has_video = true
+                  parse_storage_board_content = Nokogiri::HTML::DocumentFragment.parse(browser.find_element(css: '.write_div').attribute('innerHTML'))
+                end
+              end
+            rescue
+              next
+            end
+          end
 
           images = parse_storage_board_content.css('img')
           images.remove_attr('style')
@@ -114,45 +187,10 @@ class StorageBoardScrapJob < ApplicationJob
             end
           end if gif_images.present?
 
-          iframes = parse_storage_board_content.css('iframe')
-
-          iframes.each do |iframe|
-            if iframe.attr('src').to_s.index('dcinside').present?
-              video = iframe.css('video')
-
-              if video.present?
-                begin
-                  download_image = URI.open(video.css('source').attr('src'), 'User-Agent' => image_user_agent, 'Referrer' => post_url)
-
-                  storage_board.images.attach(io: download_image, filename: SecureRandom.urlsafe_base64(20))
-
-                  new_video = Nokogiri::HTML::DocumentFragment.parse("<video controls playsinline controlslist='nodownload'>
-                    <source src=#{storage_board.last_image_url} type='video/mp4' />
-                  </video>")
-
-                  iframe.add_next_sibling(new_video)
-                  iframe.remove
-                rescue
-                  next
-                end
-              end
-            end
-          end
-
-          storage_board.update(content: parse_storage_board_content, has_image: has_image)
+          storage_board.update(content: parse_storage_board_content, has_image: has_image, has_video: has_video)
 
           storage_board_comment_url = "https://gall.dcinside.com/board/view/?id=#{storage.code}&no=#{scrap_code}&t=cv&exception_mode=recommend&page=1"
           storage_board_comment_url = "https://gall.dcinside.com/mgallery/board/view/?id=#{storage.code}&no=#{scrap_code}&t=cv&exception_mode=recommend&page=1" if storage.storage_type == "minor"
-
-          Selenium::WebDriver::Chrome::Service.driver_path = ENV['CHROME_DRIVER_PATH']
-
-          options = Selenium::WebDriver::Chrome::Options.new
-          options.add_argument("--headless")
-          options.add_argument("--no-sandbox")
-          options.add_argument("--disable-dev-shm-usage")
-          options.add_argument("--user-agent=#{user_agent}")
-
-          browser = Selenium::WebDriver.for :chrome, options: options
 
           begin
             browser.get(storage_board_comment_url)
@@ -204,20 +242,15 @@ class StorageBoardScrapJob < ApplicationJob
                 end
               end
             end
-
-            Rails.cache.delete("storages-#{storage.id}-boards-#{storage_board.id}", namespace: "storages-#{storage.id}-boards-detail")
-          ensure
-            browser.quit
+          rescue
+            next
           end
         else
           post_already_exist_check_count += 1
         end
-
-        if create_new_storage_board
-          namespace = "storages-#{storage.id}-boards"
-          Rails.cache.clear(namespace: namespace)
-        end
       end
     end
+
+    browser.quit
   end
 end
