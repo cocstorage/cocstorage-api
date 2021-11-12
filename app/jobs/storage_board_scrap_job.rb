@@ -111,11 +111,13 @@ class StorageBoardScrapJob < ApplicationJob
                     browser.switch_to.default_content
 
                     browser.execute_script("
-                    const element = document.getElementById('#{id}')
-                    if (element) {
-                        element.outerHTML = '현재 지원되지 않는 기능입니다.';
-                    }
-                  ")
+                      const element = document.getElementById('#{id}')
+                      if (element) {
+                          element.outerHTML = '현재 지원되지 않는 기능입니다.';
+                      }
+                    ")
+
+                    parse_storage_board_content = Nokogiri::HTML::DocumentFragment.parse(browser.find_element(css: '.write_div').attribute('innerHTML'))
                   else
                     source = browser.find_element(css: "source")
                     next if source.blank?
@@ -129,19 +131,19 @@ class StorageBoardScrapJob < ApplicationJob
                     src = storage_board.last_image_url
 
                     browser.execute_script("
-                    const element = document.getElementById('#{id}')
-                    const video = document.createElement('video');
-                    video.setAttribute('controls', 'controls');
-                    video.setAttribute('playsinline', 'playsinline');
-                    video.setAttribute('controlslist', 'nodownload');
-                    const source = document.createElement('source');
-                    source.src = '#{src}';
-                    source.type = 'video/mp4';
-                    if (element) {
-                        video.innerHTML = source.outerHTML;
-                        element.outerHTML = video.outerHTML;
-                    }
-                  ")
+                      const element = document.getElementById('#{id}')
+                      const video = document.createElement('video');
+                      video.setAttribute('controls', 'controls');
+                      video.setAttribute('playsinline', 'playsinline');
+                      video.setAttribute('controlslist', 'nodownload');
+                      const source = document.createElement('source');
+                      source.src = '#{src}';
+                      source.type = 'video/mp4';
+                      if (element) {
+                          video.innerHTML = source.outerHTML;
+                          element.outerHTML = video.outerHTML;
+                      }
+                    ")
 
                     has_video = true
                     parse_storage_board_content = Nokogiri::HTML::DocumentFragment.parse(browser.find_element(css: '.write_div').attribute('innerHTML'))
