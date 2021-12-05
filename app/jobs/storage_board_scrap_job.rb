@@ -25,7 +25,8 @@ class StorageBoardScrapJob < ApplicationJob
           scrap_board_options = dcinside_scrapper.get_scrap_board_options
 
           next if scrap_board_options.blank?
-          if StorageBoard.where(storage_id: scrap_board_options['storage_id'], scrap_code: scrap_board_options['scrap_code']).exists?
+
+          if StorageBoard.where(storage_id: scrap_board_options[:storage_id], scrap_code: scrap_board_options[:scrap_code]).exists?
             already_exist_check_count += 1
             next
           end
