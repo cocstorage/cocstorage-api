@@ -47,7 +47,10 @@ Rails.application.configure do
   config.log_tags = [ :request_id ]
 
   # Use a different cache store in production.
-  config.cache_store = :redis_cache_store, { url: ENV['REDIS_URL'], reconnect_attempts: 1 }
+
+  if ENV["REDIS_URL"].present?
+    config.cache_store = :redis_cache_store, { url: ENV['REDIS_URL'], reconnect_attempts: 1 }
+  end
 
   # Use a real queuing backend for Active Job (and separate queues per environment).
   config.active_job.queue_adapter = :sidekiq
@@ -116,4 +119,7 @@ Rails.application.configure do
   # config.active_record.database_resolver_context = ActiveRecord::Middleware::DatabaseSelector::Resolver::Session
 
   config.secret_key_base = Rails.application.credentials.secret_key_base
+
+  # Force all access to the app over SSL, use Strict-Transport-Security, and use secure cookies.
+  config.force_ssl = true
 end

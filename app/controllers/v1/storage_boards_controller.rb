@@ -33,37 +33,21 @@ class V1::StorageBoardsController < V1::BaseController
   end
 
   def update
-    namespace = "storages-#{configure_update_params[:storage_id]}-boards"
-
-    Rails.cache.clear(namespace: namespace)
-    Rails.cache.clear(namespace: "#{namespace}-detail")
     render json: StorageBoard.update_for_member(configure_update_params),
            each_serializer: StorageBoardSerializer
   end
 
   def non_members_update
-    namespace = "storages-#{configure_non_members_update_params[:storage_id]}-boards"
-
-    Rails.cache.clear(namespace: namespace)
-    Rails.cache.clear(namespace: "#{namespace}-detail")
     render json: StorageBoard.update_for_non_member(configure_non_members_update_params),
            each_serializer: StorageBoardSerializer
   end
 
   def destroy
-    namespace = "storages-#{configure_destroy_params[:storage_id]}-boards"
-
-    Rails.cache.clear(namespace: namespace)
-    Rails.cache.clear(namespace: "#{namespace}-detail")
     render json: StorageBoard.destroy_for_member(configure_destroy_params),
            each_serializer: StorageBoardSerializer
   end
 
   def non_members_destroy
-    namespace = "storages-#{configure_non_members_destroy_params[:storage_id]}-boards"
-
-    Rails.cache.clear(namespace: namespace)
-    Rails.cache.clear(namespace: "#{namespace}-detail")
     render json: StorageBoard.destroy_for_non_member(configure_non_members_destroy_params),
            each_serializer: StorageBoardSerializer
   end
@@ -103,10 +87,6 @@ class V1::StorageBoardsController < V1::BaseController
 
   def recommend
     ApplicationRecord.transaction do
-      redis_key = "storages-#{configure_recommend_params[:storage_id]}-boards-#{configure_recommend_params[:id]}"
-      namespace = "storages-#{configure_recommend_params[:storage_id]}-boards-detail"
-
-      Rails.cache.delete(redis_key, namespace: namespace)
       render json: StorageBoard.update_recommend_with_options(configure_recommend_params),
              each_serializer: StorageBoardSerializer
     end
@@ -114,10 +94,6 @@ class V1::StorageBoardsController < V1::BaseController
 
   def non_members_recommend
     ApplicationRecord.transaction do
-      redis_key = "storages-#{configure_recommend_params[:storage_id]}-boards-#{non_members_configure_recommend_params[:id]}"
-      namespace = "storages-#{non_members_configure_recommend_params[:storage_id]}-boards-detail"
-
-      Rails.cache.delete(redis_key, namespace: namespace)
       render json: StorageBoard.update_recommend_with_options(non_members_configure_recommend_params),
              each_serializer: StorageBoardSerializer
     end

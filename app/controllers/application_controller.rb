@@ -10,6 +10,8 @@ class ApplicationController < ActionController::API
   rescue_from ActiveRecord::RecordNotFound, with: :record_not_found
   rescue_from ActiveRecord::RecordInvalid, with: :record_invalid
 
+  require 'modules/scraper'
+
   def health_check
     render json: {
       status: :ok,

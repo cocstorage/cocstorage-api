@@ -35,6 +35,8 @@ module CocstorageApi
     config.time_zone = 'Seoul'
     config.active_record.default_timezone = :utc
 
+    config.logger = Logger.new(STDOUT)
+
     excluded_routes = ->(env) { !env["PATH_INFO"].match(%r{^/v1}) }
     config.middleware.use OliveBranch::Middleware,
                           inflection:       "camel",

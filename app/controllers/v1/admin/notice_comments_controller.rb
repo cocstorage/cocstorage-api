@@ -16,26 +16,18 @@ class V1::Admin::NoticeCommentsController < V1::Admin::BaseController
   end
 
   def create
-    Rails.cache.delete("notices-#{configure_create_params[:notice_id]}", namespace: 'notices-detail')
-    Rails.cache.clear(namespace: "notices-#{configure_create_params[:notice_id]}-comments")
     render json: NoticeComment.create_with_options(configure_create_params), each_serializer: NoticeCommentSerializer
   end
 
   def non_members_create
-    Rails.cache.delete("notices-#{configure_non_members_create_params[:notice_id]}", namespace: 'notices-detail')
-    Rails.cache.clear(namespace: "notices-#{configure_non_members_create_params[:notice_id]}-comments")
     render json: NoticeComment.create_with_options(configure_non_members_create_params), each_serializer: NoticeCommentSerializer
   end
 
   def destroy
-    Rails.cache.delete("notices-#{configure_destroy_params[:notice_id]}", namespace: 'notices-detail')
-    Rails.cache.clear(namespace: "notices-#{configure_destroy_params[:notice_id]}-comments")
     render json: NoticeComment.destroy_for_member(configure_destroy_params), each_serializer: NoticeCommentSerializer
   end
 
   def non_members_destroy
-    Rails.cache.delete("notices-#{configure_non_member_destroy_params[:notice_id]}", namespace: 'notices-detail')
-    Rails.cache.clear(namespace: "notices-#{configure_non_member_destroy_params[:notice_id]}-comments")
     render json: NoticeComment.destroy_for_non_member(configure_non_member_destroy_params), each_serializer: NoticeCommentSerializer
   end
 

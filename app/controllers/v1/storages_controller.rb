@@ -29,7 +29,6 @@ class V1::StoragesController < V1::BaseController
         created_user_agent: request.user_agent
       )
 
-      Rails.cache.clear(namespace: 'storages')
       render json: storage, each_serializer: StorageSerializer
     end
   end
