@@ -4,7 +4,6 @@ Rails.application.routes.draw do
 
   root to: 'application#health_check'
 
-  get 'modules', to: 'application#modules'
   get 'sitemap.xml', to: 'sitemap#index'
   get 'rss', to: 'rss#index'
   get 'rss/root', to: 'rss#root'
