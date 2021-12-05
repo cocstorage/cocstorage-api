@@ -1,6 +1,6 @@
 class ApplicationController < ActionController::API
   before_action :validation_x_api_key
-  skip_before_action :validation_x_api_key, only: :health_check
+  skip_before_action :validation_x_api_key, only: [:health_check, :modules]
 
   rescue_from Errors::BadRequest, with: :bad_request
   rescue_from Errors::Unauthorized, with: :unauthorized
@@ -9,6 +9,19 @@ class ApplicationController < ActionController::API
   rescue_from Errors::WardenUnauthorized, with: :warden_unauthorized
   rescue_from ActiveRecord::RecordNotFound, with: :record_not_found
   rescue_from ActiveRecord::RecordInvalid, with: :record_invalid
+
+  require 'modules/scraper'
+
+  def modules
+    # browser = Scraper.init_selenium_web_driver "chrome"
+
+    dc = Scraper::Dcinside.new
+    storage = Storage.find(2)
+    test = dc.scrap_boards_by_storage storage
+    render json: {
+      data: test
+    }
+  end
 
   def health_check
     render json: {
