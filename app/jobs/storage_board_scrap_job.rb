@@ -45,9 +45,9 @@ class StorageBoardScrapJob < ApplicationJob
           has_image = dcinside_scrapper.get_has_image
           has_video = dcinside_scrapper.get_has_video
 
-          storage_board.update(content: content_html, has_image: has_image, has_video: has_video, is_draft: false, is_active: true)
-
           dcinside_scrapper.scrap_and_create_comments(storage_board)
+
+          storage_board.update(content: content_html, has_image: has_image, has_video: has_video, is_draft: false, is_active: true)
         end
       end
     ensure
