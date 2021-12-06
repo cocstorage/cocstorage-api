@@ -228,7 +228,7 @@ module Scraper
           gif_image.at('source')['src'] = storage_board.last_image_url
           gif_image.at('source')['alt'] = 'Board Img'
 
-          @has_video = true
+          @has_image = true
         rescue => e
           Rails.logger.debug "Error scraping and upload gif_image (#{@storage.code}-#{@scrap_code})"
           Rails.logger.debug e
@@ -276,6 +276,8 @@ module Scraper
                   is_member: 1
                 )
 
+                storage_board_comment_replies = []
+
                 # Replies
                 @browser.find_elements(id: "reply_list_#{comment_data_no}").each do |reply_list|
                   reply_list.find_elements(:xpath => "*").each do |reply|
@@ -286,7 +288,7 @@ module Scraper
                       next
                     end
 
-                    StorageBoardCommentReply.create(
+                    storage_board_comment_replies << StorageBoardCommentReply.new(
                       storage_board_comment_id: storage_board_comment.id,
                       nickname: reply_writer.attribute('data-nick'),
                       content: reply_content.text,
@@ -295,6 +297,8 @@ module Scraper
                     )
                   end
                 end
+
+                StorageBoardCommentReply.import storage_board_comment_replies
               end
             end
           rescue => e
