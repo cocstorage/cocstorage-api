@@ -4,7 +4,7 @@ class StorageBoard < ApplicationRecord
 
   has_many :storage_board_comments, dependent: :destroy
   has_many :storage_board_recommend_logs, dependent: :destroy
-  has_many_attached :images, dependent: :destroy
+  has_many_attached :images
 
   validate :nickname_inspection, on: %i[update]
   validate :password_minimum_length, on: %i[update]
