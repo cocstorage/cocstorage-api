@@ -4,20 +4,8 @@ module Scraper
   require 'webdrivers'
 
   CHROME_DRIVER_PATH = ENV['CHROME_DRIVER_PATH']
-  USER_AGENT = [
-    'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_6) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/14.0.2 Safari/605.1.15',
-    'Mozilla/5.0 (X11; CrOS x86_64 13597.94.0) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/88.0.4324.186 Safari/537.36',
-    'Mozilla/5.0 (X11; CrOS x86_64 14150.74.0) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/94.0.4606.114 Safari/537.36',
-    'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_6) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/14.0.3 Safari/605.1.15',
-    'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_13_6) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/13.1.2 Safari/605.1.15'
-  ]
-  IMAGE_USER_AGENT = [
-    'Mozilla/5.0 (Linux; Android 6.0; Nexus 5 Build/MRA58N) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/89.0.4389.128 Mobile Safari/537.36',
-    'Mozilla/5.0 (Linux; Android 11; SAMSUNG SM-G973F) AppleWebKit/537.36 (KHTML, like Gecko) SamsungBrowser/15.0 Chrome/90.0.4430.210 Mobile Safari/537.36',
-    'Mozilla/5.0 (Linux; Android 9; SM-G955F) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/96.0.4664.45 Mobile Safari/537.36',
-    'Mozilla/5.0 (Linux; Android 9; SM-G955F) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/96.0.4664.45 Mobile Safari/537.36',
-    'Mozilla/5.0 (iPhone; CPU iPhone OS 12_2 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/12.1 Mobile/15E148 Safari/604.1'
-  ]
+  USER_AGENT = 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_6) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/14.0.2 Safari/605.1.15'
+  IMAGE_USER_AGENT = 'Mozilla/5.0 (Linux; Android 6.0; Nexus 5 Build/MRA58N) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/89.0.4389.128 Mobile Safari/537.36'
 
   def self.init_selenium_web_driver(type)
     if type === "chrome"
@@ -27,7 +15,7 @@ module Scraper
       options.add_argument('--headless')
       options.add_argument('--no-sandbox')
       options.add_argument('--disable-dev-shm-usage')
-      options.add_argument("--user-agent=#{USER_AGENT.sample}")
+      options.add_argument("--user-agent=#{USER_AGENT}")
 
       browser = Selenium::WebDriver.for :chrome, options: options
 
@@ -55,7 +43,7 @@ module Scraper
     end
 
     def get_scrap_boards_html
-      response = URI.open(@url, 'User-Agent' => USER_AGENT.sample, 'Referrer' => @referrer)
+      response = URI.open(@url, 'User-Agent' => USER_AGENT, 'Referrer' => @referrer)
 
       if response.status.first.to_i < 400
         html = Nokogiri::HTML(response)
@@ -73,7 +61,7 @@ module Scraper
     end
 
     def get_scrap_board_options
-      response = URI.open(@board_url, 'User-Agent' => USER_AGENT.sample, 'Referrer' => @url)
+      response = URI.open(@board_url, 'User-Agent' => USER_AGENT, 'Referrer' => @url)
 
       if response.status.first.to_i < 400
         board_detail = Nokogiri::HTML(response)
@@ -159,7 +147,7 @@ module Scraper
             src = source.attribute('src')
             @browser.switch_to.default_content
 
-            download_image = URI.open(src, 'User-Agent' => IMAGE_USER_AGENT.sample, 'Referrer' => @board_url)
+            download_image = URI.open(src, 'User-Agent' => IMAGE_USER_AGENT, 'Referrer' => @board_url)
             storage_board.images.attach(io: download_image, filename: SecureRandom.urlsafe_base64(20))
 
             src = storage_board.last_image_url
@@ -198,7 +186,7 @@ module Scraper
 
       images.each do |image|
         begin
-          download_image = URI.open(image['src'], 'User-Agent' => IMAGE_USER_AGENT.sample, 'Referrer' => @board_url)
+          download_image = URI.open(image['src'], 'User-Agent' => IMAGE_USER_AGENT, 'Referrer' => @board_url)
           storage_board.images.attach(io: download_image, filename: SecureRandom.urlsafe_base64(20))
 
           image['src'] = storage_board.last_image_url
@@ -222,7 +210,7 @@ module Scraper
 
       gif_images.each do |gif_image|
         begin
-          download_image = URI.open(gif_image.css('source').attr('src'), 'User-Agent' => IMAGE_USER_AGENT.sample, 'Referrer' => @board_url)
+          download_image = URI.open(gif_image.css('source').attr('src'), 'User-Agent' => IMAGE_USER_AGENT, 'Referrer' => @board_url)
           storage_board.images.attach(io: download_image, filename: SecureRandom.urlsafe_base64(20))
 
           gif_image.at('source')['src'] = storage_board.last_image_url

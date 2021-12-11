@@ -156,6 +156,7 @@ GEM
     msgpack (1.4.2)
     multi_json (1.15.0)
     mysql2 (0.5.3)
+    newrelic_rpm (8.2.0)
     nio4r (2.5.7)
     nokogiri (1.11.3)
       mini_portile2 (~> 2.5.0)
@@ -265,6 +266,7 @@ DEPENDENCIES
   listen (~> 3.2)
   mimemagic!
   mysql2 (>= 0.4.4)
+  newrelic_rpm
   nokogiri
   olive_branch
   puma (~> 4.1)
