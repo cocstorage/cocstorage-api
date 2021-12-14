@@ -61,43 +61,48 @@ module Scraper
     end
 
     def get_scrap_board_options
-      response = URI.open(@board_url, 'User-Agent' => USER_AGENT, 'Referrer' => @url)
+      begin
+        response = URI.open(@board_url, 'User-Agent' => USER_AGENT, 'Referrer' => @url)
 
-      if response.status.first.to_i < 400
-        board_detail = Nokogiri::HTML(response)
+        if response.status.first.to_i < 400
+          board_detail = Nokogiri::HTML(response)
 
-        subject = board_detail.css('.title_subject').text
-        nickname = board_detail.css('.gall_writer.ub-writer').first['data-nick']
-        ip = board_detail.css('.gall_writer.ub-writer').first['data-ip']
-        content = board_detail.css('.write_div')
+          subject = board_detail.css('.title_subject').text
+          nickname = board_detail.css('.gall_writer.ub-writer').first['data-nick']
+          ip = board_detail.css('.gall_writer.ub-writer').first['data-ip']
+          content = board_detail.css('.write_div')
 
-        if subject.blank? || content.blank?
-          Rails.logger.debug "Title or content does not exist in (#{@storage.code}-#{@scrap_code})"
+          if subject.blank? || content.blank?
+            Rails.logger.debug "Title or content does not exist in (#{@storage.code}-#{@scrap_code})"
+          end
+
+          options = {
+            storage_id: @storage.id,
+            scrap_code: @scrap_code,
+            source_code: @storage.code,
+            nickname: nickname,
+            created_ip: ip,
+            subject: subject,
+            content: content,
+            description: content.text,
+            is_member: true,
+            is_draft: true,
+            is_active: false
+          }
+
+          %w[youtube kakao].each do |name|
+            @has_video = true if content.css('iframe').attr('src').to_s.index(name).present?
+            @has_video = true if content.css('embed').present?
+            @has_video = true if content.css('video').present?
+          end
+
+          options = options.merge(has_video: @has_video)
+
+          options
         end
-
-        options = {
-          storage_id: @storage.id,
-          scrap_code: @scrap_code,
-          source_code: @storage.code,
-          nickname: nickname,
-          created_ip: ip,
-          subject: subject,
-          content: content,
-          description: content.text,
-          is_member: true,
-          is_draft: true,
-          is_active: false
-        }
-
-        %w[youtube kakao].each do |name|
-          @has_video = true if content.css('iframe').attr('src').to_s.index(name).present?
-          @has_video = true if content.css('embed').present?
-          @has_video = true if content.css('video').present?
-        end
-
-        options = options.merge(has_video: @has_video)
-
-        options
+      rescue => e
+          Rails.logger.debug "Error open board_url (#{@board_url})"
+          Rails.logger.debug e
       end
     end
 
