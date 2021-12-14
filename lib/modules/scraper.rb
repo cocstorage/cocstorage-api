@@ -264,8 +264,6 @@ module Scraper
                   is_member: 1
                 )
 
-                storage_board_comment_replies = []
-
                 # Replies
                 @browser.find_elements(id: "reply_list_#{comment_data_no}").each do |reply_list|
                   reply_list.find_elements(:xpath => "*").each do |reply|
@@ -276,7 +274,7 @@ module Scraper
                       next
                     end
 
-                    storage_board_comment_replies << StorageBoardCommentReply.new(
+                    StorageBoardCommentReply.create(
                       storage_board_comment_id: storage_board_comment.id,
                       nickname: reply_writer.attribute('data-nick'),
                       content: reply_content.text,
@@ -285,8 +283,6 @@ module Scraper
                     )
                   end
                 end
-
-                StorageBoardCommentReply.import storage_board_comment_replies
               end
             end
           rescue => e

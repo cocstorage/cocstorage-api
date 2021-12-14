@@ -53,7 +53,6 @@ gem 'redis-namespace', '~> 1.6'
 gem 'sidekiq'
 gem 'aws-sdk-s3', require: false
 gem 'sidekiq-limit_fetch'
-gem 'activerecord-import'
 gem 'newrelic_rpm'
 
 # https://github.com/rails/rails/issues/41750
