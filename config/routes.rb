@@ -5,8 +5,11 @@ Rails.application.routes.draw do
   root to: 'application#health_check'
 
   get 'sitemap.xml', to: 'sitemap#index'
+  get 'sitemap-root.xml', to: 'sitemap#root'
+  get 'sitemap-mobile.xml', to: 'sitemap#mobile'
   get 'rss', to: 'rss#index'
   get 'rss/root', to: 'rss#root'
+  get 'rss/mobile', to: 'rss#mobile'
 
   namespace :v1, defaults: { format: :json } do
     devise_for :users,
