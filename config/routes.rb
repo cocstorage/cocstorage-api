@@ -90,6 +90,7 @@ Rails.application.routes.draw do
           get '/withdrawaled', to: 'cron#withdrawaled'
           get '/collection', to: 'cron#collection'
           get '/scrap', to: 'cron#scrap'
+          get '/scrap/issue-keyword/google', to: 'cron#google_issue_keyword_scrap'
         end
       end
     end

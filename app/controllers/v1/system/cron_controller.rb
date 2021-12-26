@@ -18,7 +18,16 @@ class V1::System::CronController < ApplicationController
   def scrap
     StorageBoardScrapJob.perform_later
     render json: {
-      status: :ok
+      status: :ok,
+      message: 'Succeeded'
+    }
+  end
+
+  def google_issue_keyword_scrap
+    GoogleIssueKeywordScarpJob.perform_later
+    render json: {
+      status: :ok,
+      message: 'Succeeded'
     }
   end
 end

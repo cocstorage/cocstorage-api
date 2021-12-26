@@ -1,4 +1,4 @@
-:concurrency: 1
+:concurrency: 2
 :queues:
   - default
   - active_storage_analysis
@@ -8,6 +8,7 @@
   - user_withdrawaled
   - popular_storage_board_statistics
   - popular_storage_board_collection
+  - google_issue_keyword_scrap
 :limits:
   default: 1
   popular_storage_board_statistics: 1
