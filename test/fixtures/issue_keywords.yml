@@ -1,0 +1,13 @@
+# Read about fixtures at https://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
+
+one:
+  keyword: MyString
+  source: MyString
+  original: MyString
+  count: 1
+
+two:
+  keyword: MyString
+  source: MyString
+  original: MyString
+  count: 1

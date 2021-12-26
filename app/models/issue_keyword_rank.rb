@@ -1,0 +1,2 @@
+class IssueKeywordRank < ApplicationRecord
+end
