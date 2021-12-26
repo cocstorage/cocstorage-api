@@ -23,11 +23,25 @@ class V1::System::CronController < ApplicationController
     }
   end
 
-  def google_issue_keyword_scrap
-    GoogleIssueKeywordScarpJob.perform_later
-    render json: {
+  def issue_keyword_scrap
+    response = {
       status: :ok,
       message: 'Succeeded'
     }
+
+    if params[:source] == "google"
+      GoogleIssueKeywordScarpJob.perform_later
+    elsif params[:source] == "zum"
+      ZumIssueKeywordScarpJob.perform_later
+    elsif params[:source] == "community"
+      CommunityIssueKeywordScrapJob.perform_later
+    else
+      response = {
+        status: :fail,
+        message: "Invalid source"
+      }
+    end
+
+    render json: response
   end
 end

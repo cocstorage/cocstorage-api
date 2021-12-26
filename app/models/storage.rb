@@ -2,7 +2,7 @@ class Storage < ApplicationRecord
   belongs_to :storage_category
   belongs_to :user
 
-  enum storage_type: %w[major minor]
+  enum storage_type: %w[major minor issue]
 
   has_many :storage_boards, dependent: :destroy
   has_many :storage_user_roles, dependent: :destroy
@@ -101,7 +101,7 @@ class Storage < ApplicationRecord
 
   def path_inspection
     if path.present?
-      normal_regex = /[a-zA-Z0-9]{3,20}/
+      normal_regex = /[a-zA-Z0-9가-힣]{2,20}/
       special_regex = "[ !@\#$%^&*(),.?\":{}|<>]"
 
       raise Errors::BadRequest.new(code: 'COC001', message: 'storage path is invalid') unless path =~ normal_regex

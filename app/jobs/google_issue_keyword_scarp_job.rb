@@ -11,43 +11,38 @@ class GoogleIssueKeywordScarpJob < ApplicationJob
 
     begin
       if response.status.first.to_i < 400
-        issue_keywords.css('item').each do |issue_keyword|
+        issue_keywords = issue_keywords.css('item')
+        issue_keywords_size = issue_keywords.size
+
+        issue_keywords.each_with_index do |issue_keyword, index|
           keyword = issue_keyword.css('title').text
 
           db_issue_keyword = IssueKeyword.find_by_keyword(keyword)
 
           if db_issue_keyword.present?
-            db_issue_keyword.increment!(:count, 1)
+            db_issue_keyword.increment!(:count, 10 + (issue_keywords_size - index))
           else
-            new_issue_keyword = IssueKeyword.create(
+            IssueKeyword.create(
               keyword: keyword,
               source: 'google',
               original: keyword,
-              count: 10,
-              created_at: issue_keyword.css('pubDate').text,
-              updated_at: issue_keyword.css('pubDate').text
+              count: 10 + (issue_keywords_size - index)
             )
 
-            new_issue_keyword_image_url = issue_keyword.css('ht|picture').text
+            path = keyword.gsub(" ", "-").strip
 
-            news_items = issue_keyword.css('ht|news_item')
+            unless Storage.where(path: path, name: keyword, storage_type: 2).exists?
+              storage_category = StorageCategory.find_by_code("CCB001")
 
-            news_items.each do |news_item|
-              title = CGI.unescapeHTML(news_item.css('ht|news_item_title').text)
-              description = CGI.unescapeHTML(news_item.css('ht|news_item_snippet').text)
-              url = CGI.unescapeHTML(news_item.css('ht|news_item_url').text)
-              source = CGI.unescapeHTML(news_item.css('ht|news_item_source').text)
-
-              new_issue_keyword_content = IssueKeywordContent.create(
-                issue_keyword_id: new_issue_keyword.id,
-                title: title,
-                description: description,
-                url: url,
-                source: source
+              Storage.create(
+                storage_category_id: storage_category.id,
+                user_id: 2,
+                path: path,
+                name: keyword,
+                description: "현재 이슈가 되고 있는 '#{keyword}'에 관한 얘기를 나누는 공간입니다.",
+                code: keyword,
+                storage_type: 2
               )
-
-              download_image = URI.open(new_issue_keyword_image_url, 'User-Agent' => USER_AGENT)
-              new_issue_keyword_content.image.attach(io: download_image, filename: SecureRandom.urlsafe_base64(20))
             end
           end
         end
