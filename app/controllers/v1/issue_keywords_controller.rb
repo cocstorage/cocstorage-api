@@ -6,7 +6,13 @@ class V1::IssueKeywordsController < V1::BaseController
   end
 
   def contents
-    render json: IssueKeywordContent.where(issue_keyword_id: configure_contents_params[:id])
+    issue_keyword_contents = IssueKeywordContent.where(issue_keyword_id: configure_contents_params[:id])
+    issue_keyword_contents = issue_keyword_contents.page(params[:page]).per(params[:per] || 20)
+
+    render json: {
+      contents: issue_keyword_contents,
+      pagination: PaginationSerializer.new(issue_keyword_contents)
+    }
   end
 
   private
