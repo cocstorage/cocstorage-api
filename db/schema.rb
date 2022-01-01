@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2021_12_26_134944) do
+ActiveRecord::Schema.define(version: 2022_01_01_132949) do
 
   create_table "active_storage_attachments", options: "ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci", force: :cascade do |t|
     t.string "name", null: false
@@ -237,6 +237,8 @@ ActiveRecord::Schema.define(version: 2021_12_26_134944) do
     t.datetime "updated_at", precision: 6, null: false
     t.string "code"
     t.integer "storage_type", default: 0
+    t.bigint "issue_keyword_id"
+    t.index ["issue_keyword_id"], name: "index_storages_on_issue_keyword_id"
     t.index ["path"], name: "index_storages_on_path", unique: true
     t.index ["storage_category_id"], name: "index_storages_on_storage_category_id"
     t.index ["user_id"], name: "index_storages_on_user_id"
@@ -290,6 +292,7 @@ ActiveRecord::Schema.define(version: 2021_12_26_134944) do
   add_foreign_key "storage_boards", "users"
   add_foreign_key "storage_user_roles", "storages"
   add_foreign_key "storage_user_roles", "users"
+  add_foreign_key "storages", "issue_keywords"
   add_foreign_key "storages", "storage_categories"
   add_foreign_key "storages", "users"
   add_foreign_key "user_email_access_logs", "users"

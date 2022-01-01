@@ -38,7 +38,7 @@ class ZumIssueKeywordScarpJob < ApplicationJob
 
               path = keyword.gsub(" ", "-").strip
 
-              unless Storage.where(path: path, name: keyword, storage_type: 2).exists?
+              unless Storage.where(issue_keyword_id: db_issue_keyword.id).exists?
                 storage_category = StorageCategory.find_by_code("CCB001")
 
                 Storage.create(
@@ -48,7 +48,8 @@ class ZumIssueKeywordScarpJob < ApplicationJob
                   name: keyword,
                   description: "현재 이슈가 되고 있는 '#{keyword}'에 관한 얘기를 나누는 공간입니다.",
                   code: keyword,
-                  storage_type: 2
+                  storage_type: 2,
+                  issue_keyword_id: db_issue_keyword.id
                 )
               end
             end
