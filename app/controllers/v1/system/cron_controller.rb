@@ -44,4 +44,12 @@ class V1::System::CronController < ApplicationController
 
     render json: response
   end
+
+  def update_issue_keyword_rank
+    IssueKeywordRankUpdateJob.perform_later
+    render json: {
+      status: :ok,
+      message: 'Succeeded'
+    }
+  end
 end

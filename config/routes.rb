@@ -91,6 +91,7 @@ Rails.application.routes.draw do
           get '/collection', to: 'cron#collection'
           get '/scrap', to: 'cron#scrap'
           get '/scrap/issue-keyword/:source', to: 'cron#issue_keyword_scrap'
+          get '/update/issue-keyword-rank', to: 'cron#update_issue_keyword_rank'
         end
       end
     end
