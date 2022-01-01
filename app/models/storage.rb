@@ -17,8 +17,8 @@ class Storage < ApplicationRecord
   def self.fetch_with_options(options = {})
     storages = all.where(is_active: true)
     storages = storages.where('name like ?', "#{options[:name]}%") if options[:name].present?
+    storages = storages.where(storage_type: options[:type]) if options[:type].present?
 
-    # Orders
     if options[:orderBy].present?
       storages = storages.order(created_at: :desc) if options[:orderBy] == 'latest'
       storages = storages.order(created_at: :asc) if options[:orderBy] == 'old'
