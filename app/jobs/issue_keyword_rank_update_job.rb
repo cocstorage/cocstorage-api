@@ -15,9 +15,10 @@ class IssueKeywordRankUpdateJob < ApplicationJob
           number: index + 1,
           keyword_id: issue_keyword.id,
           keyword: issue_keyword.keyword,
-          up: false,
-          down: false,
-          new: true
+          path: issue_keyword.storage.path,
+          isUp: false,
+          isDown: false,
+          isNew: true
         }
       end
 
@@ -41,9 +42,10 @@ class IssueKeywordRankUpdateJob < ApplicationJob
           number: index + 1,
           keyword_id: issue_keyword.id,
           keyword: issue_keyword.keyword,
-          up: change_rank == 'up',
-          down: change_rank == 'down',
-          new: change_rank == 'new'
+          path: issue_keyword.storage.path,
+          isUp: change_rank == 'up',
+          isDown: change_rank == 'down',
+          isNew: change_rank == 'new'
         }
       end
 
