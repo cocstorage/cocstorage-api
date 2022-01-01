@@ -62,6 +62,11 @@ Rails.application.routes.draw do
     get 'storages/boards/latest', to: 'storage_boards#latest'
     get 'storages/boards/popular', to: 'storage_boards#popular'
     resources :notices
+    resources :issue_keywords, path: 'issue-keywords' do
+      collection do
+        get '/rank', to: 'issue_keywords#rank'
+      end
+    end
     namespace :admin do
       resources :notices do
         collection do
