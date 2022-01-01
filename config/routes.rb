@@ -65,6 +65,7 @@ Rails.application.routes.draw do
     resources :issue_keywords, path: 'issue-keywords' do
       collection do
         get '/rank', to: 'issue_keywords#rank'
+        get '/:id/contents', to: 'issue_keywords#contents'
       end
     end
     namespace :admin do
