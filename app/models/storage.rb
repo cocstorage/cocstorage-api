@@ -17,7 +17,11 @@ class Storage < ApplicationRecord
   def self.fetch_with_options(options = {})
     storages = all.where(is_active: true)
     storages = storages.where('name like ?', "#{options[:name]}%") if options[:name].present?
-    storages = storages.where(storage_type: options[:type]) if options[:type].present?
+
+    if options[:type].present?
+      storages = storages.where.not(storage_type: Storage.storage_types[:issue]) if options[:type] == 'normal'
+      storages = storages.where(storage_type: Storage.storage_types[:issue]) if options[:type] == 'issue'
+    end
 
     if options[:orderBy].present?
       storages = storages.order(created_at: :desc) if options[:orderBy] == 'latest'
@@ -65,7 +69,7 @@ class Storage < ApplicationRecord
 
   def self.find_active(id)
     storage = find_by(id: id, is_active: true)
-    storage = find_by(path: id, is_active: true) if storage.blank?
+    storage = find_by(path: CGI.unescape(id), is_active: true) if storage.blank?
     raise Errors::NotFound.new(code: 'COC006', message: "There's no such resource.") if storage.blank?
 
     storage
