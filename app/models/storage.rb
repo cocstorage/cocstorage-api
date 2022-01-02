@@ -24,8 +24,12 @@ class Storage < ApplicationRecord
     end
 
     if options[:orderBy].present?
-      storages = storages.order(created_at: :desc) if options[:orderBy] == 'latest'
-      storages = storages.order(created_at: :asc) if options[:orderBy] == 'old'
+      storages = storages.order(created_at: :desc) if options[:orderBy] == 'latest' && options[:type].blank?
+      storages = storages.order(created_at: :desc) if options[:orderBy] == 'latest' && options[:type] == 'normal'
+      storages = storages.order(updated_at: :desc) if options[:orderBy] == 'latest' && options[:type] == 'issue'
+      storages = storages.order(created_at: :asc) if options[:orderBy] == 'old' && options[:type].blank?
+      storages = storages.order(created_at: :asc) if options[:orderBy] == 'old' && options[:type] == 'normal'
+      storages = storages.order(updated_at: :asc) if options[:orderBy] == 'old' && options[:type] == 'issue'
     end
 
     storages
