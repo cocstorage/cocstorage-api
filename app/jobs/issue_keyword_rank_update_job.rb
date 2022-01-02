@@ -30,7 +30,7 @@ class IssueKeywordRankUpdateJob < ApplicationJob
       date = DateTime.now
       diff_minute = (((last_issue_keyword_rank.date - date) / 1.minute).round).abs
 
-      return false if diff_minute < 30
+      return false if diff_minute < 5
 
       issue_keywords = IssueKeyword.all.limit(10).order(count: :desc)
       new_issue_keyword_ranks = []
