@@ -5,7 +5,7 @@ class IssueKeywordRank < ApplicationRecord
     issue_keyword_rank = Rails.cache.read(redis_key)
 
     if issue_keyword_rank.blank?
-      Rails.cache.write(redis_key, IssueKeywordRank.last, expires_in: 15.minutes)
+      Rails.cache.write(redis_key, IssueKeywordRank.last, expires_in: 5.minutes)
 
       issue_keyword_rank = Rails.cache.read(redis_key)
     end
