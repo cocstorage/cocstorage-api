@@ -2,7 +2,10 @@ class V1::IssueKeywordsController < V1::BaseController
   skip_before_action :authenticate_v1_user!, only: %i[rank contents]
 
   def rank
-    render json: IssueKeywordRank.last
+    issue_keyword_rank = Rails.cache.fetch("latest_issue_keyword_rank", expires_in: 30.minutes) do
+      IssueKeywordRank.last
+    end
+    render json: issue_keyword_rank
   end
 
   def contents
