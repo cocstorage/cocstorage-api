@@ -62,6 +62,12 @@ Rails.application.routes.draw do
     get 'storages/boards/latest', to: 'storage_boards#latest'
     get 'storages/boards/popular', to: 'storage_boards#popular'
     resources :notices
+    resources :issue_keywords, path: 'issue-keywords' do
+      collection do
+        get '/rank', to: 'issue_keywords#rank'
+        get '/:id/contents', to: 'issue_keywords#contents'
+      end
+    end
     namespace :admin do
       resources :notices do
         collection do
@@ -90,6 +96,8 @@ Rails.application.routes.draw do
           get '/withdrawaled', to: 'cron#withdrawaled'
           get '/collection', to: 'cron#collection'
           get '/scrap', to: 'cron#scrap'
+          get '/scrap/issue-keyword/:source', to: 'cron#issue_keyword_scrap'
+          get '/update/issue-keyword-rank', to: 'cron#update_issue_keyword_rank'
         end
       end
     end

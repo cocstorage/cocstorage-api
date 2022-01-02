@@ -2,7 +2,7 @@ class Storage < ApplicationRecord
   belongs_to :storage_category
   belongs_to :user
 
-  enum storage_type: %w[major minor]
+  enum storage_type: %w[major minor issue]
 
   has_many :storage_boards, dependent: :destroy
   has_many :storage_user_roles, dependent: :destroy
@@ -18,10 +18,18 @@ class Storage < ApplicationRecord
     storages = all.where(is_active: true)
     storages = storages.where('name like ?', "#{options[:name]}%") if options[:name].present?
 
-    # Orders
+    if options[:type].present?
+      storages = storages.where.not(storage_type: Storage.storage_types[:issue]) if options[:type] == 'normal'
+      storages = storages.where(storage_type: Storage.storage_types[:issue]) if options[:type] == 'issue'
+    end
+
     if options[:orderBy].present?
-      storages = storages.order(created_at: :desc) if options[:orderBy] == 'latest'
-      storages = storages.order(created_at: :asc) if options[:orderBy] == 'old'
+      storages = storages.order(created_at: :desc) if options[:orderBy] == 'latest' && options[:type].blank?
+      storages = storages.order(created_at: :desc) if options[:orderBy] == 'latest' && options[:type] == 'normal'
+      storages = storages.order(updated_at: :desc) if options[:orderBy] == 'latest' && options[:type] == 'issue'
+      storages = storages.order(created_at: :asc) if options[:orderBy] == 'old' && options[:type].blank?
+      storages = storages.order(created_at: :asc) if options[:orderBy] == 'old' && options[:type] == 'normal'
+      storages = storages.order(updated_at: :asc) if options[:orderBy] == 'old' && options[:type] == 'issue'
     end
 
     storages
@@ -65,7 +73,7 @@ class Storage < ApplicationRecord
 
   def self.find_active(id)
     storage = find_by(id: id, is_active: true)
-    storage = find_by(path: id, is_active: true) if storage.blank?
+    storage = find_by(path: CGI.unescape(id), is_active: true) if storage.blank?
     raise Errors::NotFound.new(code: 'COC006', message: "There's no such resource.") if storage.blank?
 
     storage
@@ -101,7 +109,7 @@ class Storage < ApplicationRecord
 
   def path_inspection
     if path.present?
-      normal_regex = /[a-zA-Z0-9]{3,20}/
+      normal_regex = /[a-zA-Z0-9가-힣]{2,20}/
       special_regex = "[ !@\#$%^&*(),.?\":{}|<>]"
 
       raise Errors::BadRequest.new(code: 'COC001', message: 'storage path is invalid') unless path =~ normal_regex

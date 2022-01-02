@@ -36,7 +36,7 @@ class V1::StoragesController < V1::BaseController
   private
 
   def index_attributes
-    %w[name orderBy per page]
+    %w[name orderBy per page type]
   end
 
   def create_attributes

@@ -45,12 +45,18 @@ module Scraper
     def get_scrap_boards_html
       response = URI.open(@url, 'User-Agent' => USER_AGENT, 'Referrer' => @referrer)
 
-      if response.status.first.to_i < 400
-        html = Nokogiri::HTML(response)
+      begin
+        if response.status.first.to_i < 400
+          html = Nokogiri::HTML(response)
 
-        html.css('.ub-content.us-post')
-      else
-        []
+          html.css('.ub-content.us-post')
+        else
+          Rails.logger.debug "Error boards html scrap (#{@url})"
+          []
+        end
+      rescue => e
+        Rails.logger.debug "Error boards html scrap (#{@url})"
+        Rails.logger.debug e
       end
     end
 
