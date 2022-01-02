@@ -53,17 +53,6 @@ class ZumIssueKeywordScarpJob < ApplicationJob
                 )
               end
             end
-
-            response = URI.open("https://search.zum.com/search.zum?method=realtime&option=accu&query=#{CGI.escape(keyword)}&rd=1&cm=more", 'User-Agent' => USER_AGENT)
-
-            if response.status.first.to_i < 400
-              issue_keyword_contents = Nokogiri::HTML(response).css('.total.snsTypeList').css('li')
-
-              self.create_issue_keyword_contents(issue_keyword_contents, db_issue_keyword.id)
-            else
-              Rails.logger.debug "Error scraping zum issue keywords"
-              next
-            end
           end
         end
       else
@@ -72,23 +61,6 @@ class ZumIssueKeywordScarpJob < ApplicationJob
     rescue => e
       Rails.logger.debug "Error scraping zum issue keywords"
       Rails.logger.debug e
-    end
-  end
-
-  def create_issue_keyword_contents(issue_keyword_contents, issue_keyword_id)
-    issue_keyword_contents.each do |issue_keyword_content|
-      source = issue_keyword_content.css('.thumb').text.strip
-      title = issue_keyword_content.css('.info .title dd').text.strip
-      url = issue_keyword_content.css('.info .title dd a').attr('href')
-      description = issue_keyword_content.css('.info .contents dd').text.strip
-
-      IssueKeywordContent.create(
-        issue_keyword_id: issue_keyword_id,
-        title: title,
-        description: description,
-        url: url,
-        source: source
-      ) unless IssueKeywordContent.where(title: title).exists?
     end
   end
 end
