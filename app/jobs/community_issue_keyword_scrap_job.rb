@@ -24,7 +24,7 @@ class CommunityIssueKeywordScrapJob < ApplicationJob
               keyword: keyword,
               source: 'dcinside',
               original: keyword,
-              count: 20
+              count: 1
             )
 
             path = keyword.gsub(" ", "-").strip
