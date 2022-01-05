@@ -20,13 +20,13 @@ class GoogleIssueKeywordScarpJob < ApplicationJob
           db_issue_keyword = IssueKeyword.find_by_keyword(keyword)
 
           if db_issue_keyword.present?
-            db_issue_keyword.increment!(:count, 100 + (issue_keywords_size - index))
+            db_issue_keyword.increment!(:count, 50 + (issue_keywords_size - index))
           else
             db_issue_keyword = IssueKeyword.create(
               keyword: keyword,
               source: 'google',
               original: keyword,
-              count: 10 + (issue_keywords_size - index)
+              count: 50 + (issue_keywords_size - index)
             )
 
             path = keyword.gsub(" ", "-").strip
