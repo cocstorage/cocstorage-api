@@ -20,7 +20,10 @@ class GoogleIssueKeywordScarpJob < ApplicationJob
           db_issue_keyword = IssueKeyword.find_by_keyword(keyword)
 
           if db_issue_keyword.present?
-            db_issue_keyword.increment!(:count, 50 + (issue_keywords_size - index))
+            db_issue_keyword.update(count: db_issue_keyword.count + (50 + (issue_keywords_size - index)))
+
+            storage = Storage.find_by_issue_keyword_id(db_issue_keyword.id)
+            storage.update(updated_at: DateTime.now) if storage.present?
           else
             db_issue_keyword = IssueKeyword.create(
               keyword: keyword,

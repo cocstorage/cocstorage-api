@@ -67,7 +67,10 @@ class CommunityIssueKeywordScrapJob < ApplicationJob
                 db_issue_keyword = IssueKeyword.find_by_keyword(new_keyword)
 
                 if db_issue_keyword.present?
-                  db_issue_keyword.increment!(:count, 1)
+                  db_issue_keyword.update(count: db_issue_keyword.count + 1)
+
+                  storage = Storage.find_by_issue_keyword_id(db_issue_keyword.id)
+                  storage.update(updated_at: DateTime.now) if storage.present?
                 end
               end
             end

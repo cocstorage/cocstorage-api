@@ -6,7 +6,7 @@ class IssueKeywordRankUpdateJob < ApplicationJob
 
     if last_issue_keyword_rank.blank?
       date = DateTime.now.strftime("%Y-%m-%d %R")
-      issue_keywords = IssueKeyword.all.limit(10).order(count: :desc)
+      issue_keywords = IssueKeyword.where(updated_at: DateTime.now.beginning_of_day..DateTime.now.end_of_day).limit(10).order(count: :desc)
 
       issue_keyword_ranks = []
 
@@ -32,7 +32,7 @@ class IssueKeywordRankUpdateJob < ApplicationJob
 
       return false if diff_minute < 5
 
-      issue_keywords = IssueKeyword.all.limit(10).order(count: :desc)
+      issue_keywords = IssueKeyword.where(updated_at: DateTime.now.beginning_of_day..DateTime.now.end_of_day).limit(10).order(count: :desc)
       new_issue_keyword_ranks = []
 
       issue_keywords.each_with_index do |issue_keyword, index|

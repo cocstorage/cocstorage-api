@@ -27,7 +27,10 @@ class ZumIssueKeywordScarpJob < ApplicationJob
             db_issue_keyword = IssueKeyword.find_by_keyword(keyword)
 
             if db_issue_keyword.present?
-              db_issue_keyword.increment!(:count, issue_keywords_size - number)
+              db_issue_keyword.update(count: db_issue_keyword.count + (issue_keywords_size - number))
+
+              storage = Storage.find_by_issue_keyword_id(db_issue_keyword.id)
+              storage.update(updated_at: DateTime.now) if storage.present?
             else
               db_issue_keyword = IssueKeyword.create(
                 keyword: keyword,
