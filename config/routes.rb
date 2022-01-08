@@ -66,6 +66,7 @@ Rails.application.routes.draw do
       collection do
         get '/rank', to: 'issue_keywords#rank'
         get '/:id/contents', to: 'issue_keywords#contents'
+        get '/:query/news', to: 'issue_keywords#news'
       end
     end
     namespace :admin do
