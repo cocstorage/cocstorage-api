@@ -7,6 +7,7 @@ class Storage < ApplicationRecord
   has_many :storage_boards, dependent: :destroy
   has_many :storage_user_roles, dependent: :destroy
 
+  has_one :issue_keyword
   has_one_attached :avatar, dependent: :destroy
 
   validate :path_inspection, on: %i[create update]
@@ -135,7 +136,7 @@ class Storage < ApplicationRecord
       raise Errors::BadRequest.new(code: 'COC001', message: 'storage name is invalid') if name.match(special_regex)
 
       storage = Storage.find_by(name: name)
-      if storage.present? && id != storage.id
+      if storage.present? && id != storage.id && storage_type != "issue"
         raise Errors::BadRequest.new(code: 'COC025', message: 'storage name already exists')
       end
     end
