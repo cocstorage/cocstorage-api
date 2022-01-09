@@ -17,7 +17,7 @@ class GoogleIssueKeywordScarpJob < ApplicationJob
         issue_keywords.each_with_index do |issue_keyword, index|
           keyword = issue_keyword.css('title').text
 
-          next unless DateTime.parse(issue_keyword.css('pubDate')).today?
+          next unless DateTime.parse(issue_keyword.css('pubDate').text).today?
 
           db_issue_keyword = IssueKeyword.find_by_keyword(keyword)
 
@@ -34,7 +34,7 @@ class GoogleIssueKeywordScarpJob < ApplicationJob
               keyword: keyword,
               source: 'google',
               original: keyword,
-              count: 50 + (issue_keywords_size - index)
+              count: 100 + (issue_keywords_size - index)
             )
 
             path = keyword.gsub(" ", "-").strip
