@@ -17,10 +17,15 @@ class GoogleIssueKeywordScarpJob < ApplicationJob
         issue_keywords.each_with_index do |issue_keyword, index|
           keyword = issue_keyword.css('title').text
 
+          next unless DateTime.parse(issue_keyword.css('pubDate')).today?
+
           db_issue_keyword = IssueKeyword.find_by_keyword(keyword)
 
           if db_issue_keyword.present?
-            db_issue_keyword.update(count: db_issue_keyword.count + (50 + (issue_keywords_size - index)))
+            count = db_issue_keyword.count + (50 + (issue_keywords_size - index))
+            count = 50 + (issue_keywords_size - index) unless db_issue_keyword.updated_at.today?
+
+            db_issue_keyword.update(count: count)
 
             storage = Storage.find_by_issue_keyword_id(db_issue_keyword.id)
             storage.update(updated_at: DateTime.now) if storage.present?
