@@ -34,7 +34,7 @@ class GoogleIssueKeywordScarpJob < ApplicationJob
               keyword: keyword,
               source: 'google',
               original: keyword,
-              count: 50 + (issue_keywords_size - index)
+              count: 100 + (issue_keywords_size - index)
             )
 
             path = keyword.gsub(" ", "-").strip
