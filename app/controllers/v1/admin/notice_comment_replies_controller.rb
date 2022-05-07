@@ -1,4 +1,4 @@
-class V1::Admin::NoticeCommentReplysController < V1::Admin::BaseController
+class V1::Admin::NoticeCommentRepliesController < V1::Admin::BaseController
   skip_before_action :authenticate_v1_admin!
   before_action :authenticate_v1_user!, only: %i[create destroy]
 

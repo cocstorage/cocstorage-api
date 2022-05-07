@@ -51,10 +51,10 @@ Rails.application.routes.draw do
             post '/non-members', to: 'storage_board_comments#non_members_create'
             delete '/non-members/:id', to: 'storage_board_comments#non_members_destroy'
           end
-          resources :storage_board_comment_replys, path: 'replies' do
+          resources :storage_board_comment_replies, path: 'replies' do
             collection do
-              post '/non-members', to: 'storage_board_comment_replys#non_members_create'
-              delete '/non-members/:id', to: 'storage_board_comment_replys#non_members_destroy'
+              post '/non-members', to: 'storage_board_comment_replies#non_members_create'
+              delete '/non-members/:id', to: 'storage_board_comment_replies#non_members_destroy'
             end
           end
         end
@@ -83,10 +83,10 @@ Rails.application.routes.draw do
             post '/non-members', to: 'notice_comments#non_members_create'
             delete '/non-members/:id', to: 'notice_comments#non_members_destroy'
           end
-          resources :notice_comment_replys, path: 'replies' do
+          resources :notice_comment_replies, path: 'replies' do
             collection do
-              post '/non-members', to: 'notice_comment_replys#non_members_create'
-              delete '/non-members/:id', to: 'notice_comment_replys#non_members_destroy'
+              post '/non-members', to: 'notice_comment_replies#non_members_create'
+              delete '/non-members/:id', to: 'notice_comment_replies#non_members_destroy'
             end
           end
         end

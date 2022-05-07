@@ -1,4 +1,4 @@
-class V1::StorageBoardCommentReplysController < V1::BaseController
+class V1::StorageBoardCommentRepliesController < V1::BaseController
   skip_before_action :authenticate_v1_user!, only: %i[non_members_create non_members_destroy]
 
   def create
