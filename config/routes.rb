@@ -30,6 +30,7 @@ Rails.application.routes.draw do
         patch '/:id/privacy', to: 'users#privacy'
       end
     end
+    resources :storage_categories, path: 'storage-categories'
     resources :storages do
       resources :storage_boards, path: 'boards' do
         collection do
