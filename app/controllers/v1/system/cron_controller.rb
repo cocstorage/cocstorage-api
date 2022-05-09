@@ -54,4 +54,12 @@ class V1::System::CronController < ApplicationController
       message: 'Succeeded'
     }
   end
+
+  def clean_issue_keyword_rank
+    IssueKeywordRankCleanJob.perform_later
+    render json: {
+      status: :ok,
+      message: 'Succeeded'
+    }
+  end
 end
