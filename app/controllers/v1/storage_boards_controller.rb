@@ -100,11 +100,29 @@ class V1::StorageBoardsController < V1::BaseController
   end
 
   def latest
-    render json: StorageBoard.where(is_draft: false, is_active: true).limit(10).order(id: :desc)
+    storage_boards = StorageBoard.where(is_draft: false, is_active: true).order(id: :desc)
+    storage_boards = storage_boards.page(params[:page]).per(params[:per] || 20)
+
+    render json: {
+      boards: ActiveModelSerializers::SerializableResource.new(
+        storage_boards,
+        each_serializer: StorageBoardSerializer
+      ),
+      pagination: PaginationSerializer.new(storage_boards)
+    }
   end
 
   def popular
-    render json: StorageBoard.where(is_draft: false, is_active: true, is_popular: true).limit(10).order(id: :desc)
+    storage_boards = StorageBoard.where(is_draft: false, is_active: true, is_popular: true).order(id: :desc)
+    storage_boards = storage_boards.page(params[:page]).per(params[:per] || 20)
+
+    render json: {
+      boards: ActiveModelSerializers::SerializableResource.new(
+        storage_boards,
+        each_serializer: StorageBoardSerializer
+      ),
+      pagination: PaginationSerializer.new(storage_boards)
+    }
   end
 
   private
