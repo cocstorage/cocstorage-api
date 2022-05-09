@@ -8,13 +8,23 @@ class V1::System::CronController < ApplicationController
   end
 
   def collection
-    PopularStorageBoardCollectionJob.perform_later if params[:type] == "popular"
-    WorstStorageBoardCollectionJob.perform_later if params[:type] == "worst"
-
-    render json: {
+    response = {
       status: :ok,
       message: 'Succeeded'
     }
+
+    if params[:type] == "popular"
+      PopularStorageBoardCollectionJob.perform_later
+    elsif params[:type] == "worst"
+      WorstStorageBoardCollectionJob.perform_later
+    else
+      response = {
+        status: :fail,
+        message: "Invalid type"
+      }
+    end
+
+    render json: response
   end
 
   def scrap
