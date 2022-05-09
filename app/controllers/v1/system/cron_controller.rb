@@ -8,7 +8,9 @@ class V1::System::CronController < ApplicationController
   end
 
   def collection
-    PopularStorageBoardCollectionJob.perform_later
+    PopularStorageBoardCollectionJob.perform_later if params[:type] == "popular"
+    WorstStorageBoardCollectionJob.perform_later if params[:type] == "worst"
+
     render json: {
       status: :ok,
       message: 'Succeeded'
