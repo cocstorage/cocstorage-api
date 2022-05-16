@@ -1,7 +1,7 @@
 class V1::StorageBoardsController < V1::BaseController
   skip_before_action :authenticate_v1_user!, only: %i[
     index show non_members_edit non_members_update non_members_destroy non_members_drafts
-    view_count non_members_images non_members_recommend latest popular
+    view_count non_members_images non_members_recommend latest popular worst
   ]
 
   def index
@@ -113,7 +113,20 @@ class V1::StorageBoardsController < V1::BaseController
   end
 
   def popular
-    storage_boards = StorageBoard.where(is_draft: false, is_active: true, is_popular: true).order(id: :desc)
+    storage_boards = StorageBoard.where(is_draft: false, is_active: true, is_worst: false, is_popular: true).order(id: :desc)
+    storage_boards = storage_boards.page(params[:page]).per(params[:per] || 20)
+
+    render json: {
+      boards: ActiveModelSerializers::SerializableResource.new(
+        storage_boards,
+        each_serializer: StorageBoardSerializer
+      ),
+      pagination: PaginationSerializer.new(storage_boards)
+    }
+  end
+
+  def worst
+    storage_boards = StorageBoard.where(is_draft: false, is_active: true, is_popular: false, is_worst: true).order(id: :desc)
     storage_boards = storage_boards.page(params[:page]).per(params[:per] || 20)
 
     render json: {

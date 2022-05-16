@@ -6,7 +6,8 @@ class PopularStorageBoardCollectionJob < ApplicationJob
       created_at: DateTime.current.beginning_of_day..DateTime.current.end_of_day,
       is_draft: false,
       is_active: true,
-      is_popular: false
+      is_popular: false,
+      is_worst: false
     )
 
     today_storage_boards.map do |storage_board|

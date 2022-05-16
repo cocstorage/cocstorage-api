@@ -62,6 +62,7 @@ Rails.application.routes.draw do
     end
     get 'storages/boards/latest', to: 'storage_boards#latest'
     get 'storages/boards/popular', to: 'storage_boards#popular'
+    get 'storages/boards/worst', to: 'storage_boards#worst'
     resources :notices
     resources :issue_keywords, path: 'issue-keywords' do
       collection do
