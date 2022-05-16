@@ -31,7 +31,8 @@ class StorageBoard < ApplicationRecord
     if options[:orderBy].present?
       storage_boards = storage_boards.order(id: :desc) if options[:orderBy] == 'latest'
       storage_boards = storage_boards.order(id: :asc) if options[:orderBy] == 'old'
-      storage_boards = storage_boards.where(is_popular: true).order(created_at: :desc) if options[:orderBy] == 'popular'
+      storage_boards = storage_boards.where(is_worst: false, is_popular: true).order(created_at: :desc) if options[:orderBy] == 'popular'
+      storage_boards = storage_boards.where(is_popular: false, is_worst: true).order(created_at: :desc) if options[:orderBy] == 'worst'
     end
 
     storage_boards
