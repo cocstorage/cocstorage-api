@@ -6,6 +6,8 @@ class StorageBoard < ApplicationRecord
   has_many :storage_board_recommend_logs, dependent: :destroy
   has_many_attached :images
 
+  has_one_attached :thumbnail
+
   validate :nickname_inspection, on: %i[update]
   validate :password_minimum_length, on: %i[update]
 
@@ -249,8 +251,21 @@ class StorageBoard < ApplicationRecord
     storage_board_comments.where(is_active: true)
   end
 
+  def attach_thumbnail
+    if images.attached? && images.last.content_type != "video/mp4"
+      new_thumbnail = MiniMagick::Image.read(images.last.download)
+      new_thumbnail = new_thumbnail.combine_options do |thumbnail|
+        thumbnail.resize "25%"
+        thumbnail.quality 10
+      end
+      new_thumbnail_filename = images.last.filename
+      new_thumbnail_content_type = images.last.content_type
+      thumbnail.attach(io: File.open(new_thumbnail.path), filename: new_thumbnail_filename, content_type: new_thumbnail_content_type)
+    end
+  end
+
   def thumbnail_url
-    first_files_url_of(images)
+    file_url_of(thumbnail)
   end
 
   def last_image_url
