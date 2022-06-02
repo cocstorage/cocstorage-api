@@ -166,6 +166,7 @@ class StorageBoard < ApplicationRecord
     options = options.merge(is_draft: false)
 
     storage_board.update(options).inspect
+    storage_board.attach_thumbnail
     storage_board
   end
 
@@ -192,6 +193,7 @@ class StorageBoard < ApplicationRecord
     options = options.merge(is_draft: false)
 
     storage_board.update(options).inspect
+    storage_board.attach_thumbnail
     storage_board
   end
 
@@ -255,12 +257,11 @@ class StorageBoard < ApplicationRecord
     if images.attached? && images.last.content_type != "video/mp4"
       new_thumbnail = MiniMagick::Image.read(images.last.download)
       new_thumbnail = new_thumbnail.combine_options do |thumbnail|
-        thumbnail.resize "25%"
+        thumbnail.resize "10%"
         thumbnail.quality 10
       end
       new_thumbnail_filename = images.last.filename
-      new_thumbnail_content_type = images.last.content_type
-      thumbnail.attach(io: File.open(new_thumbnail.path), filename: new_thumbnail_filename, content_type: new_thumbnail_content_type)
+      thumbnail.attach(io: File.open(new_thumbnail.path), filename: new_thumbnail_filename, content_type: "image/webp")
     end
   end
 

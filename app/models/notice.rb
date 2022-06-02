@@ -4,6 +4,8 @@ class Notice < ApplicationRecord
   has_many :notice_comments
   has_many_attached :images
 
+  has_one_attached :thumbnail
+
   def self.fetch_with_options(options = {})
     notices = all
 
@@ -108,12 +110,24 @@ class Notice < ApplicationRecord
     notice.increment!(:view_count, 1)
   end
 
+  def attach_thumbnail
+    if images.attached? && images.last.content_type != "video/mp4"
+      new_thumbnail = MiniMagick::Image.read(images.last.download)
+      new_thumbnail = new_thumbnail.combine_options do |thumbnail|
+        thumbnail.resize "25%"
+        thumbnail.quality 25
+      end
+      new_thumbnail_filename = images.last.filename
+      thumbnail.attach(io: File.open(new_thumbnail.path), filename: new_thumbnail_filename, content_type: "image/webp")
+    end
+  end
+
   def active_comments
     notice_comments.where(is_active: true)
   end
 
   def thumbnail_url
-    first_files_url_of(images)
+    file_url_of(thumbnail)
   end
 
   def last_image_url
