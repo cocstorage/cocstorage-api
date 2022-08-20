@@ -7,7 +7,7 @@
 
 Rails.application.config.middleware.insert_before 0, Rack::Cors do
   allow do
-    origins '*'
+    origins 'https://cocstorage.com', 'https://www.cocstorage.com', 'https://m.cocstorage.com', ENV['ALLOW_ORIGIN'] || ''
     resource '/v1/*',
              headers: :any,
              methods: %i[get post put patch delete options head],
