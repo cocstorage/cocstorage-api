@@ -53,7 +53,6 @@ gem 'redis-namespace', '~> 1.6'
 gem 'sidekiq'
 gem 'aws-sdk-s3', require: false
 gem 'sidekiq-limit_fetch'
-gem 'newrelic_rpm'
 gem "mini_magick"
 
 # https://stackoverflow.com/questions/65479863/rails-6-1-ruby-3-0-0-tests-error-as-they-cannot-load-rexml

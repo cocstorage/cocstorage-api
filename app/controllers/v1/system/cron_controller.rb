@@ -45,8 +45,6 @@ class V1::System::CronController < ApplicationController
       GoogleIssueKeywordScarpJob.perform_later
     elsif params[:source] == "zum"
       ZumIssueKeywordScarpJob.perform_later
-    elsif params[:source] == "community"
-      CommunityIssueKeywordScrapJob.perform_later
     else
       response = {
         status: :fail,
