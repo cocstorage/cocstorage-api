@@ -1,7 +1,8 @@
 #!/bin/sh
+# 1. https://aws.amazon.com/ko/premiumsupport/knowledge-center/elastic-beanstalk-env-variables-shell/
+# 2. https://www.barot.us/running-sidekiq-on-amazon-linux-2/amp/
 # this file should be located at: .platform/hooks/postdeploy/50_restart_sidekiq.sh
 # mod: a@barot.us
-# https://www.barot.us/running-sidekiq-on-amazon-linux-2/amp/
 
 EB_APP_DEPLOY_DIR=$(/opt/elasticbeanstalk/bin/get-config platformconfig -k AppDeployDir)
 EB_APP_USER=$(/opt/elasticbeanstalk/bin/get-config platformconfig -k AppUser)
