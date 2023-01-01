@@ -1,4 +1,5 @@
 class V1::Admin::NoticesController < V1::Admin::BaseController
+  # TODO 추후 제거 예정
   skip_before_action :authenticate_v1_admin!, only: %i[index show view_count]
 
   def index
@@ -45,6 +46,7 @@ class V1::Admin::NoticesController < V1::Admin::BaseController
     }
   end
 
+  # TODO 추후 제거 예정
   def view_count
     render json: Notice.update_active_view_count(configure_view_count_params)
   end
@@ -64,7 +66,7 @@ class V1::Admin::NoticesController < V1::Admin::BaseController
   end
 
   def update_attributes
-    %w[id subject content description]
+    %w[id subject content content_json description]
   end
 
   def destroy_attributes
@@ -106,6 +108,9 @@ class V1::Admin::NoticesController < V1::Admin::BaseController
       raise Errors::BadRequest.new(code: 'COC013', message: 'content is empty') if params[:content].blank?
     end
 
+    if params.key? :content_json
+      raise Errors::BadRequest.new(code: 'COC013', message: 'content_json is empty') if params[:content_json].blank?
+    end
     params.permit(update_attributes).merge(user: current_v1_user)
   end
 

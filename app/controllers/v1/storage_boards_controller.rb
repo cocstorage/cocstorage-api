@@ -157,11 +157,11 @@ class V1::StorageBoardsController < V1::BaseController
   end
 
   def update_attributes
-    %w[storage_id id subject content description]
+    %w[storage_id id subject content content_json description]
   end
 
   def non_members_update_attributes
-    %w[storage_id id subject content nickname password description]
+    %w[storage_id id subject content content_json nickname password description]
   end
 
   def destroy_attributes
@@ -221,6 +221,9 @@ class V1::StorageBoardsController < V1::BaseController
       raise Errors::BadRequest.new(code: 'COC013', message: 'content is empty') if params[:content].blank?
     end
 
+    if params.key? :content_json
+      raise Errors::BadRequest.new(code: 'COC013', message: 'content_json is empty') if params[:content_json].blank?
+    end
     params.permit(update_attributes).merge(user: current_v1_user)
   end
 
@@ -241,6 +244,10 @@ class V1::StorageBoardsController < V1::BaseController
 
     if params.key? :content
       raise Errors::BadRequest.new(code: 'COC013', message: 'content is empty') if params[:content].blank?
+    end
+
+    if params.key? :content_json
+      raise Errors::BadRequest.new(code: 'COC013', message: 'content_json is empty') if params[:content_json].blank?
     end
 
     params.permit(non_members_update_attributes)

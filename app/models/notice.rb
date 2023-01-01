@@ -94,8 +94,18 @@ class Notice < ApplicationRecord
   end
 
   def self.update_with_options(options = {})
-    notice = find_by(options.except(:subject, :content, :description))
+    notice = find_by(options.except(:subject, :content, :content_json, :description))
     raise Errors::NotFound.new(code: 'COC006', message: "There's no such resource.") if notice.blank?
+
+    if options[:content_json].present?
+      content_json = JSON.parse options[:content_json]
+
+      content_json.each do |content|
+        options = options.merge(has_image: true) if content["tag"] === "img"
+      end
+
+      options[:content_json] = content_json
+    end
 
     options = options.except(:user)
     options = options.merge(is_draft: false)
@@ -111,15 +121,7 @@ class Notice < ApplicationRecord
   end
 
   def attach_thumbnail
-    if images.attached? && images.last.content_type != "video/mp4"
-      new_thumbnail = MiniMagick::Image.read(images.last.download)
-      new_thumbnail = new_thumbnail.combine_options do |thumbnail|
-        thumbnail.resize "25%"
-        thumbnail.quality 25
-      end
-      new_thumbnail_filename = images.last.filename
-      thumbnail.attach(io: File.open(new_thumbnail.path), filename: new_thumbnail_filename, content_type: "image/webp")
-    end
+    thumbnail.attach(images.first.blob) if images.attached? && images.last.content_type != "video/mp4"
   end
 
   def active_comments

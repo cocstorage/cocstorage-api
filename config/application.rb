@@ -34,6 +34,7 @@ module CocstorageApi
     config.api_only = true
     config.time_zone = 'Seoul'
     config.active_record.default_timezone = :utc
+    config.active_record.yaml_column_permitted_classes = [ActiveSupport::HashWithIndifferentAccess]
 
     config.logger = Logger.new(STDOUT)
 

@@ -11,6 +11,8 @@ class StorageBoard < ApplicationRecord
   validate :nickname_inspection, on: %i[update]
   validate :password_minimum_length, on: %i[update]
 
+  serialize :content_json, Array
+
   def self.fetch_with_options(options = {})
     storage = Storage.find_by(id: options[:storage_id], is_active: true)
     storage = Storage.find_by(path: options[:storage_id], is_active: true) if storage.blank?
@@ -151,16 +153,28 @@ class StorageBoard < ApplicationRecord
   end
 
   def self.update_for_member(options = {})
-    storage_board = find_with_options(options.except(:subject, :content, :description))
+    storage_board = find_with_options(options.except(:subject, :content, :content_json, :description))
     raise Errors::NotFound.new(code: 'COC006', message: "There's no such resource.") if storage_board.blank?
 
-    content_html = Nokogiri::HTML.parse(options[:content])
-    options = options.merge(has_image: false, has_video: false)
-    %w[youtube kakao].each do |name|
-      options = options.merge(has_video: true) if content_html.css('iframe').attr('src').to_s.index(name).present?
+    if options[:content].present? && storage_board.scrap_code.present?
+      content_html = Nokogiri::HTML.parse(options[:content])
+      options = options.merge(has_image: false, has_video: false)
+      %w[youtube kakao].each do |name|
+        options = options.merge(has_video: true) if content_html.css('iframe').attr('src').to_s.index(name).present?
+      end
+      options = options.merge(has_video: true) if content_html.css('video').present?
+      options = options.merge(has_image: true) if content_html.css('img').present? || storage_board.images.attached?
     end
-    options = options.merge(has_video: true) if content_html.css('video').present?
-    options = options.merge(has_image: true) if content_html.css('img').present? || storage_board.images.attached?
+
+    if options[:content_json].present?
+      content_json = JSON.parse options[:content_json]
+
+      content_json.each do |content|
+        options = options.merge(has_image: true) if content["tag"] === "img"
+      end
+
+      options[:content_json] = content_json
+    end
 
     options = options.except(:user)
     options = options.merge(is_draft: false)
@@ -171,7 +185,7 @@ class StorageBoard < ApplicationRecord
   end
 
   def self.update_for_non_member(options = {})
-    storage_board = find_with_options(options.except(:nickname, :password, :subject, :content, :description))
+    storage_board = find_with_options(options.except(:nickname, :password, :subject, :content, :content_json, :description))
     raise Errors::NotFound.new(code: 'COC006', message: "There's no such resource.") if storage_board.blank?
 
     if storage_board.password.present? && BCrypt::Password.new(storage_board.password) != options[:password]
@@ -180,13 +194,25 @@ class StorageBoard < ApplicationRecord
 
     options[:password] = BCrypt::Password.create(options[:password])
 
-    content_html = Nokogiri::HTML.parse(options[:content])
-    options = options.merge(has_image: false, has_video: false)
-    %w[youtube kakao].each do |name|
-      options = options.merge(has_video: true) if content_html.css('iframe').attr('src').to_s.index(name).present?
+    if options[:content].present? && storage_board.scrap_code.present?
+      content_html = Nokogiri::HTML.parse(options[:content])
+      options = options.merge(has_image: false, has_video: false)
+      %w[youtube kakao].each do |name|
+        options = options.merge(has_video: true) if content_html.css('iframe').attr('src').to_s.index(name).present?
+      end
+      options = options.merge(has_video: true) if content_html.css('video').present?
+      options = options.merge(has_image: true) if content_html.css('img').present? || storage_board.images.attached?
     end
-    options = options.merge(has_video: true) if content_html.css('video').present?
-    options = options.merge(has_image: true) if content_html.css('img').present? || storage_board.images.attached?
+
+    if options[:content_json].present?
+      content_json = JSON.parse options[:content_json]
+
+      content_json.each do |content|
+        options = options.merge(has_image: true) if content["tag"] === "img"
+      end
+
+      options[:content_json] = content_json
+    end
 
     options = options.except(:nickname) if storage_board.nickname.present?
     options = options.except(:password) if storage_board.password.present?
@@ -254,15 +280,7 @@ class StorageBoard < ApplicationRecord
   end
 
   def attach_thumbnail
-    if images.attached? && images.last.content_type != "video/mp4"
-      new_thumbnail = MiniMagick::Image.read(images.last.download)
-      new_thumbnail = new_thumbnail.combine_options do |thumbnail|
-        thumbnail.resize "10%"
-        thumbnail.quality 10
-      end
-      new_thumbnail_filename = images.last.filename
-      thumbnail.attach(io: File.open(new_thumbnail.path), filename: new_thumbnail_filename, content_type: "image/webp")
-    end
+    thumbnail.attach(images.first.blob) if images.attached? && images.last.content_type != "video/mp4"
   end
 
   def thumbnail_url
