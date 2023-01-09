@@ -1,7 +1,7 @@
 class Notice < ApplicationRecord
   belongs_to :user
 
-  has_many :notice_comments
+  has_many :notice_comments, dependent: :destroy
   has_many_attached :images
 
   has_one_attached :thumbnail
