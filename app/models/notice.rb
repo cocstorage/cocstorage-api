@@ -111,6 +111,7 @@ class Notice < ApplicationRecord
     options = options.merge(is_draft: false)
 
     notice.update(options).inspect
+    notice.attach_thumbnail
     notice
   end
 
