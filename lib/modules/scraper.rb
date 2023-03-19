@@ -420,7 +420,7 @@ module Scraper
       images.each do |image|
         begin
           download_image = URI.open(image['src'], 'User-Agent' => IMAGE_USER_AGENT, 'Referrer' => @board_url)
-          filename = image['src'].split('/').last
+          filename = SecureRandom.urlsafe_base64(20)
           storage_board.images.attach(ActionDispatch::Http::UploadedFile.new(
             tempfile: download_image,
             filename: filename,
@@ -449,7 +449,7 @@ module Scraper
       gif_images.each do |gif_image|
         begin
           download_image = URI.open(gif_image.css('source').attr('src'), 'User-Agent' => IMAGE_USER_AGENT, 'Referrer' => @board_url)
-          filename = image['src'].split('/').last
+          filename = SecureRandom.urlsafe_base64(20)
           storage_board.images.attach(ActionDispatch::Http::UploadedFile.new(
             tempfile: download_image,
             filename: filename,
