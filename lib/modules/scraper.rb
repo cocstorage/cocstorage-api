@@ -79,7 +79,7 @@ module Scraper
           content = board_detail.css('.write_div')
 
           if subject.blank? || content.blank?
-            Rails.logger.debug "Title or content does not exist in (#{@storage.code}-#{@scrap_code})"
+            Rails.logger.debug "Subject or content does not exist in (#{@storage.code}-#{@scrap_code})"
           end
 
           options = {
@@ -306,6 +306,165 @@ module Scraper
         Rails.logger.debug "Error scraping comments pagination (#{@storage.code}-#{@scrap_code})"
         Rails.logger.debug e
       end
+    end
+  end
+
+  class Fahumor
+    def initialize(storage)
+      @storage = storage
+      @has_image = false
+      @has_video = false
+      @referrer = "https://fahumor.co.kr"
+      @url = "https://fahumor.co.kr/humor"
+    end
+
+    def get_has_image
+      @has_image
+    end
+
+    def get_has_video
+      @has_video
+    end
+
+    def get_my
+      'zz'
+    end
+
+    def get_scrap_boards_html
+      response = URI.open(@url, 'User-Agent' => USER_AGENT, 'Referrer' => @referrer)
+
+      begin
+        if response.status.first.to_i < 400
+          html = Nokogiri::HTML(response)
+
+          html.css('#boardList > a')
+        else
+          Rails.logger.debug "Error boards html scrap (#{@url})"
+          []
+        end
+      rescue => e
+        Rails.logger.debug "Error boards html scrap (#{@url})"
+        Rails.logger.debug e
+      end
+    end
+
+    def set_scrap_code_and_board_url(href)
+       @scrap_code = href.gsub(/\D/, '')
+       @board_url = "https://fahumor.co.kr/humor/#{@scrap_code}?page="
+    end
+
+    def get_scrap_board_options
+      begin
+        response = URI.open(@board_url, 'User-Agent' => USER_AGENT, 'Referrer' => @url)
+
+        if response.status.first.to_i < 400
+          board_detail = Nokogiri::HTML(response, nil, 'utf-8')
+
+          subject = board_detail.css('article .item .titleContainer h1').text
+          nickname = '이슈혁'
+          content = board_detail.css('article .item .content > center > *:not(.html):not(.listAndEdit):not(#adsense):not(.commentsTitle):not(.newComment):not(.comments)')
+          content = board_detail.css('article .item .content > *:not(.html):not(.listAndEdit):not(#adsense):not(.commentsTitle):not(.newComment):not(.comments)') if content.blank?
+
+          if subject.blank? || content.blank?
+            Rails.logger.debug "Subject or content does not exist in (#{@scrap_code})"
+          end
+
+          options = {
+            storage_id: @storage.id,
+            scrap_code: @scrap_code,
+            source_code: @storage.code,
+            nickname: nickname,
+            subject: subject,
+            content: content,
+            description: content.text,
+            is_member: true,
+            is_draft: true,
+            is_active: false
+          }
+
+          %w[youtube kakao].each do |name|
+            @has_video = true if content.css('iframe').attr('src').to_s.index(name).present?
+            @has_video = true if content.css('embed').present?
+            @has_video = true if content.css('video').present?
+          end
+
+          options.merge(has_video: @has_video)
+        end
+      rescue => e
+        Rails.logger.debug "Error open board_url (#{@board_url})"
+        Rails.logger.debug e
+      end
+    end
+
+    def get_content_html(content)
+      Nokogiri::HTML::DocumentFragment.parse(content)
+    end
+
+    def check_has_video_iframe(content_html)
+      iframes = content_html.css('iframe')
+
+      iframes.each do |iframe|
+        if iframe.attr('src').to_s.index('google').blank?
+          @has_video = true
+          break
+        end
+      end
+    end
+
+    def upload_images(content_html, storage_board)
+      images = content_html.css('img')
+      images.remove_attr('style')
+      images.remove_attr('onclick')
+      images.remove_attr('onerror')
+
+      images.each do |image|
+        begin
+          download_image = URI.open(image['src'], 'User-Agent' => IMAGE_USER_AGENT, 'Referrer' => @board_url)
+          filename = image['src'].split('/').last
+          storage_board.images.attach(ActionDispatch::Http::UploadedFile.new(
+            tempfile: download_image,
+            filename: filename,
+            ))
+
+          image['src'] = storage_board.last_image_url
+          image['alt'] = filename
+
+          @has_image = true
+        rescue => e
+          Rails.logger.debug "Error scraping and upload image (#{@storage.code}-#{@scrap_code})"
+          Rails.logger.debug e
+          next
+        end
+      end if images.present?
+    end
+
+    def upload_gif_images(content_html, storage_board)
+      gif_images = content_html.css('video')
+      gif_images.remove_attr('class')
+      gif_images.remove_attr('poster')
+      gif_images.remove_attr('onmousedown')
+      gif_images.remove_attr('data-src')
+      gif_images.remove_attr('onerror')
+
+      gif_images.each do |gif_image|
+        begin
+          download_image = URI.open(gif_image.css('source').attr('src'), 'User-Agent' => IMAGE_USER_AGENT, 'Referrer' => @board_url)
+          filename = image['src'].split('/').last
+          storage_board.images.attach(ActionDispatch::Http::UploadedFile.new(
+            tempfile: download_image,
+            filename: filename,
+            ))
+
+          gif_image.at('source')['src'] = storage_board.last_image_url
+          image['alt'] = filename
+
+          @has_image = true
+        rescue => e
+          Rails.logger.debug "Error scraping and upload gif_image (#{@storage.code}-#{@scrap_code})"
+          Rails.logger.debug e
+          next
+        end
+      end if gif_images.present?
     end
   end
 end

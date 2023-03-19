@@ -1,4 +1,4 @@
-:concurrency: 2
+:concurrency: 1
 :queues:
   - default
   - active_storage_analysis
@@ -13,7 +13,4 @@
   - community_issue_keyword_scrap
   - issue_keyword_rank_update
   - issue_keyword_rank_clean
-:limits:
-  default: 1
-  popular_storage_board_collection: 1
-  worst_storage_board_collection: 1
+  - storage_board_scrap
