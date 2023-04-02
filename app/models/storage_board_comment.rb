@@ -21,41 +21,6 @@ class StorageBoardComment < ApplicationRecord
     storage_board_comments
   end
 
-  def self.fetch_by_cached_with_options(options = {})
-    storage_board = StorageBoard.find_active_by_cached(storage_id: options[:storage_id], id: options[:storage_board_id])
-
-    redis_key = "storages-#{options[:storage_id]}-boards-#{options[:storage_board_id]}-comments-#{options.values.to_s}"
-    namespace = "storages-#{options[:storage_id]}-boards-#{options[:storage_board_id]}-comments"
-
-    storage_board_comments = Rails.cache.read(redis_key, namespace: namespace)
-    pagination = Rails.cache.read("#{redis_key}/pagination", namespace: namespace)
-
-    if storage_board_comments.blank? || pagination.blank?
-      storage_board_comments = StorageBoardComment.where(storage_board_id: storage_board[:id])
-
-      if options[:orderBy]
-        storage_board_comments = storage_board_comments.order(created_at: :desc) if options[:orderBy] == 'latest'
-        storage_board_comments = storage_board_comments.order(created_at: :asc) if options[:orderBy] == 'old'
-      end
-
-      storage_board_comments = storage_board_comments.page(options[:page]).per(options[:per] || 20)
-
-      Rails.cache.write(redis_key, ActiveModelSerializers::SerializableResource.new(
-        storage_board_comments,
-        each_serializer: StorageBoardCommentSerializer
-      ).as_json, namespace: namespace)
-      Rails.cache.write("#{redis_key}/pagination", PaginationSerializer.new(storage_board_comments).as_json, namespace: namespace)
-
-      storage_board_comments = Rails.cache.read(redis_key, namespace: namespace)
-      pagination = Rails.cache.read("#{redis_key}/pagination", namespace: namespace)
-    end
-
-    {
-      comments: storage_board_comments,
-      pagination: pagination
-    }
-  end
-
   def self.find_with_options(options = {})
     options = options.merge(user_id: options[:user].id, is_member: true) if options[:user].present?
     options = options.merge(user_id: nil, is_member: false) if options[:user].blank?

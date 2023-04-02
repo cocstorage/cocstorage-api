@@ -35,63 +35,11 @@ class StorageBoard < ApplicationRecord
     if options[:orderBy].present?
       storage_boards = storage_boards.order(id: :desc) if options[:orderBy] == 'latest'
       storage_boards = storage_boards.order(id: :asc) if options[:orderBy] == 'old'
-      storage_boards = storage_boards.where(is_worst: false, is_popular: true).order(created_at: :desc) if options[:orderBy] == 'popular'
-      storage_boards = storage_boards.where(is_popular: false, is_worst: true).order(created_at: :desc) if options[:orderBy] == 'worst'
+      storage_boards = storage_boards.where(is_worst: false, is_popular: true).order(id: :desc) if options[:orderBy] == 'popular'
+      storage_boards = storage_boards.where(is_popular: false, is_worst: true).order(id: :desc) if options[:orderBy] == 'worst'
     end
 
     storage_boards
-  end
-
-  def self.fetch_by_cached_with_options(options = {})
-    storage = Storage.find_active_by_cached(options[:storage_id])
-
-    redis_key = "storages-#{storage[:id]}-boards-#{options.values.to_s}"
-    namespace = "storages-#{storage[:id]}-boards"
-
-    storage_boards = Rails.cache.read(redis_key, namespace: namespace)
-    pagination = Rails.cache.read("#{redis_key}/pagination", namespace: namespace)
-
-    if storage_boards.blank? || pagination.blank?
-      storage_boards = StorageBoard.where(storage_id: storage[:id], is_draft: false, is_active: true)
-
-      storage_boards = storage_boards.where('nickname like :search', {
-        search: "%#{options[:nickname]}%"
-      }) if options[:nickname].present? && options[:subject].blank? && options[:content].blank?
-
-      storage_boards = storage_boards.where('subject like :search', {
-        search: "%#{options[:subject]}%"
-      }) if options[:subject].present? && options[:nickname].blank? && options[:content].blank?
-
-      storage_boards = storage_boards.where('content like :search', {
-        search: "%#{options[:content]}%"
-      }) if options[:content].present? && options[:nickname].blank? && options[:subject].blank?
-
-      storage_boards = storage_boards.where('nickname like :search or subject like :search or content like :search', {
-        search: "%#{options[:nickname]}%"
-      }) if options[:nickname].present? && options[:subject].present? && options[:content].present?
-
-      if options[:orderBy].present?
-        storage_boards = storage_boards.order(id: :desc) if options[:orderBy] == 'latest'
-        storage_boards = storage_boards.order(id: :asc) if options[:orderBy] == 'old'
-        storage_boards = storage_boards.where(is_popular: true).order(created_at: :desc) if options[:orderBy] == 'popular'
-      end
-
-      storage_boards = storage_boards.page(options[:page]).per(options[:per] || 10)
-
-      Rails.cache.write(redis_key, ActiveModelSerializers::SerializableResource.new(
-        storage_boards,
-        each_serializer: StorageBoardSerializer
-      ).as_json, expires_in: 5.minutes, namespace: namespace)
-      Rails.cache.write("#{redis_key}/pagination", PaginationSerializer.new(storage_boards).as_json, expires_in: 5.minutes, namespace: namespace)
-
-      storage_boards = Rails.cache.read(redis_key, namespace: namespace)
-      pagination = Rails.cache.read("#{redis_key}/pagination", namespace: namespace)
-    end
-
-    {
-      boards: storage_boards,
-      pagination: pagination
-    }
   end
 
   def self.find_active_with_options(options = {})
@@ -99,25 +47,6 @@ class StorageBoard < ApplicationRecord
 
     storage_board = find_by(options)
     raise Errors::NotFound.new(code: 'COC006', message: "There's no such resource.") if storage_board.blank?
-
-    storage_board
-  end
-
-  def self.find_active_by_cached(options = {})
-    options = options.merge(is_draft: false, is_active: true)
-
-    redis_key = "storages-#{options[:storage_id]}-boards-#{options[:id]}"
-    namespace = "storages-#{options[:storage_id]}-boards-detail"
-
-    storage_board = Rails.cache.read(redis_key, namespace: namespace)
-
-    if storage_board.blank?
-      storage_board = find_by(options)
-      raise Errors::NotFound.new(code: 'COC006', message: "There's no such resource.") if storage_board.blank?
-
-      Rails.cache.write(redis_key, StorageBoardSerializer.new(storage_board).as_json, namespace: namespace)
-      storage_board = Rails.cache.read(redis_key, namespace: namespace)
-    end
 
     storage_board
   end

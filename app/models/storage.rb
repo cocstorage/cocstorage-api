@@ -36,64 +36,10 @@ class Storage < ApplicationRecord
     storages
   end
 
-  def self.fetch_by_cached_with_options(options = {})
-    redis_key = "storages-#{options.values.to_s}"
-    namespace = 'storages'
-
-    storages = Rails.cache.read(redis_key, namespace: namespace)
-    pagination = Rails.cache.read("#{redis_key}/pagination", namespace: namespace)
-
-    if storages.blank? || pagination.blank?
-      storages = all.where(is_active: true)
-
-      storages = storages.where('name like ?', "#{options[:name]}%") if options[:name].present?
-
-      # Orders
-      if options[:orderBy].present?
-        storages = storages.order(created_at: :desc) if options[:orderBy] == 'latest'
-        storages = storages.order(created_at: :asc) if options[:orderBy] == 'old'
-      end
-
-      storages = storages.page(options[:page]).per(options[:per] || 20)
-
-      Rails.cache.write(redis_key, ActiveModelSerializers::SerializableResource.new(
-        storages,
-        each_serializer: StorageSerializer
-      ).as_json, namespace: namespace)
-      Rails.cache.write("#{redis_key}/pagination", PaginationSerializer.new(storages).as_json, namespace: namespace)
-
-      storages = Rails.cache.read(redis_key, namespace: namespace)
-      pagination = Rails.cache.read("#{redis_key}/pagination", namespace: namespace)
-    end
-
-    {
-      storages: storages,
-      pagination: pagination
-    }
-  end
-
   def self.find_active(id)
     storage = find_by(id: id, is_active: true)
     storage = find_by(path: CGI.unescape(id), is_active: true) if storage.blank?
     raise Errors::NotFound.new(code: 'COC006', message: "There's no such resource.") if storage.blank?
-
-    storage
-  end
-
-  def self.find_active_by_cached(id)
-    redis_key = "storages-#{id}"
-    namespace = 'storages-detail'
-
-    storage = Rails.cache.read(redis_key, namespace: namespace)
-
-    if storage.blank?
-      storage = find_by(id: id, is_active: true)
-      storage = find_by(path: id, is_active: true) if storage.blank?
-      raise Errors::NotFound.new(code: 'COC006', message: "There's no such resource.") if storage.blank?
-
-      Rails.cache.write(redis_key, StorageSerializer.new(storage).as_json, namespace: namespace)
-      storage = Rails.cache.read(redis_key, namespace: namespace)
-    end
 
     storage
   end

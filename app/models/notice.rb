@@ -28,36 +28,6 @@ class Notice < ApplicationRecord
     notices
   end
 
-  def self.fetch_active_by_cached_with_options(options = {})
-    redis_key = "notices-#{options.values.to_s}"
-    namespace = 'notices'
-
-    notices = Rails.cache.read(redis_key, namespace: namespace)
-    pagination = Rails.cache.read("#{redis_key}/pagination", namespace: namespace)
-
-    if notices.blank? || pagination.blank?
-      notices = all.where(is_draft: false, is_active: true)
-
-      if options[:orderBy].present?
-        notices = notices.order(created_at: :desc) if options[:orderBy] == 'latest'
-        notices = notices.order(created_at: :asc) if options[:orderBy] == 'old'
-      end
-
-      notices = notices.page(options[:page]).per(options[:per] || 20)
-
-      Rails.cache.write(redis_key, ActiveModelSerializers::SerializableResource.new(notices, each_serializer: NoticeSerializer).as_json, expires_in: 5.minutes, namespace: namespace)
-      Rails.cache.write("#{redis_key}/pagination", PaginationSerializer.new(notices).as_json, expires_in: 5.minutes, namespace: namespace)
-
-      notices = Rails.cache.read(redis_key, namespace: namespace)
-      pagination = Rails.cache.read("#{redis_key}/pagination", namespace: namespace)
-    end
-
-    {
-      notices: notices,
-      pagination: pagination
-    }
-  end
-
   def self.find_with_options(options = {})
     options = options.merge(is_active: true)
 
@@ -72,23 +42,6 @@ class Notice < ApplicationRecord
 
     notice = find_by(options)
     raise Errors::NotFound.new(code: 'COC006', message: "There's no such resource.") if notice.blank?
-
-    notice
-  end
-
-  def self.find_active_by_cached(options = {})
-    redis_key = "notices-#{options[:id]}"
-    namespace = 'notices-detail'
-
-    notice = Rails.cache.read(redis_key, namespace: namespace)
-
-    if notice.blank?
-      notice = find_by(options)
-      raise Errors::NotFound.new(code: 'COC006', message: "There's no such resource.") if notice.blank?
-
-      Rails.cache.write(redis_key, NoticeSerializer.new(notice).as_json, namespace: namespace)
-      notice = Rails.cache.read(redis_key, namespace: namespace)
-    end
 
     notice
   end

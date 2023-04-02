@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2023_01_01_021104) do
+ActiveRecord::Schema.define(version: 2023_04_02_041846) do
 
   create_table "active_storage_attachments", options: "ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci", force: :cascade do |t|
     t.string "name", null: false
@@ -205,6 +205,19 @@ ActiveRecord::Schema.define(version: 2023_01_01_021104) do
     t.string "source_code"
     t.boolean "is_worst", default: false
     t.text "content_json"
+    t.index ["is_active", "is_draft", "is_popular", "is_worst"], name: "index_storage_boards_on_opt8"
+    t.index ["is_active", "is_draft", "is_worst", "is_popular"], name: "index_storage_boards_on_opt7"
+    t.index ["is_active", "is_draft"], name: "index_storage_boards_on_opt4"
+    t.index ["is_active"], name: "index_storage_boards_on_is_active"
+    t.index ["is_active"], name: "index_storage_boards_on_opt2"
+    t.index ["is_draft", "is_active", "is_popular", "is_worst"], name: "index_storage_boards_on_opt6"
+    t.index ["is_draft", "is_active", "is_worst", "is_popular"], name: "index_storage_boards_on_opt5"
+    t.index ["is_draft", "is_active"], name: "index_storage_boards_on_is_draft_and_is_active"
+    t.index ["is_draft", "is_active"], name: "index_storage_boards_on_opt3"
+    t.index ["is_draft"], name: "index_storage_boards_on_is_draft"
+    t.index ["is_draft"], name: "index_storage_boards_on_opt1"
+    t.index ["is_popular", "is_worst"], name: "index_storage_boards_on_opt10"
+    t.index ["is_worst", "is_popular"], name: "index_storage_boards_on_opt9"
     t.index ["scrap_code"], name: "index_storage_boards_on_scrap_code"
     t.index ["storage_id"], name: "index_storage_boards_on_storage_id"
     t.index ["user_id"], name: "index_storage_boards_on_user_id"
